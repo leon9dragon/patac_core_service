@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) GM Global Technology Operations LLC 2020.
+ * All Rights Reserved.
+ * GM Confidential Restricted.
+ */
+
+ext {
+    repoRoot = rootProject.projectDir.path + "../../../../../../"
+
+    config = [
+            android : [
+                    version : [
+                            sdk : 31,
+                            build_tools: "31.0.0",
+                            code : 1,
+                            name : "1.0",
+                    ],
+            ],
+
+            jvm : [
+                    version : [
+                            java  : JavaVersion.VERSION_11,
+                            kotlin: "11",
+                    ]
+            ],
+
+            project_name : "\"$rootProject.projectDir.name\"",
+            package : "com.gm.hvac",
+
+            offline_maven : "/Users/leon9dragon/AndroidStudioProjects/tools/common/m2/repository",
+            artifactory : "https://info-artifactory.gm.com/artifactory/info-maven",
+            localLibsDir : repoRoot + "out/target/common/obj/JAVA_LIBRARIES",
+            newLocalLibsDir: repoRoot + "out/soong/.intermediates"
+    ]
+
+    proAAPTConfigs = System.getenv("GRADLE_PRODUCT_AAPT_CONFIG")
+    targetBuildConfigs = System.getenv("TARGET_BUILD_VARIANT")
+    androidHome = System.getenv("ANDROID_HOME")
+    androidBuildTop = System.getenv("ANDROID_BUILD_TOP")
+    isSdvEnabled = "false"
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        if ("${project.proAAPTConfigs}" != "null") {
+            def framework_jar_file = "${config.newLocalLibsDir}/frameworks/base/framework/android_common/turbine-combined/framework.jar"
+            options.compilerArgs.add("-Xbootclasspath/p:${framework_jar_file}")
+        } else {
+            def framework_jar_file = "${project.androidHome}" + "/platforms/android-31/framework.jar"
+            options.compilerArgs.add("-Xbootclasspath/p:${framework_jar_file}")
+        }
+    }
+}
