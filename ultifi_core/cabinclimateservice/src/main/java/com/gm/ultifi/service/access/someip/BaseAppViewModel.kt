@@ -8,7 +8,6 @@
 package com.gm.ultifi.service.access.someip
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import com.gm.ultifi.service.AccessService
 import ts.car.someip.sdk.SomeIpCallback
 import ts.car.someip.sdk.SomeIpClientProxy
@@ -16,7 +15,7 @@ import ts.car.someip.sdk.common.ResultValue
 import ts.car.someip.sdk.common.SomeIpData
 
 
-abstract class BaseAppViewModel(stateHandle: SavedStateHandle) : BaseViewModel(stateHandle) {
+abstract class BaseAppViewModel : BaseViewModel() {
     var isReady = false
     var isServerAvailable = false
 
@@ -79,15 +78,6 @@ abstract class BaseAppViewModel(stateHandle: SavedStateHandle) : BaseViewModel(s
     protected abstract fun doStartClient(): Int?
 
     protected abstract fun doStopClient()
-
-    override fun onCleared() {
-        if (someIpClientProxy != null) {
-            someIpClientProxy?.unregisterCallback(someIpCallback)
-            doStopClient()
-            someIpClientProxy?.unBindService()
-        }
-        super.onCleared()
-    }
 
     fun startClient(clientId: Long): Int? {
         return someIpClientProxy?.startClient(clientId)

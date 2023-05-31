@@ -32,7 +32,9 @@ public class Utility {
 
         // Sunroof related topics
         UResource uResource = new UResource(SUNROOF_FRONT, "", Sunroof.class.getSimpleName());
+        UResource uResourceSomeip = new UResource(SUNROOF_FRONT + ".someip", "", Sunroof.class.getSimpleName());
         topics.add(UltifiUriFactory.buildUProtocolUri(UAuthority.local(), uEntity, uResource));
+        topics.add(UltifiUriFactory.buildUProtocolUri(UAuthority.local(), uEntity, uResourceSomeip));
 
         return topics;
     }

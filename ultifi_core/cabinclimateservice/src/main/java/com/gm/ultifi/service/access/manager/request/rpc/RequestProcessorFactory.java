@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.gm.ultifi.service.access.manager.CarPropertyManagerMonitor;
 import com.gm.ultifi.service.access.manager.request.helper.SunroofRequestProcessor;
+import com.gm.ultifi.service.access.manager.request.helper.SunroofSomeIpRequestProcessor;
 import com.gm.ultifi.service.access.response.mapper.BaseMapper;
 import com.google.rpc.Status;
 import com.ultifi.core.rpc.Request;
@@ -35,6 +36,9 @@ public class RequestProcessorFactory {
             Log.i(TAG, "TRY TO GET PROCESSOR: " + processor);
             if (processor.equals(BaseMapper.SUNROOF_RESOURCE_URI)) {
                 return new SunroofRequestProcessor();
+            }
+            if(processor.equals(SunroofSomeIpRequestProcessor.SUNROOF_RESOURCE_URI_SOME_IP)) {
+                return new SunroofSomeIpRequestProcessor();
             }
         }
         return null;

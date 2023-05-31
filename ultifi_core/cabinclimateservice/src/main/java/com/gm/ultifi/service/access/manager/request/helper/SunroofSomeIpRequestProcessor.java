@@ -4,15 +4,30 @@ import static com.gm.ultifi.service.access.manager.propertymanager.ProtobufMessa
 
 import android.util.Log;
 
+import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
+import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
+import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
+import com.gm.ultifi.service.access.manager.ServiceLaunchManager;
+import com.gm.ultifi.service.access.someip.SunroofViewModel;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
 import com.ultifi.core.common.util.StatusUtils;
 import com.ultifi.vehicle.body.access.v1.Sunroof;
 import com.ultifi.vehicle.body.access.v1.SunroofCommand;
 
-public class SomeIpRequestProcessor extends BaseRequestProcessor {
+public class SunroofSomeIpRequestProcessor extends BaseRequestProcessor {
 
-    private static final String TAG = SomeIpRequestProcessor.class.getSimpleName();
+    private static final String BASE_URI_SERVICE = "body.access";
+
+    private static final String VERSION = "1";
+
+    private static final UEntity SERVICE = new UEntity(BASE_URI_SERVICE, VERSION);
+
+    public static final String SUNROOF_RESOURCE_SOME_IP = "ExecuteSunroofCommandSomeIp";
+
+    public static String SUNROOF_RESOURCE_URI_SOME_IP = UltifiUriFactory.buildMethodUri(UAuthority.local(), SERVICE, SUNROOF_RESOURCE_SOME_IP);
+
+    private static final String TAG = SunroofSomeIpRequestProcessor.class.getSimpleName();
 
     @Override
     public Status processRequest() {
@@ -38,7 +53,8 @@ public class SomeIpRequestProcessor extends BaseRequestProcessor {
 
         if (POSITION.equals(fieldName)) {
             // TODO: 2023/5/15 将参数转换成SomeIpData格式, 然后通过client来调用server提供的方法
-
+            Integer newPositionStatus = (Integer) field;
+            ServiceLaunchManager.sunroofViewModel.setSunroofPosition(newPositionStatus);
         }
 
         return StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");

@@ -10,26 +10,8 @@ package com.gm.ultifi.service.access.someip
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 
-open class BaseViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(),
-    LifecycleObserver {
+open class BaseViewModel : LifecycleObserver {
     protected open var TAG: String = javaClass.simpleName
     var handler: Handler = Handler(Looper.getMainLooper())
-
-    override fun onCleared() {
-        super.onCleared()
-        handler.removeCallbacksAndMessages(null)
-    }
-
-    fun <T> getLiveData(key: String): MutableLiveData<T> {
-        return savedStateHandle.getLiveData(key)
-    }
-
-    fun <T> setLiveData(key: String, t: T) {
-        // notes: not use mSavedStateHandle.set(key, t) method, current thread change will causing exception
-        savedStateHandle.getLiveData<Any>(key).postValue(t)
-    }
 }

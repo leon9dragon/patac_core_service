@@ -33,7 +33,7 @@ public class AccessService extends LifecycleService {
 
     private boolean isSDVEnabled = false;
 
-    private ServiceLaunchManager mLaunchManager = null;
+    public static ServiceLaunchManager mLaunchManager = null;
 
     public AccessService() {
     }

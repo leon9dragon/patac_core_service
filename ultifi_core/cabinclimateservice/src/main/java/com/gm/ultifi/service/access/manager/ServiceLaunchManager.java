@@ -1,14 +1,17 @@
 package com.gm.ultifi.service.access.manager;
 
+import android.annotation.SuppressLint;
 import android.car.hardware.CarPropertyValue;
 import android.util.Log;
 
 import com.gm.ultifi.sdk.uprotocol.cloudevent.datamodel.UCloudEventAttributes;
 import com.gm.ultifi.sdk.uprotocol.cloudevent.factory.CloudEventFactory;
 import com.gm.ultifi.service.access.manager.propertymanager.CarPropertyExtensionManager;
+import com.gm.ultifi.service.access.manager.request.helper.SunroofSomeIpRequestProcessor;
 import com.gm.ultifi.service.access.manager.request.listeners.UltifiLinkRequestListener;
 import com.gm.ultifi.service.access.response.config.PropertyConfig;
 import com.gm.ultifi.service.access.response.mapper.BaseMapper;
+import com.gm.ultifi.service.access.someip.SunroofViewModel;
 import com.gm.ultifi.service.access.utils.Utility;
 import com.google.protobuf.Any;
 import com.google.rpc.Status;
@@ -18,11 +21,16 @@ import com.ultifi.core.common.util.StatusUtils;
 import com.ultifi.core.usubscription.v1.CreateTopicRequest;
 import com.ultifi.core.usubscription.v1.USubscription;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import gm.ultifi.canbridge.CanManager;
 import gm.ultifi.canbridge.Signal;
@@ -51,6 +59,8 @@ public class ServiceLaunchManager {
     private boolean isCanSignalsRegistered = false;
     private boolean isCarPropertiesRegistered = false;
     private boolean isUltifiLinkConnected = false;
+
+    public static SunroofViewModel sunroofViewModel;
 
     public ServiceLaunchManager(UltifiLinkMonitor ultifiLinkMonitor,
                                 CanManagerMonitor canManagerMonitor,
@@ -170,14 +180,13 @@ public class ServiceLaunchManager {
         // update with actual RPC method names
         mUltifiLinkMonitor.registerRPCMethod(new String[]{
                 BaseMapper.SUNROOF_RESOURCE,
+                SunroofSomeIpRequestProcessor.SUNROOF_RESOURCE_SOME_IP,
         });
 
         // create all topics to uBus
         for (String topic : Utility.buildTopicsList()) {
             createTopic(topic);
         }
-
-        // TODO: 2023/5/15 增加some/ip的method和topic的注册
     }
 
     private void onUltifiLinkDisconnected() {
@@ -210,7 +219,19 @@ public class ServiceLaunchManager {
         mCarPropertyMgrMonitor.init();
         mCarPropertyMgrMonitor.connect();
 
-        // TODO: 2023/5/10 增加some/ip client初始化逻辑, 鉴于client类在类被加载的时候, 就已经做好了一系列初始化操作, 这边或许不需要加任何初始化(待确认)
+        // TODO: 2023/5/10 增加some/ip client初始化逻辑
+        sunroofViewModel = new SunroofViewModel();
+
+//        new Timer().schedule(new TimerTask() {
+//            int position = 0;
+//            @Override
+//            public void run() {
+//                Log.i(TAG, "run: set new position " + position
+//                        + ", time: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.PRC).format(new Date()));
+//                sunroofViewModel.setSunroofPosition(position);
+//                position++;
+//            }
+//        }, 50000, 1000);
     }
 
     public void stop() {
@@ -272,32 +293,6 @@ public class ServiceLaunchManager {
         return events;
     }
 
-    public List<CloudEvent> buildSomeIpCloudEvents(SomeIpData data) {
-        // TODO: 2023/5/10 增加some/ip的回传结果转换, 参数表需要确认, 因为SomeIpData里面的payload是byte数组, 这个和Mapper配套处理(待确认)
-        ArrayList<CloudEvent> events = new ArrayList<>();
-        BaseMapper baseMapper = BaseMapper.getMapper(data.getTopic());
-
-        PropertyConfig propertyConfig = baseMapper.getConfig(data.getTopic());
-
-        Map<String, Any> topicWithMsgs = baseMapper.generateProtobufMessage(
-                mCarPropertyMgrMonitor.getCarPropertyExtensionManager(),
-                data.getPayload(),
-                propertyConfig);
-
-        Log.d(TAG, "isRepeatedSignal " + baseMapper.isRepeatedSignal());
-        // Do not re-publish events
-        if (!baseMapper.isRepeatedSignal()) {
-            for (String topic : topicWithMsgs.keySet()) {
-                Log.i(TAG, "publish cloud event, topic uri: " + topic);
-
-                events.add(CloudEventFactory.publish(topic,
-                        Objects.requireNonNull(topicWithMsgs.get(topic)),
-                        UCloudEventAttributes.empty()));
-            }
-        }
-        return events;
-    }
-
     // Create topic to Bus
     private void createTopic(String topic) {
         CreateTopicRequest createTopicRequest = CreateTopicRequest.newBuilder()
@@ -330,5 +325,9 @@ public class ServiceLaunchManager {
 
     private void unRegisterCarPropertyCallback() {
         mCarPropertyMgrMonitor.unRegisterCallback(mPropertyExtMgrCallback);
+    }
+
+    public UltifiLinkMonitor getmUltifiLinkMonitor() {
+        return mUltifiLinkMonitor;
     }
 }

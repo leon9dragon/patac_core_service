@@ -12,7 +12,7 @@ import com.google.protobuf.Any;
 import java.util.Map;
 
 /**
- * TODO: 2023/4/26 框架代码抽离
+ * TODO: 2023/4/26 框架代码抽离，那些订阅URI的常量，应该放在继承的类里面。
  */
 public interface BaseMapper {
 
@@ -29,7 +29,7 @@ public interface BaseMapper {
     Cache cache = LruCache.getInstance();
 
     /*
-     * to find the processor by property/signal/topic id
+     * to find the processor by property/signal
      */
     static BaseMapper getMapper(int propertyId) {
         if (SunroofMapper.getPropertyList().contains(propertyId)) {
@@ -40,12 +40,6 @@ public interface BaseMapper {
 
     static BaseMapper getMapper(String signalName) {
         throw new IllegalArgumentException("illegal signal name: " + signalName);
-    }
-
-    static BaseMapper getMapper(long someIpTopic) {
-        // TODO: 2023/5/11 增加someip processor匹配, 或许直接在client里面处理, 不需要多此一举(待确认)
-
-        throw new IllegalArgumentException("illegal signal name: " + someIpTopic);
     }
 
     boolean isRepeatedSignal();
@@ -68,10 +62,6 @@ public interface BaseMapper {
     }
 
     default PropertyConfig getConfig(String signalName) {
-        return null;
-    }
-
-    default PropertyConfig getConfig(long topicId) {
         return null;
     }
 

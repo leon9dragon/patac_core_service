@@ -78,6 +78,7 @@ public class UltifiLinkMonitor implements ConnectionManager {
     public void registerRPCMethod(String[] methodNames) {
         for (String methodName : methodNames) {
             UAuthority uAuthority = UAuthority.local();
+            // TODO: 2023/5/25 注意业务处理, 这边的服务前缀可能有很多
             UEntity uEntity = BaseMapper.SERVICE;
             String methodUri = UltifiUriFactory.buildMethodUri(uAuthority, uEntity, methodName);
             Status status = mUltifiLink.registerRequestListener(methodUri, mRPCRequestListener);
