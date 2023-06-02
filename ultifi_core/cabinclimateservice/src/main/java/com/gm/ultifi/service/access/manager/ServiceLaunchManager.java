@@ -1,6 +1,5 @@
 package com.gm.ultifi.service.access.manager;
 
-import android.annotation.SuppressLint;
 import android.car.hardware.CarPropertyValue;
 import android.util.Log;
 
@@ -21,22 +20,16 @@ import com.ultifi.core.common.util.StatusUtils;
 import com.ultifi.core.usubscription.v1.CreateTopicRequest;
 import com.ultifi.core.usubscription.v1.USubscription;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import gm.ultifi.canbridge.CanManager;
 import gm.ultifi.canbridge.Signal;
 import gm.ultifi.canbridge.SignalGroup;
 import io.cloudevents.CloudEvent;
-import ts.car.someip.sdk.common.SomeIpData;
 
 public class ServiceLaunchManager {
 

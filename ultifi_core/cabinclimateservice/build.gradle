@@ -5,6 +5,7 @@ buildscript {
 
 plugins {
     id 'com.android.application'
+    id 'kotlin-android'
 }
 
 android {
@@ -60,7 +61,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-service:2.4.1'
     implementation project(path: ':vehicleapi')
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    compileOnly files('lib/someip.jar')
+    compileOnly files('libs/someip.jar')
 
     //implementation 'com.gm:android.car:4.0.157'
     compileOnly lib.gm.car
