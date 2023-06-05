@@ -19,7 +19,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Cabin_MainActivity";
 
     private Timer timer;
-    TimerTask timerTask;
+    TimerTask timerTask1;
+
+    TimerTask timerTask2;
     private int position = 1;
 
     public static MainActivity context = null;
@@ -41,10 +43,10 @@ public class MainActivity extends AppCompatActivity {
             String s = editTextSet.getText().toString();
             Log.d(TAG, "==================== set 时间：");
             Log.d(TAG, s);
-            if (timerTask != null) {
-                timerTask.cancel();
+            if (timerTask1 != null) {
+                timerTask1.cancel();
             }
-            timerTask = new TimerTask() {
+            timerTask1 = new TimerTask() {
                 @Override
                 public void run() {
                     if (position < 10) {
@@ -57,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             if (s.equals("")) {
-                timer.schedule(timerTask, 1, 100);
+                timer.schedule(timerTask1, 1, 100);
             } else
-                timer.schedule(timerTask, 1, Long.valueOf(s));
+                timer.schedule(timerTask1, 1, Long.valueOf(s));
         });
         findViewById(R.id.btnGet).setOnClickListener(view -> {
             initTimer();
@@ -67,38 +69,37 @@ public class MainActivity extends AppCompatActivity {
             String s = editTextGet.getText().toString();
             Log.d(TAG, "==================== get 时间：");
             Log.d(TAG, s);
-            if (timerTask != null) {
-                timerTask.cancel();
+            if (timerTask2 != null) {
+                timerTask2.cancel();
             }
-            timerTask = new TimerTask() {
+            timerTask2 = new TimerTask() {
                 @Override
                 public void run() {
                     sunroofViewModel.getSunroofStatus();
                 }
             };
             if (s.equals("")) {
-                timer.schedule(timerTask, 1, 100);
+                timer.schedule(timerTask2, 1, 100);
             } else
-                timer.schedule(timerTask, 1, Long.valueOf(s));
+                timer.schedule(timerTask2, 1, Long.valueOf(s));
         });
 
         findViewById(R.id.btn3).setOnClickListener(view -> {
             if (timer != null) {
                 timer.cancel();
             }
-            if (timerTask != null) {
-                timerTask.cancel();
+            if (timerTask1 != null || timerTask2 != null) {
+                timerTask1.cancel();
+                timerTask2.cancel();
             }
             timer = null;
-            timerTask = null;
+            timerTask1 = null;
+            timerTask2 = null;
         });
 
     }
 
     private void initTimer() {
-        if (timer != null) {
-            timer.cancel();
-        }
         timer = new Timer();
     }
 
