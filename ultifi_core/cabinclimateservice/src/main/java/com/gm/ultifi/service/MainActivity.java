@@ -88,8 +88,10 @@ public class MainActivity extends AppCompatActivity {
             if (timer != null) {
                 timer.cancel();
             }
-            if (timerTask1 != null || timerTask2 != null) {
+            if (timerTask1 != null) {
                 timerTask1.cancel();
+            }
+            if (timerTask2 != null) {
                 timerTask2.cancel();
             }
             timer = null;
