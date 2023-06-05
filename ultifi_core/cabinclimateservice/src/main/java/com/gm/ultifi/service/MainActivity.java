@@ -5,7 +5,6 @@ import android.util.Log;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
 
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
 
@@ -23,11 +22,14 @@ public class MainActivity extends AppCompatActivity {
     TimerTask timerTask;
     private int position = 1;
 
+    public static MainActivity context = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
         setContentView(R.layout.activity_main);
-//        SunroofViewModel sunroofViewModel = new SunroofViewModel();
+        SunroofViewModel sunroofViewModel = new SunroofViewModel();
         findViewById(R.id.btnSet).setOnClickListener(view -> {
             if (position > 10) {
                 position = position % 10;
@@ -39,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
             String s = editTextSet.getText().toString();
             Log.d(TAG, "==================== set 时间：");
             Log.d(TAG, s);
+            if (timerTask != null) {
+                timerTask.cancel();
+            }
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
@@ -48,12 +53,12 @@ public class MainActivity extends AppCompatActivity {
                         position = position % 10;
                     }
                     Log.d(TAG, "position = " + position);
-//                    sunroofViewModel.setSunroofPosition(10*position);
+                    sunroofViewModel.setSunroofPosition(10 * position);
                 }
             };
-            if(s.equals("")){
+            if (s.equals("")) {
                 timer.schedule(timerTask, 1, 100);
-            }else
+            } else
                 timer.schedule(timerTask, 1, Long.valueOf(s));
         });
         findViewById(R.id.btnGet).setOnClickListener(view -> {
@@ -62,23 +67,26 @@ public class MainActivity extends AppCompatActivity {
             String s = editTextGet.getText().toString();
             Log.d(TAG, "==================== get 时间：");
             Log.d(TAG, s);
+            if (timerTask != null) {
+                timerTask.cancel();
+            }
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
-//                    sunroofViewModel.getSunroofStatus();
+                    sunroofViewModel.getSunroofStatus();
                 }
             };
-            if(s.equals("")){
+            if (s.equals("")) {
                 timer.schedule(timerTask, 1, 100);
-            }else
+            } else
                 timer.schedule(timerTask, 1, Long.valueOf(s));
         });
 
         findViewById(R.id.btn3).setOnClickListener(view -> {
-            if(timer != null){
+            if (timer != null) {
                 timer.cancel();
             }
-            if(timerTask != null){
+            if (timerTask != null) {
                 timerTask.cancel();
             }
             timer = null;
@@ -88,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
         timer = new Timer();
     }
 

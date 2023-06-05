@@ -9,6 +9,7 @@ package com.gm.ultifi.service.access.someip
 
 import android.util.Log
 import com.gm.ultifi.service.AccessService
+import com.gm.ultifi.service.MainActivity
 import ts.car.someip.sdk.SomeIpCallback
 import ts.car.someip.sdk.SomeIpClientProxy
 import ts.car.someip.sdk.common.ResultValue
@@ -50,7 +51,7 @@ abstract class BaseAppViewModel : BaseViewModel() {
     }
 
     private fun initSomeIp() {
-        someIpClientProxy = SomeIpClientProxy.getInstance(AccessService.context)
+        someIpClientProxy = SomeIpClientProxy.getInstance(MainActivity.context)
         someIpClientProxy?.registerCallback(someIpCallback)
         someIpClientProxy?.isServiceReady?.let { startClient(it) }
     }

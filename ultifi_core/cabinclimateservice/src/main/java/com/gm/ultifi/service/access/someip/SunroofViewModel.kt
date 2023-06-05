@@ -11,8 +11,8 @@ import com.gm.ultifi.service.access.response.mapper.BaseMapper
 import com.gm.ultifi.service.access.utils.ResourceMappingConstants
 import com.google.protobuf.Any
 import com.ultifi.vehicle.body.access.v1.Sunroof
-import ts.car.someip.plugin.SomeIpTopic
-import ts.car.someip.plugin.SomeipS2SManagementInterface
+import plugin.SomeIpTopic
+import plugin.SomeipS2SManagementInterface
 import ts.car.someip.sdk.common.ResultValue
 import ts.car.someip.sdk.common.SomeIpData
 
