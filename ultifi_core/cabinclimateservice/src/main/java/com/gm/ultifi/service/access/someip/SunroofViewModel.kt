@@ -29,21 +29,26 @@ open class SunroofViewModel : BaseAppViewModel() {
         // record the server's status
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_AVAILABLE) {
             Log.i(TAG, "SERVICE_AVAILABLE")
+            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
             isServerAvailable = true
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_NOT_AVAILABLE) {
             Log.i(TAG, "SERVICE_NOT_AVAILABLE")
+            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
             isServerAvailable = false
         }
 
         // notify subscriber the change of sunroof status
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS) {
-            val resp = SomeipS2SManagementInterface.Sunroof_Status.parseFrom(data.payload)
-            val sunroofPercentagePositionStatus = resp.snrfPctPosSts
+            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
+            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
+            val booParam = resp.outPut.snrfConfig
 
             Log.d(
                 TAG,
-                "onChangeEvent, PropName: sunroofPercentagePositionStatus, newPropValue:$sunroofPercentagePositionStatus"
+                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
+                        "newPropValue:$sunroofPercentagePositionStatus, " +
+                        "sunroofConf:$booParam"
             )
             Log.i(TAG, "Publishing the cloud events to Bus")
 
@@ -65,8 +70,8 @@ open class SunroofViewModel : BaseAppViewModel() {
                 Any.pack(sunroof),
                 UCloudEventAttributes.empty()
             );
-
-            AccessService.mLaunchManager.getmUltifiLinkMonitor().publish(cloudEvent)
+            // TODO: 测试完后恢复
+            // AccessService.mLaunchManager.getmUltifiLinkMonitor().publish(cloudEvent)
         }
     }
 
@@ -74,8 +79,6 @@ open class SunroofViewModel : BaseAppViewModel() {
         // check if the service is available
         someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_AVAILABLE)
         someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_NOT_AVAILABLE)
-
-        someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
     }
 
     override fun doStartClient(): Int? {
@@ -95,8 +98,11 @@ open class SunroofViewModel : BaseAppViewModel() {
         }
 
         val newSunroofPosition = SomeipS2SManagementInterface
-            .Sunroof_Sunshade_Control_Request.newBuilder()
-            .setSnrfPctCtrlReqSrv(newPosition)
+            .Sunroof_Sunshade_Control_RequestField.newBuilder()
+            .setOutPut(
+                SomeipS2SManagementInterface.Sunroof_Sunshade_Control_Request.newBuilder()
+                    .setSnrfPctCtrlReqSrv(newPosition)
+            )
             .build()
 
         val req = SomeIpData(
@@ -107,38 +113,39 @@ open class SunroofViewModel : BaseAppViewModel() {
 
         val resp = SomeIpData()
 
-        val res = someIpClientProxy?.request(req, resp)
+        val res = someIpClientProxy?.setAttribute(req, resp)
         Log.i(TAG, "sendReq2Server: new position $newPosition")
 
         if (res == ResultValue.OK) {
-            Log.i(TAG, "setSunroofPosition callback: " + resp.payload[0])
+            Log.i(TAG, "setSunroofPosition: OK")
+            return
         }
+
+        Log.i(TAG, "setSunroofPosition: FAILED")
     }
 
-    fun getSunroofStatus(): SomeipS2SManagementInterface.Sunroof_Status? {
+    fun getSunroofStatus(): SomeipS2SManagementInterface.Sunroof_StatusField? {
         // check the connection of someip
         if (!isServerAvailable || !isReady) {
             Log.i(TAG, "getSunroofStatus: failed, server is not available or client is not ready")
             return null
         }
 
-        val req = SomeIpData(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SUNROOF_STATUS,
-            System.currentTimeMillis(),
-            ByteArray(0)
-        )
-
         val resp = SomeIpData()
 
-        val res = someIpClientProxy?.request(req, resp)
+        val res = someIpClientProxy?.getAttribute(
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SUNROOF_STATUS,
+            resp
+        )
 
         Log.i(TAG, "sendReq2Server: getSunroofStatus")
         if (res == ResultValue.OK) {
-            Log.i(TAG, "setSunroofPosition callback: " + resp.payload[0])
-            return SomeipS2SManagementInterface.Sunroof_Status.parseFrom(resp.payload)
+            val temp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(resp.payload)
+            Log.i(TAG, "getSunroofPosition: " + temp.outPut.snrfPctPosSts)
+            return temp
         }
 
-        Log.i(TAG, "setSunroofPosition callback: FAILED")
+        Log.i(TAG, "FAILED: getSunroofPosition callback")
         return null;
     }
 
