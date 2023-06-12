@@ -6,6 +6,8 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gm.ultifi.service.access.someip.AmbientLightViewModel;
+import com.gm.ultifi.service.access.someip.SeatingViewModel;
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
 
 import java.util.Timer;
@@ -32,12 +34,15 @@ public class MainActivity extends AppCompatActivity {
         context = this;
         setContentView(R.layout.activity_main);
         SunroofViewModel sunroofViewModel = new SunroofViewModel();
+        SeatingViewModel seatingViewModel = new SeatingViewModel();
+        AmbientLightViewModel ambientLightViewModel = new AmbientLightViewModel();
+
         findViewById(R.id.btnSet).setOnClickListener(view -> {
-            if (position > 10) {
-                position = position % 10;
-            } else {
-                position++;
-            }
+//            if (position > 10) {
+//                position = position % 10;
+//            } else {
+//                position++;
+//            }
             initTimer();
             EditText editTextSet = (EditText) findViewById(R.id.editTextSet);
             String s = editTextSet.getText().toString();
@@ -49,13 +54,24 @@ public class MainActivity extends AppCompatActivity {
             timerTask1 = new TimerTask() {
                 @Override
                 public void run() {
-                    if (position < 10) {
-                        position++;
-                    } else {
-                        position = position % 10;
-                    }
-                    Log.d(TAG, "position = " + position);
-                    sunroofViewModel.setSunroofPosition(10 * position);
+//                    if (position < 10) {
+//                        position++;
+//                    } else {
+//                        position = position % 10;
+//                    }
+//                    Log.d(TAG, "position = " + position);
+                    sunroofViewModel.setSunroofSunshadeControlRequest();
+                    sunroofViewModel.setWindowServiceControlRequest();
+                    sunroofViewModel.setSideSunblindControlRequest();
+                    sunroofViewModel.setWindowsPercentageControlRequest();
+
+                    seatingViewModel.setDriverSeatRecallReq_M1();
+                    seatingViewModel.setDriverSeatRecallReq_M2();
+                    seatingViewModel.setDriverSeatRecallReq_M3();
+                    seatingViewModel.setDriverSeatRecallReq_M4();
+                    seatingViewModel.setSeatModeReq();
+
+                    ambientLightViewModel.setAmbientLight();
                 }
             };
             if (s.equals("")) {
@@ -63,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
             } else
                 timer.schedule(timerTask1, 1, Long.valueOf(s));
         });
+
         findViewById(R.id.btnGet).setOnClickListener(view -> {
             initTimer();
             EditText editTextGet = (EditText) findViewById(R.id.editTextGet);
@@ -76,6 +93,49 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     sunroofViewModel.getSunroofStatus();
+                    sunroofViewModel.getHMI2LSunroofSystemControl();
+                    sunroofViewModel.getHMI2RSunroofSystemControl();
+                    sunroofViewModel.getFrontSunshadeStatus();
+                    sunroofViewModel.getRearSunshadeStatus();
+                    sunroofViewModel.getPercentageWindowControl2L();
+                    sunroofViewModel.getPercentageWindowControl2R();
+                    sunroofViewModel.getPercentageWindowControlRSTP();
+                    sunroofViewModel.getSunblindConfigurationAvailability();
+                    sunroofViewModel.getSunblindStatus();
+                    sunroofViewModel.getWindowControl2L();
+                    sunroofViewModel.getWindowControl2R();
+                    sunroofViewModel.getWindowControlRSTP();
+                    sunroofViewModel.getWindowStatus();
+                    sunroofViewModel.getWindowStatusInformation();
+
+                    seatingViewModel.getDriverSeatConf();
+                    seatingViewModel.getDriverSeatPosition_1();
+                    seatingViewModel.getDriverSeatPosition_2();
+                    seatingViewModel.getDriverSeatPosition_3();
+                    seatingViewModel.getSeatMode();
+                    seatingViewModel.getSeatMode2();
+                    seatingViewModel.getDriverSeatRecoveryPosition();
+                    seatingViewModel.getDriverSeatRecoveryPosition2();
+                    seatingViewModel.getSeatPassenger_Com_Mode_Ser();
+                    seatingViewModel.getSeatPassenger_Com_Mode_Ser_Resp();
+                    seatingViewModel.getSeatPassenger_Com_Mode_Ser_Resp2();
+                    seatingViewModel.getThirdLeftSeatConf();
+                    seatingViewModel.getThirdLeftSeatPosition();
+                    seatingViewModel.getThirdRightSeatConf();
+                    seatingViewModel.getThirdRightSeatPosition();
+                    seatingViewModel.getSec_RowLeft_Com_Mode_Req();
+                    seatingViewModel.getSec_RowRight_Com_Mode_Req();
+                    seatingViewModel.getSeatPassenger_Com_Mode_Ava_Notifi6();
+                    seatingViewModel.getSecondLeftSeatPosition_1();
+                    seatingViewModel.getSecondLeftSeatPosition_2();
+
+                    ambientLightViewModel.getAmbientLedControlAvailable();
+                    ambientLightViewModel.getLed1AndLed2Status();
+                    ambientLightViewModel.getLed3AndLed4Status();
+                    ambientLightViewModel.getLed5AndLed6Status();
+                    ambientLightViewModel.getLed7AndLed8Status();
+                    ambientLightViewModel.getLed9AndLed10Status();
+                    ambientLightViewModel.getLed11Status();
                 }
             };
             if (s.equals("")) {

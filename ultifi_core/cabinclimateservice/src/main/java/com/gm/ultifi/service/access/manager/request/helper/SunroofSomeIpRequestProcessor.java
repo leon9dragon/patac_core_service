@@ -8,7 +8,6 @@ import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
 import com.gm.ultifi.service.access.manager.ServiceLaunchManager;
-import com.gm.ultifi.service.access.someip.SunroofViewModel;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
 import com.ultifi.core.common.util.StatusUtils;
@@ -54,7 +53,7 @@ public class SunroofSomeIpRequestProcessor extends BaseRequestProcessor {
         if (POSITION.equals(fieldName)) {
             // TODO: 2023/5/15 将参数转换成SomeIpData格式, 然后通过client来调用server提供的方法
             Integer newPositionStatus = (Integer) field;
-            ServiceLaunchManager.sunroofViewModel.setSunroofPosition(newPositionStatus);
+            ServiceLaunchManager.sunroofViewModel.setSunroofSunshadeControlRequest(newPositionStatus);
         }
 
         return StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
