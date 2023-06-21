@@ -172,8 +172,8 @@ public class ServiceLaunchManager {
         // before this step, add signingConfigs in build.gradle and add platform.keystore to config folder
         // update with actual RPC method names
         mUltifiLinkMonitor.registerRPCMethod(new String[]{
-                BaseMapper.SUNROOF_RESOURCE,
-                SunroofSomeIpRequestProcessor.SUNROOF_RESOURCE_SOME_IP,
+                BaseMapper.SUNROOF_RPC_METHOD,
+                SunroofSomeIpRequestProcessor.SUNROOF_RPC_METHOD_SOME_IP,
         });
 
         // create all topics to uBus

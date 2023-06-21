@@ -22,9 +22,9 @@ public interface BaseMapper {
 
     UEntity SERVICE = new UEntity(BASE_URI_SERVICE, VERSION);
 
-    String SUNROOF_RESOURCE = "ExecuteSunroofCommand";
+    String SUNROOF_RPC_METHOD = "ExecuteSunroofCommand";
 
-    String SUNROOF_RESOURCE_URI = UltifiUriFactory.buildMethodUri(UAuthority.local(), SERVICE, SUNROOF_RESOURCE);
+    String SUNROOF_RPC_METHOD_URI = UltifiUriFactory.buildMethodUri(UAuthority.local(), SERVICE, SUNROOF_RPC_METHOD);
 
     Cache cache = LruCache.getInstance();
 

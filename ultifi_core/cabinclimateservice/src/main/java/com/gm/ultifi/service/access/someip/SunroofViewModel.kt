@@ -7,9 +7,9 @@ import ts.car.someip.sdk.common.ResultValue
 import ts.car.someip.sdk.common.SomeIpData
 
 open class SunroofViewModel : BaseAppViewModel() {
-    val param = 1;
-    val param1 = 1;
-    val param2 = false;
+    private val param = 1
+    private val param1 = 1
+    private val param2 = false
     override fun doOnRequest(data: SomeIpData): SomeIpData? {
         // method for server, no need to implement in client
         return null;
@@ -22,6 +22,7 @@ open class SunroofViewModel : BaseAppViewModel() {
         // record the server's status
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_AVAILABLE) {
             Log.i(TAG, "SERVICE_AVAILABLE")
+            isServerAvailable = true
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_STATUS)
@@ -37,10 +38,10 @@ open class SunroofViewModel : BaseAppViewModel() {
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_REAR_SUNSHADE_STATUS)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2L_SUNROOF_SYSTEM_CONTROL)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2R_SUNROOF_SYSTEM_CONTROL)
-            isServerAvailable = true
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_NOT_AVAILABLE) {
             Log.i(TAG, "SERVICE_NOT_AVAILABLE")
+            isServerAvailable = false
             someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
             someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS)
             someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_STATUS)
@@ -56,7 +57,6 @@ open class SunroofViewModel : BaseAppViewModel() {
             someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_REAR_SUNSHADE_STATUS)
             someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2L_SUNROOF_SYSTEM_CONTROL)
             someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2R_SUNROOF_SYSTEM_CONTROL)
-            isServerAvailable = false
         }
 
         // notify subscriber the change of sunroof status
@@ -65,39 +65,39 @@ open class SunroofViewModel : BaseAppViewModel() {
 
             // TODO: 测试完后恢复
 
-//            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
-//            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
-//            val booParam = resp.outPut.snrfConfig
-//            Log.d(
-//                TAG,
-//                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
-//                        "newPropValue:$sunroofPercentagePositionStatus, " +
-//                        "sunroofConf:$booParam"
-//            )
-//
-//
-//            Log.i(TAG, "Publishing the cloud events to Bus")
-//
-//            // no field mask in the resp, should set all the fields to msg obj
-//            val sunroof: Sunroof = Sunroof.newBuilder()
-//                .setPosition(sunroofPercentagePositionStatus)
-//                .build()
-//
-//            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
-//            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
-//            val topicUri = UltifiUriFactory.buildUProtocolUri(
-//                UAuthority.local(),
-//                BaseMapper.SERVICE,
-//                uResource
-//            )
-//
-//            val cloudEvent = CloudEventFactory.publish(
-//                topicUri,
-//                Any.pack(sunroof),
-//                UCloudEventAttributes.empty()
-//            );
-//
-//            AccessService.mLaunchManager.getmUltifiLinkMonitor().publish(cloudEvent)
+            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
+            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
+            val booParam = resp.outPut.snrfConfig
+            Log.d(
+                TAG,
+                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
+                        "newPropValue:$sunroofPercentagePositionStatus, " +
+                        "sunroofConf:$booParam"
+            )
+
+
+            Log.i(TAG, "Publishing the cloud events to Bus")
+
+            // no field mask in the resp, should set all the fields to msg obj
+            val sunroof: Sunroof = Sunroof.newBuilder()
+                .setPosition(sunroofPercentagePositionStatus)
+                .build()
+
+            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
+            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
+            val topicUri = UltifiUriFactory.buildUProtocolUri(
+                UAuthority.local(),
+                BaseMapper.SERVICE,
+                uResource
+            )
+
+            val cloudEvent = CloudEventFactory.publish(
+                topicUri,
+                Any.pack(sunroof),
+                UCloudEventAttributes.empty()
+            );
+
+            AccessService.mLaunchManager.getmUltifiLinkMonitor().publish(cloudEvent)
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS) {
             Log.i(TAG, "SUCCESS: NOTIFY_WINDOW_STATUS")
@@ -150,7 +150,7 @@ open class SunroofViewModel : BaseAppViewModel() {
     }
 
     override fun doStartClient(): Int? {
-        // subscribe server's service
+        // discover server's service
         return startClient(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_ID)
     }
 

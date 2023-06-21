@@ -7,8 +7,8 @@ import ts.car.someip.sdk.common.ResultValue
 import ts.car.someip.sdk.common.SomeIpData
 
 class SeatingViewModel : BaseAppViewModel() {
-    val isBoolean = false
-    val testVal = 0
+    private val isBoolean = false
+    private val testVal = 0
     override fun doOnRequest(data: SomeIpData): SomeIpData? {
         // method for server, no need to implement in client
         return null;

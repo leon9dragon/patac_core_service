@@ -34,10 +34,10 @@ public class RequestProcessorFactory {
             Log.i(TAG, "processor string is empty");
         } else {
             Log.i(TAG, "TRY TO GET PROCESSOR: " + processor);
-            if (processor.equals(BaseMapper.SUNROOF_RESOURCE_URI)) {
+            if (processor.equals(BaseMapper.SUNROOF_RPC_METHOD_URI)) {
                 return new SunroofRequestProcessor();
             }
-            if(processor.equals(SunroofSomeIpRequestProcessor.SUNROOF_RESOURCE_URI_SOME_IP)) {
+            if(processor.equals(SunroofSomeIpRequestProcessor.SUNROOF_RPC_METHOD_URI_SOME_IP)) {
                 return new SunroofSomeIpRequestProcessor();
             }
         }

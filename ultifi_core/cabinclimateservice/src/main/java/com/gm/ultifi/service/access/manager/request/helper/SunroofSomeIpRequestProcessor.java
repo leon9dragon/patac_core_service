@@ -22,9 +22,9 @@ public class SunroofSomeIpRequestProcessor extends BaseRequestProcessor {
 
     private static final UEntity SERVICE = new UEntity(BASE_URI_SERVICE, VERSION);
 
-    public static final String SUNROOF_RESOURCE_SOME_IP = "ExecuteSunroofCommandSomeIp";
+    public static final String SUNROOF_RPC_METHOD_SOME_IP = "ExecuteSunroofCommandSomeIp";
 
-    public static String SUNROOF_RESOURCE_URI_SOME_IP = UltifiUriFactory.buildMethodUri(UAuthority.local(), SERVICE, SUNROOF_RESOURCE_SOME_IP);
+    public static String SUNROOF_RPC_METHOD_URI_SOME_IP = UltifiUriFactory.buildMethodUri(UAuthority.local(), SERVICE, SUNROOF_RPC_METHOD_SOME_IP);
 
     private static final String TAG = SunroofSomeIpRequestProcessor.class.getSimpleName();
 
@@ -53,7 +53,8 @@ public class SunroofSomeIpRequestProcessor extends BaseRequestProcessor {
         if (POSITION.equals(fieldName)) {
             // TODO: 2023/5/15 将参数转换成SomeIpData格式, 然后通过client来调用server提供的方法
             Integer newPositionStatus = (Integer) field;
-            ServiceLaunchManager.sunroofViewModel.setSunroofSunshadeControlRequest(newPositionStatus);
+            // ServiceLaunchManager.sunroofViewModel.setSunroofSunshadeControlRequest(newPositionStatus);
+            ServiceLaunchManager.sunroofViewModel.setSunroofSunshadeControlRequest();
         }
 
         return StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");

@@ -8,7 +8,6 @@
 
     <uses-permission android:name="gm.vehicle.permission.READ_VEHICLE_DATA" />
     <uses-permission android:name="gm.vehicle.permission.WRITE_VEHICLE_DATA" />
-
     <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="ultifi.permission.ACCESS_UBUS" />
@@ -30,6 +29,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
