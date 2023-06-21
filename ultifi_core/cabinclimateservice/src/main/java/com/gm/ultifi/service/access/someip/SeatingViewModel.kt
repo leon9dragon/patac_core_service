@@ -1,6 +1,7 @@
 package com.gm.ultifi.service.access.someip
 
 import android.util.Log
+import com.gm.ultifi.base.someip.BaseAppViewModel
 import plugin.SomeIpTopic
 import plugin.SomeipS2SManagementInterface
 import ts.car.someip.sdk.common.ResultValue

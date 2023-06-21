@@ -1,8 +1,9 @@
 package com.gm.ultifi.service.access.response.config.enums;
 
-import com.gm.ultifi.service.access.manager.propertymanager.ProtobufMessageIds;
-import com.gm.ultifi.service.access.response.config.PropertyConfig;
-import com.gm.ultifi.utils.StreamUtils;
+import com.gm.ultifi.base.propertymanager.ProtobufMessageIds;
+import com.gm.ultifi.base.response.config.SignalInfo;
+import com.gm.ultifi.base.response.config.PropertyConfig;
+import com.gm.ultifi.base.utils.StreamUtils;
 
 import java.util.Arrays;
 import java.util.Map;

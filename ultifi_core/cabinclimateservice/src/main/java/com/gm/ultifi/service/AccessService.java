@@ -14,11 +14,12 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.LifecycleService;
 
-import com.gm.ultifi.service.access.manager.CanManagerMonitor;
-import com.gm.ultifi.service.access.manager.CarPropertyManagerMonitor;
-import com.gm.ultifi.service.access.manager.ServiceLaunchManager;
-import com.gm.ultifi.service.access.manager.UltifiLinkMonitor;
-import com.gm.ultifi.service.access.utils.TaskRunner;
+import com.gm.ultifi.base.monitor.CanManagerMonitor;
+import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
+import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
+import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
+import com.gm.ultifi.service.access.AccessLaunchManger;
+import com.gm.ultifi.base.utils.TaskRunner;
 
 public class AccessService extends LifecycleService {
 
@@ -74,7 +75,7 @@ public class AccessService extends LifecycleService {
         UltifiLinkMonitor ultifiLinkMonitor = new UltifiLinkMonitor(this);
         CanManagerMonitor canManagerMonitor = new CanManagerMonitor(this);
         CarPropertyManagerMonitor carPropertyManagerMonitor = new CarPropertyManagerMonitor(this);
-        mLaunchManager = new ServiceLaunchManager(ultifiLinkMonitor, canManagerMonitor, carPropertyManagerMonitor);
+        mLaunchManager = new AccessLaunchManger(ultifiLinkMonitor, canManagerMonitor, carPropertyManagerMonitor);
         mLaunchManager.init();
     }
 

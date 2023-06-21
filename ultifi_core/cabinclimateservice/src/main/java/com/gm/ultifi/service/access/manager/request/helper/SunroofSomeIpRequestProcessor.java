@@ -1,13 +1,14 @@
 package com.gm.ultifi.service.access.manager.request.helper;
 
-import static com.gm.ultifi.service.access.manager.propertymanager.ProtobufMessageIds.POSITION;
+import static com.gm.ultifi.base.propertymanager.ProtobufMessageIds.POSITION;
 
 import android.util.Log;
 
+import com.gm.ultifi.base.request.BaseRequestProcessor;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
-import com.gm.ultifi.service.access.manager.ServiceLaunchManager;
+import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
 import com.ultifi.core.common.util.StatusUtils;

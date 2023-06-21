@@ -1,11 +1,12 @@
 package com.gm.ultifi.service.access.manager.request.helper;
 
-import static com.gm.ultifi.service.access.manager.propertymanager.ProtobufMessageIds.POSITION;
-import static com.gm.ultifi.utils.SeatAreaIdConst.GLOBAL_AREA_ID;
+import static com.gm.ultifi.base.propertymanager.ProtobufMessageIds.POSITION;
+import static com.gm.ultifi.base.utils.SeatAreaIdConst.GLOBAL_AREA_ID;
 
 import android.util.Log;
 
-import com.gm.ultifi.service.access.manager.propertymanager.CarPropertyExtensionManager;
+import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
+import com.gm.ultifi.base.request.BaseRequestProcessor;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
 import com.ultifi.core.common.util.StatusUtils;
