@@ -21,7 +21,6 @@ public class Utility {
     private static final String TAG = "Utility";
     /**
      * replace with actual available signals
-     * TODO: 2023/4/26 业务代码抽离
      */
     public static List<String> buildTopicsList(Map<String, List<String>> topicMapper, UEntity uEntity) {
         ArrayList<String> topics = new ArrayList<>();

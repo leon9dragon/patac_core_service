@@ -70,8 +70,6 @@ open class SunroofViewModel : BaseAppViewModel() {
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS) {
             Log.i(TAG, "SUCCESS: NOTIFY_SUNROOF_STATUS")
 
-            // TODO: 测试完后恢复
-
             val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
             val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
             val booParam = resp.outPut.snrfConfig

@@ -11,9 +11,7 @@ import com.ultifi.core.UltifiLink;
 import java.util.concurrent.CompletableFuture;
 
 import io.cloudevents.CloudEvent;
-/**
- * TODO: 2023/4/26 框架代码抽离
- */
+
 public class UltifiLinkRequestEventListener implements UltifiLink.RequestEventListener {
 
     private static final String TAG = UltifiLinkRequestEventListener.class.getSimpleName();

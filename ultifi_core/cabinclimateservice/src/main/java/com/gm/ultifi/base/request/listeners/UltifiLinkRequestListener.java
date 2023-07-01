@@ -17,9 +17,7 @@ import com.ultifi.core.rpc.Request;
 import com.ultifi.vehicle.body.access.v1.SunroofCommand;
 
 import java.util.concurrent.CompletableFuture;
-/**
- * TODO: 2023/4/26 框架代码抽离
- */
+
 public class UltifiLinkRequestListener implements UltifiLink.RequestListener {
 
     private static final String TAG = UltifiLinkRequestListener.class.getSimpleName();

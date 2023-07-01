@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 /**
  * This class is a wrapper of CarPropertyManager, which implemented actual signal business
- * TODO: 2023/4/26 框架代码抽离
  */
 public class CarPropertyExtensionManager {
 
@@ -31,6 +30,7 @@ public class CarPropertyExtensionManager {
         mPropertyCallback = null;
     }
 
+    // TODO: 2023/7/1 这里还有一块业务代码没分离, 变成抽象方法
     public void registerCallback(CarPropertyExtensionCallback callback) {
         synchronized (mLock) {
             if (mExtCallbacks.isEmpty()) {
@@ -45,6 +45,7 @@ public class CarPropertyExtensionManager {
         }
     }
 
+    // TODO: 2023/7/1 这里也是需要分离
     public void unregisterCallback(CarPropertyExtensionCallback callback) {
         synchronized (mLock) {
             mExtCallbacks.remove(callback);

@@ -9,7 +9,6 @@ import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 
 /**
  * Car Property Manager access helper
- * TODO: 2023/4/26 框架代码抽离
  */
 public class CarPropertyManagerMonitor implements ConnectionManager {
 

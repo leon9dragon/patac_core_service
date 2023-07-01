@@ -1,7 +1,6 @@
 package com.gm.ultifi.base.response.config;
-/**
- * TODO: 2023/4/26 框架代码抽离
- */
+
+// TODO: 2023/7/1 这个数据模型是干什么的? 未知
 public class CarPropertyDataModel {
     private int mAreaId;
 

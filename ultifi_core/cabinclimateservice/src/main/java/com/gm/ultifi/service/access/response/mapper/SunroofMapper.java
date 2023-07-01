@@ -38,6 +38,7 @@ public class SunroofMapper implements BaseMapper {
 
     private int mStatus;
 
+    // TODO: 2023/7/1 这个Map用来干嘛的? 未知
     private final Map<String, Sunroof> sunroofBuilderMap;
 
     static {
@@ -74,10 +75,6 @@ public class SunroofMapper implements BaseMapper {
             Object value,
             PropertyConfig config) {
 
-        Map<String, Any> res = new HashMap<>();
-
-        Sunroof.Builder builder = Sunroof.newBuilder();
-
 //        if (!checkSunroofInfo(carPropertyExtensionManager)) {
 //            // TODO: 2023/4/21 confirm the field name and set value
 //            Descriptors.FieldDescriptor sunroofMotionAllowed = Sunroof.getDescriptor().findFieldByName("sunroof_motion_allowed");
@@ -85,10 +82,14 @@ public class SunroofMapper implements BaseMapper {
 //        }
 
         Descriptors.FieldDescriptor descriptor = Sunroof.getDescriptor().findFieldByName(config.getProtobufField());
+
+        Sunroof.Builder builder = Sunroof.newBuilder();
         Sunroof sunroof = builder.setField(descriptor, value).build();
         Log.i(TAG, "generateProtobufMessage: new value:" + value + ", field name: " + descriptor.getFullName());
 
         String topicUri = getTopicUri(SUNROOF_FRONT);
+
+        Map<String, Any> res = new HashMap<>();
         res.put(topicUri, Any.pack(sunroof));
         Log.i(TAG, "generate protobuf message, topic name: " + topicUri);
         return res;

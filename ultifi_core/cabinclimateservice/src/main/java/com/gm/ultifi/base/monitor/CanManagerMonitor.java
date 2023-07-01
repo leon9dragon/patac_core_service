@@ -14,7 +14,6 @@ import gm.ultifi.canbridge.Signal;
 
 /**
  * CAN bridge access helper
- * TODO: 2023/4/26 框架代码抽离
  */
 public class CanManagerMonitor implements ConnectionManager {
 

@@ -18,7 +18,6 @@ import io.cloudevents.CloudEvent;
 
 /**
  * Ultifi(SOA) Link access helper
- * TODO: 2023/4/26 框架代码抽离
  */
 public class UltifiLinkMonitor implements ConnectionManager {
 

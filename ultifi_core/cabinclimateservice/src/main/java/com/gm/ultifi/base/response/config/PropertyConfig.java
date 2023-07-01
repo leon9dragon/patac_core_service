@@ -1,9 +1,7 @@
 package com.gm.ultifi.base.response.config;
 
 import androidx.annotation.NonNull;
-/**
- * TODO: 2023/4/26 框架代码抽离
- */
+
 public class PropertyConfig {
     private final boolean mIsReadOnly;
 

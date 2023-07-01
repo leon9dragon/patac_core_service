@@ -210,7 +210,7 @@ public abstract class ServiceLaunchManager {
         mCarPropertyMgrMonitor.init();
         mCarPropertyMgrMonitor.connect();
 
-        // TODO: 2023/5/10 增加some/ip client初始化逻辑
+        // TODO: 2023/7/1 或许之后改成统一的 Manager 来处理 some/ip client 的 get
         sunroofViewModel = new SunroofViewModel();
 
 //        new Timer().schedule(new TimerTask() {

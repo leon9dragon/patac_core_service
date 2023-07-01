@@ -38,28 +38,6 @@ open class AmbientLightViewModel : BaseAppViewModel() {
             Log.d(
                 TAG, "onChangeEvent, PropName: led1, " + "led1:$led1, "
             )
-//            Log.i(TAG, "Publishing the cloud events to Bus")
-//
-//            // no field mask in the resp, should set all the fields to msg obj
-//            val sunroof: Sunroof = Sunroof.newBuilder()
-//                .setPosition(sunroofPercentagePositionStatus)
-//                .build()
-//
-//            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
-//            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
-//            val topicUri = UltifiUriFactory.buildUProtocolUri(
-//                UAuthority.local(),
-//                BaseMapper.SERVICE,
-//                uResource
-//            )
-//
-//            val cloudEvent = CloudEventFactory.publish(
-//                topicUri,
-//                Any.pack(sunroof),
-//                UCloudEventAttributes.empty()
-//            )
-            // TODO: 测试完后恢复
-            // AccessService.mLaunchManager.getmUltifiLinkMonitor().publish(cloudEvent)
         }
     }
 
