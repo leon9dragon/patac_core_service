@@ -25,12 +25,11 @@ public class AccessService extends LifecycleService {
 
     private static final String TAG = AccessService.class.getSimpleName();
 
+    // property from system to check if SDV is enabled
     private static final String SDV_ENABLE_PROP = "persist.sys.gm.sdv_enable";
 
     private static final String CHANNEL_ID = "com.gm.ultifi.service.access";
     private static final String CHANNEL_NAME = "Access Service";
-
-    public static AccessService context = null;
 
     private boolean isSDVEnabled = false;
 
@@ -42,7 +41,6 @@ public class AccessService extends LifecycleService {
     @Override
     public void onCreate() {
         super.onCreate();
-        context = this;
 
         isSDVEnabled = SystemProperties.getBoolean(SDV_ENABLE_PROP, true);
         Log.i(TAG, "isSDV enabled: " + isSDVEnabled);

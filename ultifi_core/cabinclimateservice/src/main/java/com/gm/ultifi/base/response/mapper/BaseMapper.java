@@ -9,20 +9,6 @@ import java.util.Map;
 
 public interface BaseMapper {
 
-    /*
-     * to find the processor by property/signal
-     */
-    static BaseMapper getMapper(int propertyId) {
-        if (SunroofMapper.getPropertyList().contains(propertyId)) {
-            return SunroofMapper.getInstance();
-        }
-        throw new IllegalArgumentException("illegal property id: " + propertyId);
-    }
-
-    static BaseMapper getMapper(String signalName) {
-        throw new IllegalArgumentException("illegal signal name: " + signalName);
-    }
-
     boolean isRepeatedSignal();
 
     /**

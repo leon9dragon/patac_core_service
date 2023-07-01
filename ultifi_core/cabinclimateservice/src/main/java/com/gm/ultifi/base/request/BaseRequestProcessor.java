@@ -5,9 +5,6 @@ import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.request.rpc.RequestProcessorFactory;
 import com.ultifi.core.rpc.Request;
 
-/**
- * TODO: 2023/4/26 框架代码抽离
- */
 public abstract class BaseRequestProcessor implements RequestProcessorFactory.RequestProcessor {
 
     private CarPropertyManagerMonitor mCarPropertyManager;

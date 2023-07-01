@@ -6,6 +6,7 @@ import android.util.Log;
 import com.gm.ultifi.base.monitor.CanManagerMonitor;
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
 import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
+import com.gm.ultifi.base.response.mapper.TopicMapperFactory;
 import com.gm.ultifi.sdk.uprotocol.cloudevent.datamodel.UCloudEventAttributes;
 import com.gm.ultifi.sdk.uprotocol.cloudevent.factory.CloudEventFactory;
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
@@ -232,7 +233,7 @@ public abstract class ServiceLaunchManager {
 
     public List<CloudEvent> buildCarPropertyCloudEvents(CarPropertyValue<?> value) {
         ArrayList<CloudEvent> events = new ArrayList<>();
-        BaseMapper baseMapper = BaseMapper.getMapper(value.getPropertyId());
+        BaseMapper baseMapper = TopicMapperFactory.getInstance().getMapper(value.getPropertyId());
         baseMapper.setAreaId(value.getAreaId());
         baseMapper.setPropertyStatus(value.getStatus());
         PropertyConfig propertyConfig = baseMapper.getConfig(value.getPropertyId());
@@ -259,7 +260,7 @@ public abstract class ServiceLaunchManager {
 
     public List<CloudEvent> buildSignalCloudEvents(Signal signal) {
         ArrayList<CloudEvent> events = new ArrayList<>();
-        BaseMapper baseMapper = BaseMapper.getMapper(signal.name);
+        BaseMapper baseMapper = TopicMapperFactory.getInstance().getMapper(signal.name);
         Log.d(TAG, baseMapper.toString());
         PropertyConfig propertyConfig = baseMapper.getConfig(signal.name);
         Log.i(TAG, propertyConfig.toString());

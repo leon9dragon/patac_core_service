@@ -30,13 +30,13 @@ public class AccessLaunchManger extends ServiceLaunchManager {
         }, Arrays.asList(ServiceConstant.ACCESS_SERVICE));
 
 
-        UEntity uEntity = new UEntity(ServiceConstant.ACCESS_URI, ServiceConstant.VERSION);
         // create all topics to uBus
         Map<String, List<String>> topicMapper = new HashMap<>();
-        List<String> resource = Arrays.asList(ResourceMappingConstants.SUNROOF_FRONT, ResourceMappingConstants.SUNROOF_FRONT+".someip");
-        // todo next add seat topic
-        topicMapper.put("Sunroof", resource);
-        for (String topic : Utility.buildTopicsList(topicMapper, uEntity)) {
+        List<String> topicResource = Arrays.asList(ResourceMappingConstants.SUNROOF_FRONT, ResourceMappingConstants.SUNROOF_FRONT+".someip");
+
+        // first param is ultifi protobuf topic message's name
+        topicMapper.put("Sunroof", topicResource);
+        for (String topic : Utility.buildTopicsList(topicMapper, ServiceConstant.ACCESS_SERVICE)) {
             createTopic(topic);
         }
     }

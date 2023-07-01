@@ -13,9 +13,6 @@ import com.gm.ultifi.service.constant.ServiceConstant;
 import com.google.rpc.Status;
 import com.ultifi.core.rpc.Request;
 
-/**
- * TODO: 2023/4/26 框架代码抽离
- */
 public class RequestProcessorFactory {
 
     private static final String TAG = RequestProcessorFactory.class.getSimpleName();
@@ -29,7 +26,6 @@ public class RequestProcessorFactory {
     }
 
     /**
-     * TODO: 2023/5/10 业务代码抽离 增加 someip client 的 mapping
      * mapping the target processor to handle the request
      */
     public RequestProcessor getRequestProcessor(String processor) {
