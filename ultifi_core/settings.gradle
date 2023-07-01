@@ -1,3 +1,5 @@
+// TODO: 由于mac和Windows的系统路径问题, 这个文件放到了 git_ignore 要有配置更新先解除
+
 pluginManagement {
     repositories {
         maven { url = "C:\\Users\\Administrator\\.m2\\repository" }
