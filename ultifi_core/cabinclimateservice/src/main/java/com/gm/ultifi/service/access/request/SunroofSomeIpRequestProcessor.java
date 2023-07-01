@@ -5,9 +5,6 @@ import static com.gm.ultifi.base.propertymanager.ProtobufMessageIds.POSITION;
 import android.util.Log;
 
 import com.gm.ultifi.base.request.BaseRequestProcessor;
-import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
-import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
-import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
 import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
@@ -16,16 +13,6 @@ import com.ultifi.vehicle.body.access.v1.Sunroof;
 import com.ultifi.vehicle.body.access.v1.SunroofCommand;
 
 public class SunroofSomeIpRequestProcessor extends BaseRequestProcessor {
-
-    private static final String BASE_URI_SERVICE = "body.access";
-
-    private static final String VERSION = "1";
-
-    private static final UEntity SERVICE = new UEntity(BASE_URI_SERVICE, VERSION);
-
-    public static final String SUNROOF_RPC_METHOD_SOME_IP = "ExecuteSunroofCommandSomeIp";
-
-    public static String SUNROOF_RPC_METHOD_URI_SOME_IP = UltifiUriFactory.buildMethodUri(UAuthority.local(), SERVICE, SUNROOF_RPC_METHOD_SOME_IP);
 
     private static final String TAG = SunroofSomeIpRequestProcessor.class.getSimpleName();
 
