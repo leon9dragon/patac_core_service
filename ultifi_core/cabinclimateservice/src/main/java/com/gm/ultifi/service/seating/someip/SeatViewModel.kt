@@ -2,8 +2,16 @@ package com.gm.ultifi.service.seating.someip
 
 import android.util.Log
 import com.gm.ultifi.base.someip.BaseAppViewModel
+import com.gm.ultifi.base.utils.SomeIpUtil
+import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource
+import com.gm.ultifi.service.AccessService
+import com.gm.ultifi.service.constant.ResourceMappingConstants
+import com.gm.ultifi.service.constant.ServiceConstant
 import com.gm.ultifi.vehicle.body.seating.v1.SeatComponent
+import com.gm.ultifi.vehicle.body.seating.v1.SeatMassage
 import com.google.protobuf.GeneratedMessageV3
+import com.ultifi.vehicle.body.access.v1.Sunroof
+import com.ultifi.vehicle.body.seating.v1.UpdateSeatPositionRequest
 import plugin.SomeipS2SManagementInterface
 import ts.car.someip.plugin.SomeIpTopic
 import ts.car.someip.sdk.common.ResultValue
@@ -107,6 +115,43 @@ class SeatViewModel : BaseAppViewModel() {
                 TAG,
                 "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1: Success"
             )
+            Log.i(TAG, "SUCCESS: NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1")
+
+            // TODO: 测试完后恢复
+            val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(data.payload)
+            val seatReclPosition = resp.outPut.drvStBkReclnUpwdDnwdPos
+            val seatPosition = resp.outPut.drvStFrwdBkwdPos
+            Log.d(TAG, "onChangeEvent, Recline position:"+seatReclPosition+"SeatPosition"+seatPosition)
+            val seatReq: UpdateSeatPositionRequest = UpdateSeatPositionRequest.newBuilder()
+                .setComponent()
+
+
+
+            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
+            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
+            val booParam = resp.outPut.snrfConfig
+            Log.d(
+                TAG,
+                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
+                        "newPropValue:$sunroofPercentagePositionStatus, " +
+                        "sunroofConf:$booParam"
+            )
+
+
+            Log.i(TAG, "Publishing the cloud events to Bus")
+
+            // no field mask in the resp, should set all the fields to msg obj
+            val sunroof: Sunroof = Sunroof.newBuilder()
+                .setPosition(sunroofPercentagePositionStatus)
+                .build()
+
+            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
+            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
+
+            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
+
+
+
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2) {
             Log.i(
@@ -188,6 +233,33 @@ class SeatViewModel : BaseAppViewModel() {
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS: Success")
+            val resp = SomeipS2SManagementInterface.Seat_Mode_Status_2Field.parseFrom(data.payload)
+            val seatMessage = resp.outPut.
+
+
+
+            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
+            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
+            val booParam = resp.outPut.snrfConfig
+            Log.d(
+                TAG,
+                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
+                        "newPropValue:$sunroofPercentagePositionStatus, " +
+                        "sunroofConf:$booParam"
+            )
+
+
+            Log.i(TAG, "Publishing the cloud events to Bus")
+
+            // no field mask in the resp, should set all the fields to msg obj
+            val sunroof: Sunroof = Sunroof.newBuilder()
+                .setPosition(sunroofPercentagePositionStatus)
+                .build()
+
+            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
+            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
+
+            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_AVAILABILITY_STATUS) {
             Log.i(
@@ -209,6 +281,36 @@ class SeatViewModel : BaseAppViewModel() {
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS_2) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS_2: Success")
+
+            val resp = SomeipS2SManagementInterface.Seat_Mode_Status_2Field.parseFrom(data.payload)
+            val seatMes = resp.outPut.
+
+
+
+            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
+            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
+            val booParam = resp.outPut.snrfConfig
+            Log.d(
+                TAG,
+                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
+                        "newPropValue:$sunroofPercentagePositionStatus, " +
+                        "sunroofConf:$booParam"
+            )
+
+
+            Log.i(TAG, "Publishing the cloud events to Bus")
+
+            // no field mask in the resp, should set all the fields to msg obj
+            val sunroof: Sunroof = Sunroof.newBuilder()
+                .setPosition(sunroofPercentagePositionStatus)
+                .build()
+
+            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
+            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
+
+            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
+
+
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_AVAILABILITY_AND_NOTIFICATION_STATUS_6) {
             Log.i(
@@ -242,43 +344,43 @@ class SeatViewModel : BaseAppViewModel() {
         }
     }
 
-    fun setDriverSeatRecallReq_M1() {
+    fun setDriverSeatRecallReq(enable:Boolean) :Boolean{
         if (!isServerAvailable || !isReady) {
             Log.i(
                 TAG,
                 "Driver_Seat_Recall_Request_Service_37C_M1: failed, server is not available or client is not ready"
             )
-            return
+            return false
         }
         val newRecall = SomeipS2SManagementInterface
             .Driver_Seat_Recall_Request_Service_37C_M1Field.newBuilder()
             .setOutPut(
                 SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M1.newBuilder()
-                    .setDrvStRclReqSrv(isBoolean)
-                    .setDrvStBlstOtwdInwdTrgtPosReqSrv(testVal)
+                    .setDrvStRclReqSrv(enable)
             ).build()
 
-        val req = SomeIpData(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1,
-            System.currentTimeMillis(),
-            newRecall.toByteArray()
-        )
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.setAttribute(req, resp)
-        Log.i(TAG, "sendReq2Server: Driver_Seat_Recall_Request_Service_37C_M1.")
-
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M1: Response OK")
-            return
-        }
-
-        Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M1: FAILED")
-
+        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1)
     }
 
-    fun setDriverSeatHeadLegRestRecallPosReq(component: SeatComponent, pos: Int): Boolean {
+    fun setDriverBolsterReq(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(
+                TAG,
+                "Driver_Seat_Recall_Request_Service_37C_M1: failed, server is not available or client is not ready"
+            )
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface
+            .Driver_Seat_Recall_Request_Service_37C_M1Field.newBuilder()
+            .setOutPut(
+                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M1.newBuilder()
+                    .setDrvStBlstOtwdInwdTrgtPosReqSrv(pos)
+            ).build()
+
+        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1)
+    }
+
+    fun setDriverHeadRestReq(pos: Int): Boolean {
         if (!isServerAvailable || !isReady) {
             Log.i(
                 TAG,
@@ -286,131 +388,125 @@ class SeatViewModel : BaseAppViewModel() {
             )
             return false
         }
-        var newRecall: GeneratedMessageV3= SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder().build()
-        if (component == SeatComponent.SC_HEADREST) {
-            newRecall = SomeipS2SManagementInterface
-                .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
-                .setOutPut(
-                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
-                        .setDrvStHdrstUpwdDnwdTrgtPosReqSrv(pos)
-                ).build()
-        } else if (component == SeatComponent.SC_SIDE_BOLSTER_BACK) {
-            newRecall = SomeipS2SManagementInterface
-                .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
-                .setOutPut(
-                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
-                        .setDrvStLgrstUpwdDnwdTrgtPosReqSrv(pos)
-                ).build()
-        }
+//        var newRecall: GeneratedMessageV3= SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder().build()
+//        if (component == SeatComponent.SC_HEADREST) {
+        val newRecall = SomeipS2SManagementInterface
+            .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
+            .setOutPut(
+                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
+                    .setDrvStHdrstUpwdDnwdTrgtPosReqSrv(pos)
 
-        val req = SomeIpData(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2,
-            System.currentTimeMillis(),
-            newRecall.toByteArray()
-        )
+            ).build()
 
-        val resp = SomeIpData()
-        val res = someIpClientProxy?.setAttribute(req, resp)
-        Log.i(TAG, "sendReq2Server: Driver_Seat_Recall_Request_Service_37C_M2(Headrest/Legrest).")
-
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M2: Response OK")
-            return true
-        }
-        Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M2: FAILED")
-        return false
-
+        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2)
     }
 
-    fun setDriverSeatReclineRecallPosReq(component: SeatComponent, pos: Int) {
+    fun setDriverLegRestReq( pos: Int): Boolean {
+        if (!isServerAvailable || !isReady) {
+            Log.i(
+                TAG,
+                "Driver_Seat_Recall_Request_Service_37C_M2(Head rest/Leg rest): failed, server is not available or client is not ready"
+            )
+            return false
+        }
+//        var newRecall: GeneratedMessageV3= SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder().build()
+//        } else if (component == SeatComponent.SC_SIDE_BOLSTER_BACK) {
+        val newRecall = SomeipS2SManagementInterface
+            .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
+            .setOutPut(
+                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
+                    .setDrvStLgrstUpwdDnwdTrgtPosReqSrv(pos)
+            ).build()
+
+        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2)
+    }
+
+    fun setDriverSeatPosReq( pos: Int):Boolean {
         if (!isServerAvailable || !isReady) {
             Log.i(
                 TAG,
                 "Driver_Seat_Recall_Request_Service_3AB_M3(Driver Seat and Recline): failed, server is not available or client is not ready"
             )
-            return
+            return false
         }
-        if (component == SeatComponent.SC_BACK) {
-            val newRecall = SomeipS2SManagementInterface
-                .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
-                .setOutPut(
-                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
-                        .setDrvStFrwdBkwdTrgtPosReqSrv(pos)
-                ).build()
-        } else if (component == SeatComponent.SC_LUMBAR) {
-            val newRecall = SomeipS2SManagementInterface
-                .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
-                .setOutPut(
-                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
-                        .setDrvStBkReclnUpwdDnwdTrgtPosReqSrv(pos)
-                ).build()
-        }
+//        if (component == SeatComponent.SC_BACK) {
+        val newRecall = SomeipS2SManagementInterface
+            .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
+            .setOutPut(
+                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
+                    .setDrvStFrwdBkwdTrgtPosReqSrv(pos)
+            ).build()
 
-        val req = SomeIpData(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3,
-            System.currentTimeMillis(),
-            newRecall.toByteArray()
-        )
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.setAttribute(req, resp)
-        Log.i(TAG, "sendReq2Server: Driver_Seat_Recall_Request_Service_3AB_M3Field.")
-
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "Driver_Seat_Recall_Request_Service_3AB_M3Field: Response OK")
-            return
-        }
-
-        Log.i(TAG, "Driver_Seat_Recall_Request_Service_3AB_M3Field: FAILED")
-
+        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3)
     }
 
-    fun setDriverSeatCushionRecallPosReq(component: SeatComponent, pos: Int) {
+    fun setDriverReclinesReq(pos: Int):Boolean {
+        if (!isServerAvailable || !isReady) {
+            Log.i(
+                TAG,
+                "Driver_Seat_Recall_Request_Service_3AB_M3(Driver Seat and Recline): failed, server is not available or client is not ready"
+            )
+            return false
+        }
+//        } else if (component == SeatComponent.SC_LUMBAR) {
+        val newRecall = SomeipS2SManagementInterface
+            .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
+            .setOutPut(
+                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
+                    .setDrvStBkReclnUpwdDnwdTrgtPosReqSrv(pos)
+            ).build()
+
+        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3)
+    }
+
+    fun setDriverCushionFrontReq(pos: Int):Boolean {
         if (!isServerAvailable || !isReady) {
             Log.i(
                 TAG,
                 "Driver_Seat_Recall_Request_Service_3AC_M4(Cushion Front Rear): failed, server is not available or client is not ready"
             )
-            return
+            return false
         }
-        if (component == SeatComponent.SC_CUSHION_FRONT) {
-            val newRecall = SomeipS2SManagementInterface
-                .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
-                .setOutPut(
-                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
-                        .setDrvStCshnFrntUpwdDnwdTrgtPosReqSrv(pos)
-                        .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(testVal)
-                ).build()
-        } else if (component == SeatComponent.SC_CUSHION) {
-            val newRecall = SomeipS2SManagementInterface
-                .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
-                .setOutPut(
-                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
-                        .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(pos)
-                ).build()
+//        if (component == SeatComponent.SC_CUSHION_FRONT) {
+        val newRecall = SomeipS2SManagementInterface
+            .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
+            .setOutPut(
+                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
+                    .setDrvStCshnFrntUpwdDnwdTrgtPosReqSrv(pos)
+            ).build()
 
+        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4)
+    }
+
+
+    fun setDriverCushionRearReq(pos: Int):Boolean {
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Driver_Seat_Recall_Request_Service_3AC_M4(Cushion Front Rear): failed, server is not available or client is not ready")
+            return false
         }
+//        if (component == SeatComponent.SC_CUSHION) {
+        val newRecall = SomeipS2SManagementInterface
+            .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
+                    .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(pos)
+            ).build()
+        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4)
+    }
 
-        val req = SomeIpData(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4,
-            System.currentTimeMillis(),
-            newRecall.toByteArray()
-        )
-
+    fun generateReqSend(newRecall:GeneratedMessageV3, setTopic: Long):Boolean{
+        val req = SomeIpData(setTopic, System.currentTimeMillis(), newRecall.toByteArray())
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.setAttribute(req, resp)
-        Log.i(TAG, "sendReq2Server: Driver_Seat_Recall_Request_Service_3AC_M4Field.")
 
         if (res == ResultValue.OK) {
-            Log.i(TAG, "Driver_Seat_Recall_Request_Service_3AC_M4Field: Response OK")
-            return
+            Log.i(TAG, "Response: OK")
+            return true
         }
-
-        Log.i(TAG, "Driver_Seat_Recall_Request_Service_3AC_M4Field: FAILED")
-
+        Log.i(TAG, "Response: FAILED")
+        return false
     }
+
 
     fun setSeatModeReq() {
         if (!isServerAvailable || !isReady) {

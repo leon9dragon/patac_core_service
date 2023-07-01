@@ -36,15 +36,15 @@ public class RequestProcessorFactory {
             if (processor.equals(ServiceConstant.SUNROOF_RPC_METHOD_URI)) {
                 return new SunroofRequestProcessor();
             }
-            if(processor.equals(SunroofSomeIpRequestProcessor.SUNROOF_RPC_METHOD_URI_SOME_IP)) {
+            if(processor.equals(ServiceConstant.SUNROOF_RPC_METHOD_URI_SOME_IP)) {
                 return new SunroofSomeIpRequestProcessor();
             }
-            if(processor.equals(SeatMapper.SEAT_RPC_SEAT_POSITION_METHOD)){
+            if(processor.equals(ServiceConstant.SEATING_RPC_POSITION_METHOD_URI_SOME_IP)){
                 return new SeatPositionSomeIpRequestProcessor();
             }
-            if(processor.equals(SeatMapper.SEAT_RPC_SEAT_POSITION_GROUP_METHOD)){
-                return new SeatPositionGroupSomeIpRequestProcessor();
-            }
+//            if(processor.equals(ServiceConstant.SEAT_RPC_POSITION_GROUP_METHOD)){
+//                return new SeatPositionGroupSomeIpRequestProcessor();
+//            }
         }
         return null;
     }

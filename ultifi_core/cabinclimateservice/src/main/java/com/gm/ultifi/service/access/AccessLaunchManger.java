@@ -25,7 +25,7 @@ public class AccessLaunchManger extends ServiceLaunchManager {
     public void registerTopicMethod() {
         mUltifiLinkMonitor.registerRPCMethod(new String[]{
                 ServiceConstant.SUNROOF_RPC_METHOD,
-                SunroofSomeIpRequestProcessor.SUNROOF_RPC_METHOD_SOME_IP,
+                ServiceConstant.SUNROOF_RPC_METHOD_SOME_IP,
                 //todo next add seat method...
         }, Arrays.asList(ServiceConstant.ACCESS_SERVICE));
 

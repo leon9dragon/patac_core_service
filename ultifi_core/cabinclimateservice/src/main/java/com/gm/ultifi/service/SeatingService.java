@@ -19,7 +19,7 @@ import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
 import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
 import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
 import com.gm.ultifi.base.utils.TaskRunner;
-import com.gm.ultifi.service.access.AccessLaunchManger;
+import com.gm.ultifi.service.seating.SeatingLaunchManger;
 
 public class SeatingService extends LifecycleService {
 
@@ -29,8 +29,6 @@ public class SeatingService extends LifecycleService {
 
     private static final String CHANNEL_ID = "com.gm.ultifi.service.seating";
     private static final String CHANNEL_NAME = "Seating Service";
-
-    public static SeatingService context = null;
 
     private boolean isSDVEnabled = false;
 
@@ -42,12 +40,10 @@ public class SeatingService extends LifecycleService {
     @Override
     public void onCreate() {
         super.onCreate();
-        context = this;
-
         isSDVEnabled = SystemProperties.getBoolean(SDV_ENABLE_PROP, true);
         Log.i(TAG, "isSDV enabled: " + isSDVEnabled);
         if (isSDVEnabled) {
-            Log.i(TAG, "Access service started");
+            Log.i(TAG, "Seating service started");
             init();
         }
         startForeground();
@@ -67,7 +63,7 @@ public class SeatingService extends LifecycleService {
             mLaunchManager.stop();
             TaskRunner.getInstance().shutdownService();
 
-            Log.i(TAG, "Access service is destroyed");
+            Log.i(TAG, "Seating service is destroyed");
         }
     }
 
@@ -75,7 +71,7 @@ public class SeatingService extends LifecycleService {
         UltifiLinkMonitor ultifiLinkMonitor = new UltifiLinkMonitor(this);
         CanManagerMonitor canManagerMonitor = new CanManagerMonitor(this);
         CarPropertyManagerMonitor carPropertyManagerMonitor = new CarPropertyManagerMonitor(this);
-        mLaunchManager = new AccessLaunchManger(ultifiLinkMonitor, canManagerMonitor, carPropertyManagerMonitor);
+        mLaunchManager = new SeatingLaunchManger(ultifiLinkMonitor, canManagerMonitor, carPropertyManagerMonitor);
         mLaunchManager.init();
     }
 
@@ -98,7 +94,7 @@ public class SeatingService extends LifecycleService {
                     .setCategory("service")
                     .build();
 
-            startForeground(3, notification);
+            startForeground(2, notification);
         }
     }
 
