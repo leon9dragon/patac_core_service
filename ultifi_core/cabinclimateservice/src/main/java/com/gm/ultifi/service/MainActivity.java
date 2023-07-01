@@ -7,7 +7,7 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gm.ultifi.service.access.someip.AmbientLightViewModel;
-import com.gm.ultifi.service.access.someip.SeatViewModel;
+import com.gm.ultifi.service.seating.someip.SeatViewModel;
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
 
 import java.util.Timer;

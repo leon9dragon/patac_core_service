@@ -1,4 +1,4 @@
-package com.gm.ultifi.service.access.request;
+package com.gm.ultifi.service.seating.request;
 
 import android.util.Log;
 
@@ -33,9 +33,9 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
 
         // TODO: 2023/5/15 将参数转换成SomeIpData格式, 然后通过client来调用server提供的方法
         if(seatName.equals("row1_left")) {
-            ServiceLaunchManager.seatViewModel.setDriverSeatRecallReq_M1();
+            boolean status = ServiceLaunchManager.seatViewModel.setDriverSeatHeadLegRestRecallPosReq(component, percentPosition);
+            return status?  StatusUtils.buildStatus(Code.OK, "success"):  StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
-
 
         return StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
     }

@@ -8,10 +8,11 @@ import android.util.Log;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
-import com.gm.ultifi.base.response.mapper.BaseMapper;
 import com.google.rpc.Status;
 import com.ultifi.core.UltifiLink;
 import com.ultifi.core.common.util.StatusUtils;
+
+import java.util.List;
 
 import io.cloudevents.CloudEvent;
 
@@ -75,15 +76,16 @@ public class UltifiLinkMonitor implements ConnectionManager {
         mRPCRequestEventListener = listener;
     }
 
-    public void registerRPCMethod(String[] methodNames) {
-        for (String methodName : methodNames) {
-            UAuthority uAuthority = UAuthority.local();
-            // TODO: 2023/5/25 注意业务处理, 这边的服务前缀可能有很多
-            UEntity uEntity = BaseMapper.SERVICE;
-            String methodUri = UltifiUriFactory.buildMethodUri(uAuthority, uEntity, methodName);
-            // todo methodUri 放什么位置，放topic中？
-            Status status = mUltifiLink.registerRequestListener(methodUri, mRPCRequestListener);
-            Log.i(TAG, "registerRPCMethod URI: " + methodUri + " Status: " + StatusUtils.toShortString(status));
+    public void registerRPCMethod(String[] methodNames, List<UEntity> uEntities) {
+        for (UEntity uEntity : uEntities) {
+            for (String methodName : methodNames) {
+                UAuthority uAuthority = UAuthority.local();
+                // TODO: 2023/5/25 注意业务处理, 这边的服务前缀可能有很多
+                String methodUri = UltifiUriFactory.buildMethodUri(uAuthority, uEntity, methodName);
+                // todo methodUri 放什么位置，放topic中？
+                Status status = mUltifiLink.registerRequestListener(methodUri, mRPCRequestListener);
+                Log.i(TAG, "registerRPCMethod URI: " + methodUri + " Status: " + StatusUtils.toShortString(status));
+            }
         }
     }
 

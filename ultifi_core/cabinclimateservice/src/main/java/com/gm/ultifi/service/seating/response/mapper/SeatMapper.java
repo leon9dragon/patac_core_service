@@ -1,4 +1,4 @@
-package com.gm.ultifi.service.access.response.mapper;
+package com.gm.ultifi.service.seating.response.mapper;
 
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.response.config.PropertyConfig;

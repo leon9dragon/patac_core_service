@@ -2,6 +2,12 @@ package com.gm.ultifi.service.access.someip
 
 import android.util.Log
 import com.gm.ultifi.base.someip.BaseAppViewModel
+import com.gm.ultifi.base.utils.SomeIpUtil
+import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource
+import com.gm.ultifi.service.AccessService
+import com.gm.ultifi.service.constant.ResourceMappingConstants
+import com.gm.ultifi.service.constant.ServiceConstant
+import com.ultifi.vehicle.body.access.v1.Sunroof
 import plugin.SomeipS2SManagementInterface
 import ts.car.someip.plugin.SomeIpTopic
 import ts.car.someip.sdk.common.ResultValue
@@ -80,25 +86,15 @@ open class SunroofViewModel : BaseAppViewModel() {
             Log.i(TAG, "Publishing the cloud events to Bus")
 
             // no field mask in the resp, should set all the fields to msg obj
-//            val sunroof: Sunroof = Sunroof.newBuilder()
-//                .setPosition(sunroofPercentagePositionStatus)
-//                .build()
-//
-//            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
-//            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
-//            val topicUri = UltifiUriFactory.buildUProtocolUri(
-//                UAuthority.local(),
-//                BaseMapper.SERVICE,
-//                uResource
-//            )
-//
-//            val cloudEvent = CloudEventFactory.publish(
-//                topicUri,
-//                Any.pack(sunroof),
-//                UCloudEventAttributes.empty()
-//            );
-//
-//            AccessService.mLaunchManager.getmUltifiLinkMonitor().publish(cloudEvent)
+            val sunroof: Sunroof = Sunroof.newBuilder()
+                .setPosition(sunroofPercentagePositionStatus)
+                .build()
+
+            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
+            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
+
+            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
+
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS) {
             Log.i(TAG, "SUCCESS: NOTIFY_WINDOW_STATUS")

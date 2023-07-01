@@ -12,7 +12,7 @@ import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.request.listeners.UltifiLinkRequestListener;
 import com.gm.ultifi.base.response.config.PropertyConfig;
 import com.gm.ultifi.base.response.mapper.BaseMapper;
-import com.gm.ultifi.service.access.someip.SeatViewModel;
+import com.gm.ultifi.service.seating.someip.SeatViewModel;
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
 import com.google.protobuf.Any;
 import com.google.rpc.Status;

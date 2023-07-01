@@ -1,4 +1,4 @@
-package com.gm.ultifi.service.access.request;
+package com.gm.ultifi.service.seating.request;
 
 public class SeatPositionGroupSomeIpRequestProcessor extends SeatPositionSomeIpRequestProcessor{
 

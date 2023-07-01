@@ -1,18 +1,18 @@
 package com.gm.ultifi.service.access.response.mapper;
 
-import static com.gm.ultifi.service.access.response.mapper.ResourceMappingConstants.SUNROOF_FRONT;
+import static com.gm.ultifi.service.constant.ResourceMappingConstants.SUNROOF_FRONT;
 import static com.gm.ultifi.base.utils.SeatAreaIdConst.GLOBAL_AREA_ID;
 
 import android.util.Log;
 
 import com.gm.ultifi.base.response.mapper.BaseMapper;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
-import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
 import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.response.config.PropertyConfig;
+import com.gm.ultifi.service.constant.ServiceConstant;
 import com.google.protobuf.Any;
 import com.google.protobuf.Descriptors;
 
@@ -27,16 +27,6 @@ import java.util.Map;
  * Sunroof related signal mapper
  */
 public class SunroofMapper implements BaseMapper {
-
-    public static final String BASE_URI_SERVICE = "body.access";
-
-    public static final String VERSION = "1";
-
-    public static final UEntity SERVICE = new UEntity(BASE_URI_SERVICE, VERSION);
-
-    public static final String SUNROOF_RPC_METHOD = "ExecuteSunroofCommand";
-
-    public static final String SUNROOF_RPC_METHOD_URI = UltifiUriFactory.buildMethodUri(UAuthority.local(), SERVICE, SUNROOF_RPC_METHOD);
 
     private static final String TAG = SunroofMapper.class.getSimpleName();
 
@@ -118,7 +108,7 @@ public class SunroofMapper implements BaseMapper {
 
     public String getTopicUri(String resourceName) {
         UResource uResource = new UResource(resourceName, "", Sunroof.class.getSimpleName());
-        return UltifiUriFactory.buildUProtocolUri(UAuthority.local(), SERVICE, uResource);
+        return UltifiUriFactory.buildUProtocolUri(UAuthority.local(), ServiceConstant.ACCESS_SERVICE, uResource);
     }
 
     @Override

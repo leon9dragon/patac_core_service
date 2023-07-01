@@ -1,7 +1,9 @@
-package com.gm.ultifi.service.access.someip
+package com.gm.ultifi.service.seating.someip
 
 import android.util.Log
 import com.gm.ultifi.base.someip.BaseAppViewModel
+import com.gm.ultifi.vehicle.body.seating.v1.SeatComponent
+import com.google.protobuf.GeneratedMessageV3
 import plugin.SomeipS2SManagementInterface
 import ts.car.someip.plugin.SomeIpTopic
 import ts.car.someip.sdk.common.ResultValue
@@ -101,94 +103,151 @@ class SeatViewModel : BaseAppViewModel() {
 
         // notify subscriber the change of sunroof status
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1: Success")
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1: Success"
+            )
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2: Success")
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2: Success"
+            )
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_3) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_3: Success")
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_3: Success"
+            )
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_1) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_1: Success")
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_1: Success"
+            )
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_2) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_2: Success")
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_2: Success"
+            )
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1: Success")
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1: Success"
+            )
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2: Success")
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_PERCENTAGE_POSITION){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_PERCENTAGE_POSITION: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_PERCENTAGE_POSITION) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_PERCENTAGE_POSITION: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_CONFIGURATION){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_CONFIGURATION) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_CONFIGURATION: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_CONFIGURATION){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_CONFIGURATION) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_CONFIGURATION: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_CONFIGURATION){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_CONFIGURATION) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_CONFIGURATION: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_CONFIGURATION){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_CONFIGURATION) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_CONFIGURATION: Success")
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_CONFIGURATION) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_CONFIGURATION: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_CONFIGURATION){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_CONFIGURATION) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_CONFIGURATION: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_AVAILABILITY_STATUS){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_AVAILABILITY_STATUS: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_AVAILABILITY_STATUS) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_AVAILABILITY_STATUS: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS_2){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS_2: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS_2) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS_2: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS_2){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS_2) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS_2: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_AVAILABILITY_AND_NOTIFICATION_STATUS_6){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_AVAILABILITY_AND_NOTIFICATION_STATUS_6: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_AVAILABILITY_AND_NOTIFICATION_STATUS_6) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_AVAILABILITY_AND_NOTIFICATION_STATUS_6: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION_2){
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION_2) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION_2: Success")
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_COMFORT_MODE_REQUEST_INFO){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_COMFORT_MODE_REQUEST_INFO: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_COMFORT_MODE_REQUEST_INFO) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_COMFORT_MODE_REQUEST_INFO: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_LEFT_COMFORT_MODE_REQUEST_HMI){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_LEFT_COMFORT_MODE_REQUEST_HMI: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_LEFT_COMFORT_MODE_REQUEST_HMI) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_LEFT_COMFORT_MODE_REQUEST_HMI: Success"
+            )
         }
-        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_RIGHT_COMFORT_MODE_REQUEST_HMI){
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_RIGHT_COMFORT_MODE_REQUEST_HMI: Success")
+        if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_RIGHT_COMFORT_MODE_REQUEST_HMI) {
+            Log.i(
+                TAG,
+                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_RIGHT_COMFORT_MODE_REQUEST_HMI: Success"
+            )
         }
     }
 
-    fun setDriverSeatRecallReq_M1(){
+    fun setDriverSeatRecallReq_M1() {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M1: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "Driver_Seat_Recall_Request_Service_37C_M1: failed, server is not available or client is not ready"
+            )
             return
         }
         val newRecall = SomeipS2SManagementInterface
@@ -218,18 +277,31 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M1: FAILED")
 
     }
-    fun setDriverSeatRecallReq_M2(){
+
+    fun setDriverSeatHeadLegRestRecallPosReq(component: SeatComponent, pos: Int): Boolean {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M2: failed, server is not available or client is not ready")
-            return
+            Log.i(
+                TAG,
+                "Driver_Seat_Recall_Request_Service_37C_M2(Head rest/Leg rest): failed, server is not available or client is not ready"
+            )
+            return false
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
-                    .setDrvStHdrstUpwdDnwdTrgtPosReqSrv(testVal)
-                    .setDrvStLgrstUpwdDnwdTrgtPosReqSrv(testVal)
-            ).build()
+        var newRecall: GeneratedMessageV3= SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder().build()
+        if (component == SeatComponent.SC_HEADREST) {
+            newRecall = SomeipS2SManagementInterface
+                .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
+                .setOutPut(
+                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
+                        .setDrvStHdrstUpwdDnwdTrgtPosReqSrv(pos)
+                ).build()
+        } else if (component == SeatComponent.SC_SIDE_BOLSTER_BACK) {
+            newRecall = SomeipS2SManagementInterface
+                .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
+                .setOutPut(
+                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
+                        .setDrvStLgrstUpwdDnwdTrgtPosReqSrv(pos)
+                ).build()
+        }
 
         val req = SomeIpData(
             SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2,
@@ -238,30 +310,41 @@ class SeatViewModel : BaseAppViewModel() {
         )
 
         val resp = SomeIpData()
-
         val res = someIpClientProxy?.setAttribute(req, resp)
-        Log.i(TAG, "sendReq2Server: Driver_Seat_Recall_Request_Service_37C_M2.")
+        Log.i(TAG, "sendReq2Server: Driver_Seat_Recall_Request_Service_37C_M2(Headrest/Legrest).")
 
         if (res == ResultValue.OK) {
             Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M2: Response OK")
-            return
+            return true
         }
-
         Log.i(TAG, "Driver_Seat_Recall_Request_Service_37C_M2: FAILED")
+        return false
 
     }
-    fun setDriverSeatRecallReq_M3(){
+
+    fun setDriverSeatReclineRecallPosReq(component: SeatComponent, pos: Int) {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "Driver_Seat_Recall_Request_Service_3AB_M3Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "Driver_Seat_Recall_Request_Service_3AB_M3(Driver Seat and Recline): failed, server is not available or client is not ready"
+            )
             return
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
-                    .setDrvStBkReclnUpwdDnwdTrgtPosReqSrv(testVal)
-                    .setDrvStFrwdBkwdTrgtPosReqSrv(testVal)
-            ).build()
+        if (component == SeatComponent.SC_BACK) {
+            val newRecall = SomeipS2SManagementInterface
+                .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
+                .setOutPut(
+                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
+                        .setDrvStFrwdBkwdTrgtPosReqSrv(pos)
+                ).build()
+        } else if (component == SeatComponent.SC_LUMBAR) {
+            val newRecall = SomeipS2SManagementInterface
+                .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
+                .setOutPut(
+                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
+                        .setDrvStBkReclnUpwdDnwdTrgtPosReqSrv(pos)
+                ).build()
+        }
 
         val req = SomeIpData(
             SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3,
@@ -282,18 +365,32 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "Driver_Seat_Recall_Request_Service_3AB_M3Field: FAILED")
 
     }
-    fun setDriverSeatRecallReq_M4(){
+
+    fun setDriverSeatCushionRecallPosReq(component: SeatComponent, pos: Int) {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "Driver_Seat_Recall_Request_Service_3AC_M4Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "Driver_Seat_Recall_Request_Service_3AC_M4(Cushion Front Rear): failed, server is not available or client is not ready"
+            )
             return
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
-                    .setDrvStCshnFrntUpwdDnwdTrgtPosReqSrv(testVal)
-                    .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(testVal)
-            ).build()
+        if (component == SeatComponent.SC_CUSHION_FRONT) {
+            val newRecall = SomeipS2SManagementInterface
+                .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
+                .setOutPut(
+                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
+                        .setDrvStCshnFrntUpwdDnwdTrgtPosReqSrv(pos)
+                        .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(testVal)
+                ).build()
+        } else if (component == SeatComponent.SC_CUSHION) {
+            val newRecall = SomeipS2SManagementInterface
+                .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
+                .setOutPut(
+                    SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
+                        .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(pos)
+                ).build()
+
+        }
 
         val req = SomeIpData(
             SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4,
@@ -315,9 +412,12 @@ class SeatViewModel : BaseAppViewModel() {
 
     }
 
-    fun setSeatModeReq(){
+    fun setSeatModeReq() {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "Seat_Mode_Control_Request: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "Seat_Mode_Control_Request: failed, server is not available or client is not ready"
+            )
             return
         }
 
@@ -380,10 +480,12 @@ class SeatViewModel : BaseAppViewModel() {
     }
 
 
-
-    fun getDriverSeatPosition_1(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field?{
+    fun getDriverSeatPosition_1(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Driver_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Driver_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -406,9 +508,12 @@ class SeatViewModel : BaseAppViewModel() {
         return null;
     }
 
-    fun getDriverSeatPosition_2(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field?{
+    fun getDriverSeatPosition_2(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Driver_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Driver_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -432,9 +537,12 @@ class SeatViewModel : BaseAppViewModel() {
         return null;
     }
 
-    fun getDriverSeatPosition_3(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field?{
+    fun getDriverSeatPosition_3(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get DriverSeatPosition: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get DriverSeatPosition: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -457,9 +565,12 @@ class SeatViewModel : BaseAppViewModel() {
         return null;
     }
 
-    fun getPassenagerSeatPosition_1(): SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field?{
+    fun getPassenagerSeatPosition_1(): SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Passenger_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Passenger_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -481,9 +592,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Passenger_Seat_Percentage_Position_1Field")
         return null;
     }
-    fun getPassenagerSeatPosition_2(): SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_2Field?{
+
+    fun getPassenagerSeatPosition_2(): SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_2Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Passenger_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Passenger_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -505,9 +620,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Passenger_Seat_Percentage_Position_2Field")
         return null;
     }
-    fun getSecondLeftSeatPosition_1(): SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field?{
+
+    fun getSecondLeftSeatPosition_1(): SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Second_Left_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Second_Left_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -529,9 +648,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Second_Left_Seat_Percentage_Position_1Field")
         return null;
     }
-    fun getSecondLeftSeatPosition_2(): SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field?{
+
+    fun getSecondLeftSeatPosition_2(): SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Second_Left_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Second_Left_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -553,9 +676,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Second_Left_Seat_Percentage_Position_2Field")
         return null;
     }
-    fun getSecondRightSeatPosition_1(): SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field?{
+
+    fun getSecondRightSeatPosition_1(): SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Second_Left_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Second_Left_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -577,9 +704,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Second_Left_Seat_Percentage_Position_1Field")
         return null;
     }
-    fun getSecondRightSeatPosition_2(): SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_2Field?{
+
+    fun getSecondRightSeatPosition_2(): SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_2Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Second_Left_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Second_Left_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -601,9 +732,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Second_Left_Seat_Percentage_Position_2Field")
         return null;
     }
-    fun getThirdLeftSeatPosition(): SomeipS2SManagementInterface.Third_Left_Seat_Percentage_PositionField?{
+
+    fun getThirdLeftSeatPosition(): SomeipS2SManagementInterface.Third_Left_Seat_Percentage_PositionField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Third_Left_Seat_Percentage_PositionField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Third_Left_Seat_Percentage_PositionField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -625,9 +760,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Third_Left_Seat_Percentage_PositionField")
         return null;
     }
-    fun getThirdRightSeatPosition(): SomeipS2SManagementInterface.Third_Right_Seat_Percentage_PositionField?{
+
+    fun getThirdRightSeatPosition(): SomeipS2SManagementInterface.Third_Right_Seat_Percentage_PositionField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Third_Right_Seat_Percentage_PositionField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Third_Right_Seat_Percentage_PositionField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -649,9 +788,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Third_Right_Seat_Percentage_PositionField")
         return null;
     }
-    fun getDriverSeatConf(): SomeipS2SManagementInterface.Driver_Seat_ConfigurationField?{
+
+    fun getDriverSeatConf(): SomeipS2SManagementInterface.Driver_Seat_ConfigurationField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Driver_Seat_ConfigurationField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Driver_Seat_ConfigurationField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -673,9 +816,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Driver_Seat_ConfigurationField")
         return null;
     }
-    fun getPassengerSeatConf(): SomeipS2SManagementInterface.Passenger_Seat_ConfigurationField?{
+
+    fun getPassengerSeatConf(): SomeipS2SManagementInterface.Passenger_Seat_ConfigurationField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Passenger_Seat_ConfigurationField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Passenger_Seat_ConfigurationField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -697,9 +844,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Passenger_Seat_ConfigurationField")
         return null;
     }
-    fun getSecondLeftSeatConf(): SomeipS2SManagementInterface.Second_Left_Seat_ConfigurationField?{
+
+    fun getSecondLeftSeatConf(): SomeipS2SManagementInterface.Second_Left_Seat_ConfigurationField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Second_Left_Seat_ConfigurationField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Second_Left_Seat_ConfigurationField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -721,9 +872,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Second_Left_Seat_ConfigurationField")
         return null;
     }
-    fun getSecondRightSeatConf(): SomeipS2SManagementInterface.Second_Right_Seat_ConfigurationField?{
+
+    fun getSecondRightSeatConf(): SomeipS2SManagementInterface.Second_Right_Seat_ConfigurationField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Second_Right_Seat_ConfigurationField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Second_Right_Seat_ConfigurationField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -745,9 +900,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Second_Right_Seat_ConfigurationField")
         return null;
     }
-    fun getThirdLeftSeatConf(): SomeipS2SManagementInterface.Third_Left_Seat_ConfigurationField?{
+
+    fun getThirdLeftSeatConf(): SomeipS2SManagementInterface.Third_Left_Seat_ConfigurationField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Third_Left_Seat_ConfigurationField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Third_Left_Seat_ConfigurationField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -769,9 +928,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Third_Left_Seat_ConfigurationField")
         return null;
     }
-    fun getThirdRightSeatConf(): SomeipS2SManagementInterface.Third_Right_Seat_ConfigurationField?{
+
+    fun getThirdRightSeatConf(): SomeipS2SManagementInterface.Third_Right_Seat_ConfigurationField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Third_Right_Seat_ConfigurationField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Third_Right_Seat_ConfigurationField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -793,9 +956,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Third_Right_Seat_ConfigurationField")
         return null;
     }
-    fun getSeatMode(): SomeipS2SManagementInterface.Seat_Mode_StatusField?{
+
+    fun getSeatMode(): SomeipS2SManagementInterface.Seat_Mode_StatusField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Seat_Mode_StatusField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Seat_Mode_StatusField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -817,9 +984,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Seat_Mode_StatusField")
         return null;
     }
-    fun getSeatPassenger_Com_Mode_Ser(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Availability_StatusField?{
+
+    fun getSeatPassenger_Com_Mode_Ser(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Availability_StatusField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Seat_Passenger_Compartment_Mode_Service_Availability_StatusField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Seat_Passenger_Compartment_Mode_Service_Availability_StatusField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -830,9 +1001,15 @@ class SeatViewModel : BaseAppViewModel() {
             resp
         )
 
-        Log.i(TAG, "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Availability_StatusField")
+        Log.i(
+            TAG,
+            "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Availability_StatusField"
+        )
         if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Availability_StatusField OK")
+            Log.i(
+                TAG,
+                "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Availability_StatusField OK"
+            )
 //            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
 //            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
 //            return temp
@@ -841,9 +1018,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Seat_Passenger_Compartment_Mode_Service_Availability_StatusField")
         return null;
     }
-    fun getSeatPassenger_Com_Mode_Ser_Resp(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Response_StatusField?{
+
+    fun getSeatPassenger_Com_Mode_Ser_Resp(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Response_StatusField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Seat_Passenger_Compartment_Mode_Service_Response_StatusField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Seat_Passenger_Compartment_Mode_Service_Response_StatusField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -854,9 +1035,15 @@ class SeatViewModel : BaseAppViewModel() {
             resp
         )
 
-        Log.i(TAG, "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Response_StatusField")
+        Log.i(
+            TAG,
+            "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Response_StatusField"
+        )
         if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Response_StatusField OK")
+            Log.i(
+                TAG,
+                "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Response_StatusField OK"
+            )
 //            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
 //            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
 //            return temp
@@ -865,9 +1052,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Seat_Passenger_Compartment_Mode_Service_Response_StatusField")
         return null;
     }
-    fun getSeatPassenger_Com_Mode_Ser_Resp2(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field?{
+
+    fun getSeatPassenger_Com_Mode_Ser_Resp2(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -878,9 +1069,15 @@ class SeatViewModel : BaseAppViewModel() {
             resp
         )
 
-        Log.i(TAG, "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field")
+        Log.i(
+            TAG,
+            "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field"
+        )
         if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field OK")
+            Log.i(
+                TAG,
+                "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field OK"
+            )
 //            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
 //            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
 //            return temp
@@ -889,9 +1086,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field")
         return null;
     }
-    fun getSeatMode2(): SomeipS2SManagementInterface.Seat_Mode_Status_2Field?{
+
+    fun getSeatMode2(): SomeipS2SManagementInterface.Seat_Mode_Status_2Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Seat_Mode_Status_2Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Seat_Mode_Status_2Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -913,9 +1114,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Seat_Mode_Status_2Field")
         return null;
     }
-    fun getSeatPassenger_Com_Mode_Ava_Notifi6(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field?{
+
+    fun getSeatPassenger_Com_Mode_Ava_Notifi6(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -926,20 +1131,33 @@ class SeatViewModel : BaseAppViewModel() {
             resp
         )
 
-        Log.i(TAG, "sendReq2Server: get Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field")
+        Log.i(
+            TAG,
+            "sendReq2Server: get Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field"
+        )
         if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field OK")
+            Log.i(
+                TAG,
+                "sendReq2Server: Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field OK"
+            )
 //            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
 //            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
 //            return temp
         }
 
-        Log.i(TAG, "FAILED: Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field")
+        Log.i(
+            TAG,
+            "FAILED: Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field"
+        )
         return null;
     }
-    fun getDriverSeatRecoveryPosition(): SomeipS2SManagementInterface.Driver_Seat_Recovery_PositionField?{
+
+    fun getDriverSeatRecoveryPosition(): SomeipS2SManagementInterface.Driver_Seat_Recovery_PositionField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Driver_Seat_Recovery_PositionField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Driver_Seat_Recovery_PositionField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -961,9 +1179,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Driver_Seat_Recovery_PositionField")
         return null;
     }
-    fun getDriverSeatRecoveryPosition2(): SomeipS2SManagementInterface.Driver_Seat_Recovery_Position_2Field?{
+
+    fun getDriverSeatRecoveryPosition2(): SomeipS2SManagementInterface.Driver_Seat_Recovery_Position_2Field? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Driver_Seat_Recovery_Position_2Field: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Driver_Seat_Recovery_Position_2Field: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -985,9 +1207,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Driver_Seat_Recovery_Position_2Field")
         return null;
     }
-    fun getSec_RowLeft_Com_Mode_Req(): SomeipS2SManagementInterface.Second_Row_Left_ComfortMode_Request_HMIField?{
+
+    fun getSec_RowLeft_Com_Mode_Req(): SomeipS2SManagementInterface.Second_Row_Left_ComfortMode_Request_HMIField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Second_Row_Left_ComfortMode_Request_HMIField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Second_Row_Left_ComfortMode_Request_HMIField: failed, server is not available or client is not ready"
+            )
             return null
         }
 
@@ -1009,9 +1235,13 @@ class SeatViewModel : BaseAppViewModel() {
         Log.i(TAG, "FAILED: Second_Row_Left_ComfortMode_Request_HMIField")
         return null;
     }
-    fun getSec_RowRight_Com_Mode_Req(): SomeipS2SManagementInterface.Second_Row_Right_ComfortMode_Request_HMIField?{
+
+    fun getSec_RowRight_Com_Mode_Req(): SomeipS2SManagementInterface.Second_Row_Right_ComfortMode_Request_HMIField? {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG, "get Second_Row_Right_ComfortMode_Request_HMIField: failed, server is not available or client is not ready")
+            Log.i(
+                TAG,
+                "get Second_Row_Right_ComfortMode_Request_HMIField: failed, server is not available or client is not ready"
+            )
             return null
         }
 

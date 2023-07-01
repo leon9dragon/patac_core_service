@@ -1,27 +1,13 @@
 package com.gm.ultifi.base.response.mapper;
 
-import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.response.config.PropertyConfig;
 import com.gm.ultifi.service.access.response.mapper.SunroofMapper;
-import com.gm.ultifi.base.utils.cache.Cache;
-import com.gm.ultifi.base.utils.cache.LruCache;
 import com.google.protobuf.Any;
 
 import java.util.Map;
 
-/**
- * TODO: 2023/4/26 框架代码抽离，那些订阅URI的常量，应该放在继承的类里面。
- */
 public interface BaseMapper {
-
-    String BASE_URI_SERVICE = "body.access";
-
-    String VERSION = "1";
-
-    UEntity SERVICE = new UEntity(BASE_URI_SERVICE, VERSION);
-
-    Cache cache = LruCache.getInstance();
 
     /*
      * to find the processor by property/signal

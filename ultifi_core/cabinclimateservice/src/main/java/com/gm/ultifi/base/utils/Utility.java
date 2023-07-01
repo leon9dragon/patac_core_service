@@ -1,15 +1,11 @@
 package com.gm.ultifi.base.utils;
 
-import static com.gm.ultifi.service.access.response.mapper.ResourceMappingConstants.SUNROOF_FRONT;
-
 import android.util.Log;
 
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
-import com.gm.ultifi.base.response.mapper.BaseMapper;
-import com.ultifi.vehicle.body.access.v1.Sunroof;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +25,6 @@ public class Utility {
      */
     public static List<String> buildTopicsList(Map<String, List<String>> topicMapper, UEntity uEntity) {
         ArrayList<String> topics = new ArrayList<>();
-
 
         // Sunroof related topics
         Set<String> sets = topicMapper.keySet();

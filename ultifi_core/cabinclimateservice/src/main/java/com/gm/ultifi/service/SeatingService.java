@@ -16,27 +16,27 @@ import androidx.lifecycle.LifecycleService;
 
 import com.gm.ultifi.base.monitor.CanManagerMonitor;
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
-import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
 import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
-import com.gm.ultifi.service.access.AccessLaunchManger;
+import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
 import com.gm.ultifi.base.utils.TaskRunner;
+import com.gm.ultifi.service.access.AccessLaunchManger;
 
-public class AccessService extends LifecycleService {
+public class SeatingService extends LifecycleService {
 
-    private static final String TAG = AccessService.class.getSimpleName();
+    private static final String TAG = SeatingService.class.getSimpleName();
 
     private static final String SDV_ENABLE_PROP = "persist.sys.gm.sdv_enable";
 
-    private static final String CHANNEL_ID = "com.gm.ultifi.service.access";
-    private static final String CHANNEL_NAME = "Access Service";
+    private static final String CHANNEL_ID = "com.gm.ultifi.service.seating";
+    private static final String CHANNEL_NAME = "Seating Service";
 
-    public static AccessService context = null;
+    public static SeatingService context = null;
 
     private boolean isSDVEnabled = false;
 
     public static ServiceLaunchManager mLaunchManager = null;
 
-    public AccessService() {
+    public SeatingService() {
     }
 
     @Override
@@ -93,7 +93,7 @@ public class AccessService extends LifecycleService {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
             Notification notification = builder.setOngoing(true)
                     .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("AccessService is running")
+                    .setContentTitle("SeatingService is running")
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory("service")
                     .build();
@@ -101,4 +101,6 @@ public class AccessService extends LifecycleService {
             startForeground(3, notification);
         }
     }
+
+
 }

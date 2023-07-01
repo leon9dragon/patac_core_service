@@ -1,4 +1,4 @@
-package com.gm.ultifi.service.access.response.mapper;
+package com.gm.ultifi.service.constant;
 
 /**
  * for topics are not sensitive to zone configuration
