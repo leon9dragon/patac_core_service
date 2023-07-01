@@ -7,7 +7,7 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gm.ultifi.service.access.someip.AmbientLightViewModel;
-import com.gm.ultifi.service.access.someip.SeatingViewModel;
+import com.gm.ultifi.service.access.someip.SeatViewModel;
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
 
 import java.util.Timer;
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         context = this;
         setContentView(R.layout.activity_main);
         SunroofViewModel sunroofViewModel = new SunroofViewModel();
-        SeatingViewModel seatingViewModel = new SeatingViewModel();
+        SeatViewModel seatViewModel = new SeatViewModel();
         AmbientLightViewModel ambientLightViewModel = new AmbientLightViewModel();
 
         findViewById(R.id.btnSet).setOnClickListener(view -> {
@@ -65,11 +65,11 @@ public class MainActivity extends AppCompatActivity {
                     sunroofViewModel.setSideSunblindControlRequest();
                     sunroofViewModel.setWindowsPercentageControlRequest();
 
-                    seatingViewModel.setDriverSeatRecallReq_M1();
-                    seatingViewModel.setDriverSeatRecallReq_M2();
-                    seatingViewModel.setDriverSeatRecallReq_M3();
-                    seatingViewModel.setDriverSeatRecallReq_M4();
-                    seatingViewModel.setSeatModeReq();
+                    seatViewModel.setDriverSeatRecallReq_M1();
+                    seatViewModel.setDriverSeatRecallReq_M2();
+                    seatViewModel.setDriverSeatRecallReq_M3();
+                    seatViewModel.setDriverSeatRecallReq_M4();
+                    seatViewModel.setSeatModeReq();
 
                     ambientLightViewModel.setAmbientLight();
                 }
@@ -108,26 +108,26 @@ public class MainActivity extends AppCompatActivity {
                     sunroofViewModel.getWindowStatus();
                     sunroofViewModel.getWindowStatusInformation();
 
-                    seatingViewModel.getDriverSeatConf();
-                    seatingViewModel.getDriverSeatPosition_1();
-                    seatingViewModel.getDriverSeatPosition_2();
-                    seatingViewModel.getDriverSeatPosition_3();
-                    seatingViewModel.getSeatMode();
-                    seatingViewModel.getSeatMode2();
-                    seatingViewModel.getDriverSeatRecoveryPosition();
-                    seatingViewModel.getDriverSeatRecoveryPosition2();
-                    seatingViewModel.getSeatPassenger_Com_Mode_Ser();
-                    seatingViewModel.getSeatPassenger_Com_Mode_Ser_Resp();
-                    seatingViewModel.getSeatPassenger_Com_Mode_Ser_Resp2();
-                    seatingViewModel.getThirdLeftSeatConf();
-                    seatingViewModel.getThirdLeftSeatPosition();
-                    seatingViewModel.getThirdRightSeatConf();
-                    seatingViewModel.getThirdRightSeatPosition();
-                    seatingViewModel.getSec_RowLeft_Com_Mode_Req();
-                    seatingViewModel.getSec_RowRight_Com_Mode_Req();
-                    seatingViewModel.getSeatPassenger_Com_Mode_Ava_Notifi6();
-                    seatingViewModel.getSecondLeftSeatPosition_1();
-                    seatingViewModel.getSecondLeftSeatPosition_2();
+                    seatViewModel.getDriverSeatConf();
+                    seatViewModel.getDriverSeatPosition_1();
+                    seatViewModel.getDriverSeatPosition_2();
+                    seatViewModel.getDriverSeatPosition_3();
+                    seatViewModel.getSeatMode();
+                    seatViewModel.getSeatMode2();
+                    seatViewModel.getDriverSeatRecoveryPosition();
+                    seatViewModel.getDriverSeatRecoveryPosition2();
+                    seatViewModel.getSeatPassenger_Com_Mode_Ser();
+                    seatViewModel.getSeatPassenger_Com_Mode_Ser_Resp();
+                    seatViewModel.getSeatPassenger_Com_Mode_Ser_Resp2();
+                    seatViewModel.getThirdLeftSeatConf();
+                    seatViewModel.getThirdLeftSeatPosition();
+                    seatViewModel.getThirdRightSeatConf();
+                    seatViewModel.getThirdRightSeatPosition();
+                    seatViewModel.getSec_RowLeft_Com_Mode_Req();
+                    seatViewModel.getSec_RowRight_Com_Mode_Req();
+                    seatViewModel.getSeatPassenger_Com_Mode_Ava_Notifi6();
+                    seatViewModel.getSecondLeftSeatPosition_1();
+                    seatViewModel.getSecondLeftSeatPosition_2();
 
                     ambientLightViewModel.getAmbientLedControlAvailable();
                     ambientLightViewModel.getLed1AndLed2Status();

@@ -36,6 +36,7 @@ public class CarPropertyExtensionManager {
             if (mExtCallbacks.isEmpty()) {
                 mPropertyCallback = new CarPropertyEventListenerImpl(this);
             }
+            // todo other service
             for (SunroofEnum sunroofEnum : SunroofEnum.values()) {
                 mPropertyManager.registerCallback(mPropertyCallback,
                         sunroofEnum.getPropertyId(), sunroofEnum.getRate());

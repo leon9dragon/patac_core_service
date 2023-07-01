@@ -81,6 +81,7 @@ public class UltifiLinkMonitor implements ConnectionManager {
             // TODO: 2023/5/25 注意业务处理, 这边的服务前缀可能有很多
             UEntity uEntity = BaseMapper.SERVICE;
             String methodUri = UltifiUriFactory.buildMethodUri(uAuthority, uEntity, methodName);
+            // todo methodUri 放什么位置，放topic中？
             Status status = mUltifiLink.registerRequestListener(methodUri, mRPCRequestListener);
             Log.i(TAG, "registerRPCMethod URI: " + methodUri + " Status: " + StatusUtils.toShortString(status));
         }

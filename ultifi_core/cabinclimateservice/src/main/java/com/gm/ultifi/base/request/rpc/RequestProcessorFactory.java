@@ -4,8 +4,11 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
-import com.gm.ultifi.service.access.manager.request.helper.SunroofRequestProcessor;
-import com.gm.ultifi.service.access.manager.request.helper.SunroofSomeIpRequestProcessor;
+import com.gm.ultifi.service.access.request.SunroofRequestProcessor;
+import com.gm.ultifi.service.access.request.SunroofSomeIpRequestProcessor;
+import com.gm.ultifi.service.access.request.SeatPositionGroupSomeIpRequestProcessor;
+import com.gm.ultifi.service.access.request.UpdateSeatPositionRequestProcessor;
+import com.gm.ultifi.service.access.response.mapper.SeatMapper;
 import com.gm.ultifi.service.access.response.mapper.SunroofMapper;
 import com.google.rpc.Status;
 import com.ultifi.core.rpc.Request;
@@ -39,6 +42,12 @@ public class RequestProcessorFactory {
             }
             if(processor.equals(SunroofSomeIpRequestProcessor.SUNROOF_RPC_METHOD_URI_SOME_IP)) {
                 return new SunroofSomeIpRequestProcessor();
+            }
+            if(processor.equals(SeatMapper.SEAT_RPC_SEAT_POSITION_METHOD)){
+                return new UpdateSeatPositionRequestProcessor();
+            }
+            if(processor.equals(SeatMapper.SEAT_RPC_SEAT_POSITION_GROUP_METHOD)){
+                return new SeatPositionGroupSomeIpRequestProcessor();
             }
         }
         return null;

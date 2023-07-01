@@ -1,4 +1,4 @@
-package com.gm.ultifi.service.access.manager.request.helper;
+package com.gm.ultifi.service.access.request;
 
 import static com.gm.ultifi.base.propertymanager.ProtobufMessageIds.POSITION;
 import static com.gm.ultifi.base.utils.SeatAreaIdConst.GLOBAL_AREA_ID;

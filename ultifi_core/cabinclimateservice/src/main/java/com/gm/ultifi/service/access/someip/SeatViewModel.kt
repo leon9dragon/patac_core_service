@@ -7,7 +7,7 @@ import ts.car.someip.plugin.SomeIpTopic
 import ts.car.someip.sdk.common.ResultValue
 import ts.car.someip.sdk.common.SomeIpData
 
-class SeatingViewModel : BaseAppViewModel() {
+class SeatViewModel : BaseAppViewModel() {
     private val isBoolean = false
     private val testVal = 0
     override fun doOnRequest(data: SomeIpData): SomeIpData? {
@@ -411,6 +411,7 @@ class SeatingViewModel : BaseAppViewModel() {
             Log.i(TAG, "get Driver_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready")
             return null
         }
+
 
         val resp = SomeIpData()
 

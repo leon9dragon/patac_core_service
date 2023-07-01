@@ -20,7 +20,6 @@ public class BootCompleteReceiver extends BroadcastReceiver {
             // Start foreground service when boot complete
             if (Intent.ACTION_BOOT_COMPLETED.equals(action)
                 || (BuildConfig.DEBUG && "com.patac.intent.action.TEST".equals(action))) {
-//                context.startForegroundService(new Intent(context, CabinClimateService.class));
                 context.startForegroundService(new Intent(context, AccessService.class));
             }
         }
