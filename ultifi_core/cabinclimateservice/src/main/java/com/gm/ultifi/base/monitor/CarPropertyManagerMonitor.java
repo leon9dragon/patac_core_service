@@ -6,6 +6,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
+import com.gm.ultifi.base.response.config.SignalInfo;
 
 /**
  * Car Property Manager access helper
@@ -82,6 +83,16 @@ public class CarPropertyManagerMonitor implements ConnectionManager {
             Log.e(TAG, "mCarPropertyManager is null");
         } else {
             mPropertyExtensionManager.registerCallback(callback);
+        }
+    }
+
+    public <T extends Enum<T> & SignalInfo> void registerCallback(CarPropertyExtensionManager.CarPropertyExtensionCallback callback, T[] enumList) {
+        if (mPropertyExtensionManager == null) {
+            Log.e(TAG, "mPropertyExtensionManager is null");
+        } else if (!isCarPropertyManagerReady()) {
+            Log.e(TAG, "mCarPropertyManager is null");
+        } else {
+            mPropertyExtensionManager.registerCallback(callback, enumList);
         }
     }
 

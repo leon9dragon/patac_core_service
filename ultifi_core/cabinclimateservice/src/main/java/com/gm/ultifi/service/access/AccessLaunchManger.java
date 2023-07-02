@@ -3,12 +3,11 @@ package com.gm.ultifi.service.access;
 import com.gm.ultifi.base.monitor.CanManagerMonitor;
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
 import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
-import com.gm.ultifi.base.response.mapper.BaseMapper;
+import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
-import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
-import com.gm.ultifi.service.access.request.SunroofSomeIpRequestProcessor;
-import com.gm.ultifi.service.constant.ResourceMappingConstants;
 import com.gm.ultifi.base.utils.Utility;
+import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
+import com.gm.ultifi.service.constant.ResourceMappingConstants;
 import com.gm.ultifi.service.constant.ServiceConstant;
 
 import java.util.Arrays;
@@ -39,5 +38,14 @@ public class AccessLaunchManger extends ServiceLaunchManager {
         for (String topic : Utility.buildTopicsList(topicMapper, ServiceConstant.ACCESS_SERVICE)) {
             createTopic(topic);
         }
+    }
+
+    // TODO: 2023/7/2 这样好像没增加多少理解难度
+    @Override
+    public void registerCarPropertyCallback() {
+        CarPropertyManagerMonitor carPropertyManagerMonitor = getmCarPropertyMgrMonitor();
+        CarPropertyExtensionManager.CarPropertyExtensionCallback callback = getmPropertyExtMgrCallback();
+
+        carPropertyManagerMonitor.registerCallback(callback, SunroofEnum.values());
     }
 }

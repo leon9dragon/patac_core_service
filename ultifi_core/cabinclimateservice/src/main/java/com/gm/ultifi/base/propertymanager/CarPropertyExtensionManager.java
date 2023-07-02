@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.collection.ArraySet;
 
+import com.gm.ultifi.base.response.config.SignalInfo;
 import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
 
 import java.lang.ref.WeakReference;
@@ -41,6 +42,24 @@ public class CarPropertyExtensionManager {
                 mPropertyManager.registerCallback(mPropertyCallback,
                         sunroofEnum.getPropertyId(), sunroofEnum.getRate());
             }
+
+            mExtCallbacks.add(callback);
+        }
+    }
+
+    // TODO: 2023/7/2 是不是可以这样改? 枚举的 values 方法在泛型好像不能调用?
+    public <T extends Enum<T> & SignalInfo> void registerCallback(CarPropertyExtensionCallback callback, T[] enumList) {
+        synchronized (mLock) {
+            if (mExtCallbacks.isEmpty()) {
+                mPropertyCallback = new CarPropertyEventListenerImpl(this);
+            }
+            // todo other service
+
+            for (T en : enumList) {
+                mPropertyManager.registerCallback(mPropertyCallback,
+                        en.getPropertyId(), en.getRate());
+            }
+
             mExtCallbacks.add(callback);
         }
     }

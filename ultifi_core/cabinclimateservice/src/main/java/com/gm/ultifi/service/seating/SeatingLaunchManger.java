@@ -37,6 +37,13 @@ public class SeatingLaunchManger  extends ServiceLaunchManager {
             createTopic(topic);
         }
     }
+
+
+    // TODO: 2023/7/2 待确认
+    @Override
+    public void registerCarPropertyCallback() {
+
+    }
 }
 
 

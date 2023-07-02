@@ -6,15 +6,15 @@ import android.util.Log;
 import com.gm.ultifi.base.monitor.CanManagerMonitor;
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
 import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
-import com.gm.ultifi.base.response.mapper.TopicMapperFactory;
-import com.gm.ultifi.sdk.uprotocol.cloudevent.datamodel.UCloudEventAttributes;
-import com.gm.ultifi.sdk.uprotocol.cloudevent.factory.CloudEventFactory;
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.request.listeners.UltifiLinkRequestListener;
 import com.gm.ultifi.base.response.config.PropertyConfig;
 import com.gm.ultifi.base.response.mapper.BaseMapper;
-import com.gm.ultifi.service.seating.someip.SeatViewModel;
+import com.gm.ultifi.base.response.mapper.TopicMapperFactory;
+import com.gm.ultifi.sdk.uprotocol.cloudevent.datamodel.UCloudEventAttributes;
+import com.gm.ultifi.sdk.uprotocol.cloudevent.factory.CloudEventFactory;
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
+import com.gm.ultifi.service.seating.someip.SeatViewModel;
 import com.google.protobuf.Any;
 import com.google.rpc.Status;
 import com.ultifi.core.Topic;
@@ -79,11 +79,11 @@ public abstract class ServiceLaunchManager {
             if (isConnected) {
                 // Make sure that register can bridge signals when isUltifiLinkConnected && isConnected
                 if (isUltifiLinkConnected && !isCanSignalsRegistered) {
-                    registerAccessSignals();
+                    registerServiceSignals();
                     isCanSignalsRegistered = true;
                 }
             } else {
-                unRegisterAccessSignals();
+                unRegisterServiceSignals();
                 isCanSignalsRegistered = false;
             }
             Log.d(TAG, "CanManager status, isConnected=" + isConnected
@@ -162,7 +162,7 @@ public abstract class ServiceLaunchManager {
         // Make sure that register can bridge signals when isUltifiLinkConnected && mCanMgrMonitor.isCanManagerReady()
         if (mCanMgrMonitor.isCanManagerReady()) {
             Log.i(TAG, "Start Registering in UltifiLink");
-            registerAccessSignals();
+            registerServiceSignals();
             isCanSignalsRegistered = true;
         }
         // Make sure that register car property signals when isUltifiLinkConnected && mCarPropertyMgrMonitor.isCarPropertyManagerReady()
@@ -178,14 +178,12 @@ public abstract class ServiceLaunchManager {
         registerTopicMethod();
     }
 
-    public abstract void registerTopicMethod();
-
     private void onUltifiLinkDisconnected() {
         isUltifiLinkConnected = false;
         Log.d(TAG, "UltifiLink disconnected");
         if (mCanMgrMonitor.isCanManagerReady()) {
             Log.i(TAG, "Unregistering in UltifiLink");
-            unRegisterAccessSignals();
+            unRegisterServiceSignals();
             isCanSignalsRegistered = false;
         }
         if (mCarPropertyMgrMonitor.isCarPropertyManagerReady()) {
@@ -293,26 +291,15 @@ public abstract class ServiceLaunchManager {
         Log.i(TAG, "createTopic : " + topic + " status: " + StatusUtils.toShortString(status));
     }
 
-    private void registerAccessSignals() {
-        // if Sunroof also had CAN bridge related signals, add registration codes here
-        // registerCanSignals(Sunroof.getSignals());
+    public CarPropertyManagerMonitor getmCarPropertyMgrMonitor() {
+        return mCarPropertyMgrMonitor;
     }
 
-    private void unRegisterAccessSignals() {
-        // unRegisterCanSignals(Sunroof.getSignals());
+    public CarPropertyExtensionManager.CarPropertyExtensionCallback getmPropertyExtMgrCallback() {
+        return mPropertyExtMgrCallback;
     }
 
-    private void registerCanSignals(List<String> signals) {
-        mCanMgrMonitor.registerSignal(signals.toArray(new String[0]));
-    }
-
-    private void unRegisterCanSignals(List<String> signals) {
-        mCanMgrMonitor.unRegisterSignal(signals.toArray(new String[0]));
-    }
-
-    private void registerCarPropertyCallback() {
-        mCarPropertyMgrMonitor.registerCallback(mPropertyExtMgrCallback);
-    }
+    public abstract void registerCarPropertyCallback();
 
     private void unRegisterCarPropertyCallback() {
         mCarPropertyMgrMonitor.unRegisterCallback(mPropertyExtMgrCallback);
@@ -321,4 +308,29 @@ public abstract class ServiceLaunchManager {
     public UltifiLinkMonitor getmUltifiLinkMonitor() {
         return mUltifiLinkMonitor;
     }
+
+    public abstract void registerTopicMethod();
+
+    @Deprecated
+    private void registerServiceSignals() {
+        // TODO: 2023/7/2 CAN 信号不用, 暂且先保留入口
+        // if Sunroof also had CAN bridge related signals, add registration codes here
+        // registerCanSignals(Sunroof.getSignals());
+    }
+
+    @Deprecated
+    private void unRegisterServiceSignals() {
+        // unRegisterCanSignals(Sunroof.getSignals());
+    }
+
+    @Deprecated
+    private void registerCanSignals(List<String> signals) {
+        mCanMgrMonitor.registerSignal(signals.toArray(new String[0]));
+    }
+
+    @Deprecated
+    private void unRegisterCanSignals(List<String> signals) {
+        mCanMgrMonitor.unRegisterSignal(signals.toArray(new String[0]));
+    }
+
 }

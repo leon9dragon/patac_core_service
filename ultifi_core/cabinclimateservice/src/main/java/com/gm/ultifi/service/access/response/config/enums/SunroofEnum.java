@@ -36,6 +36,7 @@ public enum SunroofEnum implements SignalInfo {
         mSignalName = propertyConfig.getSignalName();
     }
 
+    @Override
     public Integer getPropertyId() {
         return mPropertyId;
     }
@@ -50,6 +51,7 @@ public enum SunroofEnum implements SignalInfo {
         return mSignalName;
     }
 
+    @Override
     public float getRate() {
         return mConfig.getRate();
     }
