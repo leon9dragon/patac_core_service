@@ -9,8 +9,8 @@ import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.request.listeners.UltifiLinkRequestListener;
 import com.gm.ultifi.base.response.config.PropertyConfig;
-import com.gm.ultifi.base.response.mapper.BaseMapper;
-import com.gm.ultifi.base.response.mapper.TopicMapperFactory;
+import com.gm.ultifi.base.response.mapper.BaseTopic;
+import com.gm.ultifi.base.response.mapper.TopicMappingFactory;
 import com.gm.ultifi.sdk.uprotocol.cloudevent.datamodel.UCloudEventAttributes;
 import com.gm.ultifi.sdk.uprotocol.cloudevent.factory.CloudEventFactory;
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
@@ -231,20 +231,20 @@ public abstract class ServiceLaunchManager {
 
     public List<CloudEvent> buildCarPropertyCloudEvents(CarPropertyValue<?> value) {
         ArrayList<CloudEvent> events = new ArrayList<>();
-        BaseMapper baseMapper = TopicMapperFactory.getInstance().getMapper(value.getPropertyId());
-        baseMapper.setAreaId(value.getAreaId());
-        baseMapper.setPropertyStatus(value.getStatus());
-        PropertyConfig propertyConfig = baseMapper.getConfig(value.getPropertyId());
+        BaseTopic baseTopic = TopicMappingFactory.getInstance().getMapper(value.getPropertyId());
+        baseTopic.setAreaId(value.getAreaId());
+        baseTopic.setPropertyStatus(value.getStatus());
+        PropertyConfig propertyConfig = baseTopic.getConfig(value.getPropertyId());
         Log.i(TAG, propertyConfig.toString());
 
-        Map<String, Any> topicWithMsgs = baseMapper.generateProtobufMessage(
-                mCarPropertyMgrMonitor.getCarPropertyExtensionManager(),
+        Map<String, Any> topicWithMsgs = baseTopic.generateProtobufMessage(
+                mCarPropertyMgrMonitor.getCarPropertyExtensionManager() ,
                 value.getValue(),
                 propertyConfig);
 
-        Log.d(TAG, "isRepeatedSignal " + baseMapper.isRepeatedSignal());
+        Log.d(TAG, "isRepeatedSignal " + baseTopic.isRepeatedSignal());
         // Do not re-publish events
-        if (!baseMapper.isRepeatedSignal()) {
+        if (!baseTopic.isRepeatedSignal()) {
             for (String topic : topicWithMsgs.keySet()) {
                 Log.i(TAG, "publish cloud event, topic uri: " + topic);
 
@@ -258,19 +258,19 @@ public abstract class ServiceLaunchManager {
 
     public List<CloudEvent> buildSignalCloudEvents(Signal signal) {
         ArrayList<CloudEvent> events = new ArrayList<>();
-        BaseMapper baseMapper = TopicMapperFactory.getInstance().getMapper(signal.name);
-        Log.d(TAG, baseMapper.toString());
-        PropertyConfig propertyConfig = baseMapper.getConfig(signal.name);
+        BaseTopic baseTopic = TopicMappingFactory.getInstance().getMapper(signal.name);
+        Log.d(TAG, baseTopic.toString());
+        PropertyConfig propertyConfig = baseTopic.getConfig(signal.name);
         Log.i(TAG, propertyConfig.toString());
 
-        Map<String, Any> payloads = baseMapper.generateProtobufMessage(
+        Map<String, Any> payloads = baseTopic.generateProtobufMessage(
                 mCarPropertyMgrMonitor.getCarPropertyExtensionManager(),
                 signal,
                 propertyConfig);
 
-        Log.d(TAG, "isRepeatedSignal " + baseMapper.isRepeatedSignal());
+        Log.d(TAG, "isRepeatedSignal " + baseTopic.isRepeatedSignal());
         // Do not re-publish events
-        if (!baseMapper.isRepeatedSignal()) {
+        if (!baseTopic.isRepeatedSignal()) {
             for (String key : payloads.keySet()) {
                 Log.i(TAG, "uri: " + key);
                 events.add(CloudEventFactory.publish(key,

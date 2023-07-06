@@ -2,12 +2,11 @@ package com.gm.ultifi.base.response.mapper;
 
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.response.config.PropertyConfig;
-import com.gm.ultifi.service.access.response.mapper.SunroofMapper;
 import com.google.protobuf.Any;
 
 import java.util.Map;
 
-public interface BaseMapper {
+public interface BaseTopic {
 
     boolean isRepeatedSignal();
 

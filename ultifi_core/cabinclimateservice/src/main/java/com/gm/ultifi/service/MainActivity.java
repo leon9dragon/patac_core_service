@@ -65,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
                     sunroofViewModel.setSideSunblindControlRequest();
                     sunroofViewModel.setWindowsPercentageControlRequest();
 
-                    seatViewModel.setDriverSeatRecallReq_M1();
-                    seatViewModel.setDriverSeatRecallReq_M2();
-                    seatViewModel.setDriverSeatRecallReq_M3();
-                    seatViewModel.setDriverSeatRecallReq_M4();
+//                    seatViewModel.setDriverSeatRecallReq_M1();
+//                    seatViewModel.setDriverSeatRecallReq_M2();
+//                    seatViewModel.setDriverSeatRecallReq_M3();
+//                    seatViewModel.setDriverSeatRecallReq_M4();
                     seatViewModel.setSeatModeReq();
 
                     ambientLightViewModel.setAmbientLight();

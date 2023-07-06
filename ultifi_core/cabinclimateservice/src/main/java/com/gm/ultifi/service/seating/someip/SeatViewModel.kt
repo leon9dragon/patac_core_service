@@ -5,12 +5,15 @@ import com.gm.ultifi.base.someip.BaseAppViewModel
 import com.gm.ultifi.base.utils.SomeIpUtil
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource
 import com.gm.ultifi.service.AccessService
+import com.gm.ultifi.service.SeatingService
 import com.gm.ultifi.service.constant.ResourceMappingConstants
 import com.gm.ultifi.service.constant.ServiceConstant
 import com.gm.ultifi.vehicle.body.seating.v1.SeatComponent
-import com.gm.ultifi.vehicle.body.seating.v1.SeatMassage
+import com.gm.ultifi.vehicle.body.seating.v1.SeatTemperature
 import com.google.protobuf.GeneratedMessageV3
 import com.ultifi.vehicle.body.access.v1.Sunroof
+import com.ultifi.vehicle.body.seating.v1.SeatPosition
+import com.ultifi.vehicle.body.seating.v1.SeatPosition.SeatComponentPosition
 import com.ultifi.vehicle.body.seating.v1.UpdateSeatPositionRequest
 import plugin.SomeipS2SManagementInterface
 import ts.car.someip.plugin.SomeIpTopic
@@ -109,62 +112,119 @@ class SeatViewModel : BaseAppViewModel() {
             isServerAvailable = false
         }
 
-        // notify subscriber the change of sunroof status
+        //region driver seat position notification
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1) {
-            Log.i(
-                TAG,
-                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1: Success"
-            )
             Log.i(TAG, "SUCCESS: NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1")
-
-            // TODO: 测试完后恢复
             val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(data.payload)
+
             val seatReclPosition = resp.outPut.drvStBkReclnUpwdDnwdPos
             val seatPosition = resp.outPut.drvStFrwdBkwdPos
+
             Log.d(TAG, "onChangeEvent, Recline position:"+seatReclPosition+"SeatPosition"+seatPosition)
-            val seatReq: UpdateSeatPositionRequest = UpdateSeatPositionRequest.newBuilder()
-                .setComponent()
+            val seatReclPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                .setComponent(SeatComponent.recline)
+                .setPosition(seatReclPosition)
+                .build();
 
+            val seatPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                .setComponent(SeatComponent.SC_BACK)
+                .setPosition(seatPosition)
+                .build();
 
-
-            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
-            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
-            val booParam = resp.outPut.snrfConfig
-            Log.d(
-                TAG,
-                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
-                        "newPropValue:$sunroofPercentagePositionStatus, " +
-                        "sunroofConf:$booParam"
-            )
-
+            val seatReq: SeatPosition = SeatPosition.newBuilder()
+                .setName("row1_left")
+                .setSeatComponentPositions(0, seatReclPos)
+                .setSeatComponentPositions(1, seatReclPos)
+                .build();
 
             Log.i(TAG, "Publishing the cloud events to Bus")
 
-            // no field mask in the resp, should set all the fields to msg obj
-            val sunroof: Sunroof = Sunroof.newBuilder()
-                .setPosition(sunroofPercentagePositionStatus)
-                .build()
+            val topic = ResourceMappingConstants.DRIVER_SEAT_SOMEIP
+            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
 
-            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
-            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
-
-            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
-
-
+            SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
 
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2) {
-            Log.i(
-                TAG,
-                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2: Success"
-            )
+            Log.i(TAG, "SUCCESS: NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2")
+            val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field.parseFrom(data.payload)
+
+            val seatCushionPosition = resp.outPut.drvStCshnFrntUpwdDnwdPos
+            val seatCushionRearPosition = resp.outPut.drvStCshnRrUpwdDnwdPos
+
+            Log.d(TAG, "onChangeEvent, Cushion position:"+seatCushionPosition+".CushionRear:"+seatCushionRearPosition)
+            val seatCushFrontPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                .setComponent(SeatComponent.SC_CUSHION_FRONT)
+                .setPosition(seatCushionPosition)
+                .build();
+
+            val seatCushRearPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                .setComponent(SeatComponent.SC_CUSHION)
+                .setPosition(seatCushionRearPosition)
+                .build();
+
+            val seatReq: SeatPosition = SeatPosition.newBuilder()
+                .setName("row1_left")
+                .setSeatComponentPositions(0, seatCushFrontPos)
+                .setSeatComponentPositions(1, seatCushRearPos)
+                .build();
+
+            Log.i(TAG, "Publishing the cloud events to Bus")
+
+            val topic = ResourceMappingConstants.DRIVER_SEAT_SOMEIP
+            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
+
+            SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_3) {
-            Log.i(
-                TAG,
-                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_3: Success"
-            )
+            Log.i(TAG, "SUCCESS: NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_3")
+            val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(data.payload)
+
+            val seatBolsterPosition = resp.outPut.drvStBlstOtwdInwdPos
+            val seatFtPosition = resp.outPut.drvStFtUpwdDnwdPos
+            val seatHeadRestRearPosition = resp.outPut.drvStHdrstUpwdDnwdPos
+            val seatLegRestRearPosition = resp.outPut.drvStLgrstUpwdDnwdPos
+
+            Log.d(TAG, "onChangeEvent, Bolster position:"+seatBolsterPosition+", Ft:"+seatFtPosition
+                    +", Head Rest:"+ seatHeadRestRearPosition + ", Leg Rest:" + seatLegRestRearPosition)
+
+            val seatBolPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
+                .setPosition(seatBolsterPosition)
+                .build();
+
+            val seatFtPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                .setComponent(SeatComponent.ft)
+                .setPosition(seatFtPosition)
+                .build();
+
+            val seatHeadPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                .setComponent(SeatComponent.SC_HEADREST)
+                .setPosition(seatHeadRestRearPosition)
+                .build();
+
+            val seatLegPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                .setComponent(SeatComponent.leg)
+                .setPosition(seatLegRestRearPosition)
+                .build();
+
+            val seatReq: SeatPosition = SeatPosition.newBuilder()
+                .setName("row1_left")
+                .setSeatComponentPositions(0, seatBolPos)
+                .setSeatComponentPositions(1, seatFtPos)
+                .setSeatComponentPositions(2, seatHeadPos)
+                .setSeatComponentPositions(3, seatLegPos)
+                .build();
+
+            Log.i(TAG, "Publishing the cloud events to Bus")
+
+            val topic = ResourceMappingConstants.DRIVER_SEAT_SOMEIP
+            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
+
+            SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
+        //endregion
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_1) {
             Log.i(
                 TAG,
@@ -233,33 +293,33 @@ class SeatViewModel : BaseAppViewModel() {
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS: Success")
-            val resp = SomeipS2SManagementInterface.Seat_Mode_Status_2Field.parseFrom(data.payload)
-            val seatMessage = resp.outPut.
-
-
-
-            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
-            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
-            val booParam = resp.outPut.snrfConfig
-            Log.d(
-                TAG,
-                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
-                        "newPropValue:$sunroofPercentagePositionStatus, " +
-                        "sunroofConf:$booParam"
-            )
-
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-
-            // no field mask in the resp, should set all the fields to msg obj
-            val sunroof: Sunroof = Sunroof.newBuilder()
-                .setPosition(sunroofPercentagePositionStatus)
-                .build()
-
-            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
-            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
-
-            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
+//            val resp = SomeipS2SManagementInterface.Seat_Mode_Status_2Field.parseFrom(data.payload)
+//            val seatMessage = resp.outPut.
+//
+//
+//
+//            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
+//            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
+//            val booParam = resp.outPut.snrfConfig
+//            Log.d(
+//                TAG,
+//                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
+//                        "newPropValue:$sunroofPercentagePositionStatus, " +
+//                        "sunroofConf:$booParam"
+//            )
+//
+//
+//            Log.i(TAG, "Publishing the cloud events to Bus")
+//
+//            // no field mask in the resp, should set all the fields to msg obj
+//            val sunroof: Sunroof = Sunroof.newBuilder()
+//                .setPosition(sunroofPercentagePositionStatus)
+//                .build()
+//
+//            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
+//            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
+//
+//            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_AVAILABILITY_STATUS) {
             Log.i(
@@ -282,33 +342,33 @@ class SeatViewModel : BaseAppViewModel() {
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS_2) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS_2: Success")
 
-            val resp = SomeipS2SManagementInterface.Seat_Mode_Status_2Field.parseFrom(data.payload)
-            val seatMes = resp.outPut.
-
-
-
-            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
-            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
-            val booParam = resp.outPut.snrfConfig
-            Log.d(
-                TAG,
-                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
-                        "newPropValue:$sunroofPercentagePositionStatus, " +
-                        "sunroofConf:$booParam"
-            )
-
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-
-            // no field mask in the resp, should set all the fields to msg obj
-            val sunroof: Sunroof = Sunroof.newBuilder()
-                .setPosition(sunroofPercentagePositionStatus)
-                .build()
-
-            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
-            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
-
-            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
+//            val resp = SomeipS2SManagementInterface.Seat_Mode_Status_2Field.parseFrom(data.payload)
+//            val seatMes = resp.outPut.
+//
+//
+//
+//            val resp = SomeipS2SManagementInterface.Sunroof_StatusField.parseFrom(data.payload)
+//            val sunroofPercentagePositionStatus = resp.outPut.snrfPctPosSts
+//            val booParam = resp.outPut.snrfConfig
+//            Log.d(
+//                TAG,
+//                "onChangeEvent, PropName: sunroofPercentagePositionStatus, " +
+//                        "newPropValue:$sunroofPercentagePositionStatus, " +
+//                        "sunroofConf:$booParam"
+//            )
+//
+//
+//            Log.i(TAG, "Publishing the cloud events to Bus")
+//
+//            // no field mask in the resp, should set all the fields to msg obj
+//            val sunroof: Sunroof = Sunroof.newBuilder()
+//                .setPosition(sunroofPercentagePositionStatus)
+//                .build()
+//
+//            val topic = ResourceMappingConstants.SUNROOF_FRONT + ".someip"
+//            val uResource = UResource(topic, "", Sunroof::class.java.simpleName)
+//
+//            SomeIpUtil.pubEvent(sunroof, ServiceConstant.ACCESS_SERVICE, uResource, AccessService.mLaunchManager.getmUltifiLinkMonitor())
 
 
         }
@@ -344,6 +404,8 @@ class SeatViewModel : BaseAppViewModel() {
         }
     }
 
+
+    //#region driver seat set requests
     fun setDriverSeatRecallReq(enable:Boolean) :Boolean{
         if (!isServerAvailable || !isReady) {
             Log.i(
@@ -359,7 +421,7 @@ class SeatViewModel : BaseAppViewModel() {
                     .setDrvStRclReqSrv(enable)
             ).build()
 
-        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1)
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1)
     }
 
     fun setDriverBolsterReq(pos: Int) :Boolean{
@@ -377,7 +439,7 @@ class SeatViewModel : BaseAppViewModel() {
                     .setDrvStBlstOtwdInwdTrgtPosReqSrv(pos)
             ).build()
 
-        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1)
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1)
     }
 
     fun setDriverHeadRestReq(pos: Int): Boolean {
@@ -398,7 +460,7 @@ class SeatViewModel : BaseAppViewModel() {
 
             ).build()
 
-        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2)
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2)
     }
 
     fun setDriverLegRestReq( pos: Int): Boolean {
@@ -418,7 +480,7 @@ class SeatViewModel : BaseAppViewModel() {
                     .setDrvStLgrstUpwdDnwdTrgtPosReqSrv(pos)
             ).build()
 
-        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2)
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2)
     }
 
     fun setDriverSeatPosReq( pos: Int):Boolean {
@@ -437,7 +499,7 @@ class SeatViewModel : BaseAppViewModel() {
                     .setDrvStFrwdBkwdTrgtPosReqSrv(pos)
             ).build()
 
-        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3)
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3)
     }
 
     fun setDriverReclinesReq(pos: Int):Boolean {
@@ -456,7 +518,7 @@ class SeatViewModel : BaseAppViewModel() {
                     .setDrvStBkReclnUpwdDnwdTrgtPosReqSrv(pos)
             ).build()
 
-        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3)
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3)
     }
 
     fun setDriverCushionFrontReq(pos: Int):Boolean {
@@ -475,7 +537,7 @@ class SeatViewModel : BaseAppViewModel() {
                     .setDrvStCshnFrntUpwdDnwdTrgtPosReqSrv(pos)
             ).build()
 
-        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4)
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4)
     }
 
 
@@ -490,10 +552,13 @@ class SeatViewModel : BaseAppViewModel() {
             .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
                     .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(pos)
             ).build()
-        return generateReqSend(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4)
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4)
     }
 
-    fun generateReqSend(newRecall:GeneratedMessageV3, setTopic: Long):Boolean{
+    //endregion
+
+
+    fun generateSendStatus(newRecall:GeneratedMessageV3, setTopic: Long):Boolean{
         val req = SomeIpData(setTopic, System.currentTimeMillis(), newRecall.toByteArray())
         val resp = SomeIpData()
 
@@ -576,31 +641,44 @@ class SeatViewModel : BaseAppViewModel() {
     }
 
 
-    fun getDriverSeatPosition_1(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field? {
+    fun getDriverSeatPercPos_1(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field?{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Driver_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i( TAG, "get Driver_Seat_Position: failed, server is not available or client is not ready")
+            return null;
         }
-
         val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_1, resp)
 
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Driver_Seat_Percentage_Position_1")
+        Log.i(TAG, "sendReq2Server: get Driver_Seat_Percentage_Position")
         if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Driver_Seat_Percentage_Position_1 OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
+            Log.i(TAG, "sendReq2Server: Driver_Seat_Percentage_Position OK")
+            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return temp
         }
+        Log.i(TAG, "FAILED: Driver_Seat_Percentage_Position")
+        return null;
+    }
 
-        Log.i(TAG, "FAILED: Driver_Seat_Percentage_Position_1")
+
+    fun getDriverSeatPos(): Int? {
+        val value = getDriverSeatPercPos_1()
+        if(value!=null){
+            val pos = value.outPut.drvStFrwdBkwdPos
+            Log.i(TAG, "Get the driver seat position: $pos")
+            return pos
+        }
+        Log.i(TAG, "Failed to get the driver seat position")
+        return null;
+    }
+
+    fun getDriverSeatReclPos(): Int? {
+        val value = getDriverSeatPercPos_1()
+        if(value!=null){
+            val pos = value.outPut.drvStBkReclnUpwdDnwdPos
+            Log.i(TAG, "Get the driver seat back recline position: $pos")
+            return pos
+        }
+        Log.i(TAG, "Failed to get the driver seat back recline position")
         return null;
     }
 

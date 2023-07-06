@@ -5,7 +5,7 @@ import static com.gm.ultifi.base.utils.SeatAreaIdConst.GLOBAL_AREA_ID;
 
 import android.util.Log;
 
-import com.gm.ultifi.base.response.mapper.BaseMapper;
+import com.gm.ultifi.base.response.mapper.BaseTopic;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
@@ -26,9 +26,9 @@ import java.util.Map;
 /**
  * Sunroof related signal mapper
  */
-public class SunroofMapper implements BaseMapper {
+public class SunroofTopic implements BaseTopic {
 
-    private static final String TAG = SunroofMapper.class.getSimpleName();
+    private static final String TAG = SunroofTopic.class.getSimpleName();
 
     private static final List<Integer> mPropertyList = new ArrayList<>();
 
@@ -46,12 +46,12 @@ public class SunroofMapper implements BaseMapper {
         mPropertyList.add(557856808);
     }
 
-    private SunroofMapper() {
+    private SunroofTopic() {
         sunroofBuilderMap = new HashMap<>();
     }
 
-    public static SunroofMapper getInstance() {
-        return new SunroofMapper();
+    public static SunroofTopic getInstance() {
+        return new SunroofTopic();
     }
 
     public static List<Integer> getPropertyList() {

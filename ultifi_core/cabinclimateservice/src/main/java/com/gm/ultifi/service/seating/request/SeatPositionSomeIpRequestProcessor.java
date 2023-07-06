@@ -27,6 +27,7 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
         String seatName = req.getName();
 
         SeatComponent component = req.getComponent();
+
         // if it will use direction?
         UpdateSeatPositionRequest.Direction direction = req.getDirection();
         int percentPosition = req.getPosition(); // update Position
@@ -38,6 +39,7 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
 
         if(seatName.equals("row1_left")) {
             boolean status = false;
+            ServiceLaunchManager.seatViewModel.setDriverSeatRecallReq(true);
             if(component==SeatComponent.SC_SIDE_BOLSTER_CUSHION) {
                 status = ServiceLaunchManager.seatViewModel.setDriverBolsterReq(percentPosition);
             }
@@ -59,7 +61,7 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
             if(component==SeatComponent.SC_CUSHION){
                 status = ServiceLaunchManager.seatViewModel.setDriverCushionRearReq(percentPosition);
             }
-
+//            ServiceLaunchManager.seatViewModel.setDriverSeatRecallReq(false);
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
 
