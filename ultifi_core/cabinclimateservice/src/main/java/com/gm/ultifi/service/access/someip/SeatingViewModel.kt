@@ -389,7 +389,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_1,
             resp
         )
 
@@ -414,7 +414,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_2,
             resp
         )
 
@@ -439,7 +439,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_3,
             resp
         )
 
@@ -512,7 +512,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1,
             resp
         )
 
@@ -536,7 +536,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2,
             resp
         )
 
@@ -608,7 +608,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_LEFT_SEAT_PERCENTAGE_POSITION,
             resp
         )
 
@@ -632,7 +632,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION,
             resp
         )
 
@@ -656,7 +656,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_CONFIGURATION,
             resp
         )
 
@@ -752,7 +752,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_LEFT_SEAT_CONFIGURATION,
             resp
         )
 
@@ -776,7 +776,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_RIGHT_SEAT_CONFIGURATION,
             resp
         )
 
@@ -824,7 +824,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_AVAILABILITY_STATUS,
             resp
         )
 
@@ -848,7 +848,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS,
             resp
         )
 
@@ -872,7 +872,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_RESPONSE_STATUS_2,
             resp
         )
 
@@ -896,7 +896,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS_2,
             resp
         )
 
@@ -920,7 +920,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_PASSENGER_COMPARTMENT_MODE_AVAILABILITY_AND_NOTIFICATION_STATUS_6,
             resp
         )
 
@@ -944,7 +944,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_RECOVERY_POSITION,
             resp
         )
 
@@ -968,7 +968,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_RECOVERY_POSITION_2,
             resp
         )
 
@@ -992,7 +992,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_ROW_LEFT_COMFORT_MODE_REQUEST_HMI,
             resp
         )
 
@@ -1016,7 +1016,7 @@ class SeatingViewModel : BaseAppViewModel() {
         val resp = SomeIpData()
 
         val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_ROW_RIGHT_COMFORT_MODE_REQUEST_HMI,
             resp
         )
 
