@@ -1,6 +1,7 @@
 package com.gm.ultifi.base.response.mapper;
 
 import com.gm.ultifi.service.access.response.mapper.SunroofTopic;
+import com.gm.ultifi.service.seating.response.mapper.SeatTemperatureTopic;
 
 public class TopicMappingFactory {
     private static final String TAG = TopicMappingFactory.class.getSimpleName();
@@ -20,6 +21,9 @@ public class TopicMappingFactory {
     public BaseTopic getMapper(int propertyId) {
         if (SunroofTopic.getPropertyList().contains(propertyId)) {
             return SunroofTopic.getInstance();
+        }
+        if(SeatTemperatureTopic.getPropertyList().contains(propertyId)){
+            return SeatTemperatureTopic.getInstance();
         }
         throw new IllegalArgumentException("illegal property id: " + propertyId);
     }

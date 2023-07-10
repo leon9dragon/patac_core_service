@@ -1,7 +1,5 @@
 package com.gm.ultifi.service.seating.response.mapper;
 
-import static com.gm.ultifi.service.constant.ResourceMappingConstants.SUNROOF_FRONT;
-
 import android.util.Log;
 
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
@@ -10,13 +8,12 @@ import com.gm.ultifi.base.response.mapper.BaseTopic;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
-import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
 
 import com.gm.ultifi.service.constant.ServiceConstant;
+import com.gm.ultifi.service.seating.response.config.enums.SeatEnum;
 import com.gm.ultifi.vehicle.body.seating.v1.SeatTemperature;
 import com.google.protobuf.Any;
 import com.google.protobuf.Descriptors;
-import com.ultifi.vehicle.body.access.v1.Sunroof;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +27,12 @@ public class SeatTemperatureTopic implements BaseTopic {
 
     static {
         //should add all supported property id to mPropertyList
-        mPropertyList.add(557856808);
+        mPropertyList.add(356517131);
+        mPropertyList.add(624971864);
+        mPropertyList.add(624971865);
+        mPropertyList.add(356517139);
+        mPropertyList.add(624971866);
+        mPropertyList.add(624971867);
     }
 
     private boolean isRepeatedSignal = false;
@@ -41,6 +43,14 @@ public class SeatTemperatureTopic implements BaseTopic {
     @Override
     public boolean isRepeatedSignal() {
         return false;
+    }
+
+    public static SeatTemperatureTopic getInstance() {
+        return new SeatTemperatureTopic();
+    }
+
+    public static List<Integer> getPropertyList() {
+        return mPropertyList;
     }
 
     @Override
@@ -69,7 +79,7 @@ public class SeatTemperatureTopic implements BaseTopic {
 
     @Override
     public PropertyConfig getConfig(int propertyId) {
-        SunroofEnum e = SunroofEnum.getPropertyIdMap().getOrDefault(propertyId, null);
+        SeatEnum e = SeatEnum.getPropertyIdMap().getOrDefault(propertyId, null);
         if (e == null) {
             throw new IllegalArgumentException("illegal property id");
         }

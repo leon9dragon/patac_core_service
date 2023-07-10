@@ -24,4 +24,10 @@ public class ServiceConstant {
 
     public static final String SEATING_RPC_POSITION_METHOD = "UpdateSeatPositionSomeIp";
     public static final String SEATING_RPC_POSITION_METHOD_URI_SOME_IP = UltifiUriFactory.buildMethodUri(UAuthority.local(), SEATING_SERVICE, SEATING_RPC_POSITION_METHOD);
+
+    public static final String SEATING_RPC_TEMPERATURE_METHOD = "UpdateSeatTemperature";
+    public static final String SEATING_RPC_TEMPERATURE_METHOD_URI_SOME_IP = UltifiUriFactory.buildMethodUri(UAuthority.local(), SEATING_SERVICE, SEATING_RPC_TEMPERATURE_METHOD);
+
+
+
 }

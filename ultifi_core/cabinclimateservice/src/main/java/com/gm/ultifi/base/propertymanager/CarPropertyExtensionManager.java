@@ -8,6 +8,7 @@ import androidx.collection.ArraySet;
 
 import com.gm.ultifi.base.response.config.SignalInfo;
 import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
+import com.gm.ultifi.service.seating.response.config.enums.SeatEnum;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -42,6 +43,10 @@ public class CarPropertyExtensionManager {
                 mPropertyManager.registerCallback(mPropertyCallback,
                         sunroofEnum.getPropertyId(), sunroofEnum.getRate());
             }
+            for(SeatEnum seatEnum: SeatEnum.values()){
+                mPropertyManager.registerCallback(mPropertyCallback,
+                        seatEnum.getPropertyId(), seatEnum.getRate());
+            }
 
             mExtCallbacks.add(callback);
         }
@@ -71,6 +76,9 @@ public class CarPropertyExtensionManager {
 
             for (SunroofEnum sunroofEnum : SunroofEnum.values()) {
                 mPropertyManager.unregisterCallback(mPropertyCallback, sunroofEnum.getPropertyId());
+            }
+            for(SeatEnum seatEnum: SeatEnum.values()){
+                mPropertyManager.unregisterCallback(mPropertyCallback, seatEnum.getPropertyId());
             }
 
             if (mExtCallbacks.isEmpty()) {

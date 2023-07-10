@@ -1,17 +1,11 @@
 package com.gm.ultifi.service.seating.request;
 
-import static com.gm.ultifi.base.utils.SeatAreaIdConst.GLOBAL_AREA_ID;
-
 import android.util.Log;
 
-import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.request.BaseRequestProcessor;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
 import com.ultifi.core.common.util.StatusUtils;
-import com.ultifi.vehicle.body.access.v1.SunroofCommand;
-
-import plugin.SomeipS2SManagementInterface;
 
 public class SeatModeControlRequestProcessor extends BaseRequestProcessor {
 

@@ -4,7 +4,6 @@ import com.gm.ultifi.base.propertymanager.ProtobufMessageIds;
 import com.gm.ultifi.base.response.config.PropertyConfig;
 import com.gm.ultifi.base.response.config.SignalInfo;
 import com.gm.ultifi.base.utils.StreamUtils;
-import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -12,13 +11,14 @@ import java.util.Map;
 public enum SeatEnum implements SignalInfo {
 
     //此处需要定义service涉及到的所有CarProperty, 557856808
-    SUNROOF_PERCENTAGE_POSITION_STATUS("SUNROOF_PERCENTAGE_POSITION_STATUS", 1,
-                                               557856808,
-                                               new PropertyConfig.Builder()
+    HEATED_SEAT("HEATED_SEAT", 1,
+            356517131,
+            new PropertyConfig.Builder()
                     .setProtobufField(ProtobufMessageIds.POSITION)
                     .setClassType(Integer.class)
                     .build()
     );
+
 
     private final PropertyConfig mConfig;
 
@@ -44,11 +44,18 @@ public enum SeatEnum implements SignalInfo {
         return null;
     }
 
+    public static Map<Integer, SeatEnum> getPropertyIdMap() {
+        return PROPERTY_ID_MAP;
+    }
+
     @Override
     public Integer getPropertyId() {
         return SignalInfo.super.getPropertyId();
     }
 
+    public PropertyConfig getPropertyConfig() {
+        return mConfig;
+    }
     @Override
     public float getRate() {
         return SignalInfo.super.getRate();

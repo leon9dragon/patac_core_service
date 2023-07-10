@@ -28,7 +28,6 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
 
         SeatComponent component = req.getComponent();
 
-        // if it will use direction?
         UpdateSeatPositionRequest.Direction direction = req.getDirection();
         int percentPosition = req.getPosition(); // update Position
         Log.i(TAG, "seat name: " + seatName + ", update value: " + percentPosition);
@@ -46,22 +45,25 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
             if(component==SeatComponent.SC_HEADREST){
                 status = ServiceLaunchManager.seatViewModel.setDriverHeadRestReq(percentPosition);
             }
+            // need to add enums legrest
             if(component==SeatComponent.SC_SIDE_BOLSTER_BACK){
                 status = ServiceLaunchManager.seatViewModel.setDriverLegRestReq(percentPosition);
             }
-            if(component==SeatComponent.SC_BACK){
-                status = ServiceLaunchManager.seatViewModel.setDriverSeatPosReq(percentPosition);
+            if(component==SeatComponent.SC_CUSHION){
+                if(direction== UpdateSeatPositionRequest.Direction.D_BACKWARD ||direction== UpdateSeatPositionRequest.Direction.D_FORWARD){
+                    status = ServiceLaunchManager.seatViewModel.setDriverSeatPosReq(percentPosition);
+                }
+                else {
+                    status = ServiceLaunchManager.seatViewModel.setDriverCushionRearReq(percentPosition);
+                }
             }
-            if(component==SeatComponent.SC_LUMBAR){
+            if(component==SeatComponent.SC_BACK){
                 status = ServiceLaunchManager.seatViewModel.setDriverReclinesReq(percentPosition);
             }
             if(component==SeatComponent.SC_CUSHION_FRONT){
                 status = ServiceLaunchManager.seatViewModel.setDriverCushionFrontReq(percentPosition);
             }
-            if(component==SeatComponent.SC_CUSHION){
-                status = ServiceLaunchManager.seatViewModel.setDriverCushionRearReq(percentPosition);
-            }
-//            ServiceLaunchManager.seatViewModel.setDriverSeatRecallReq(false);
+            ServiceLaunchManager.seatViewModel.setDriverSeatRecallReq(false);
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
 

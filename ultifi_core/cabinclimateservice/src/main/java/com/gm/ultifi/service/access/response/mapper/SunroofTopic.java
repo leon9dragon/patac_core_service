@@ -1,18 +1,18 @@
 package com.gm.ultifi.service.access.response.mapper;
 
-import static com.gm.ultifi.service.constant.ResourceMappingConstants.SUNROOF_FRONT;
 import static com.gm.ultifi.base.utils.SeatAreaIdConst.GLOBAL_AREA_ID;
 
+import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
+import com.gm.ultifi.service.constant.ResourceMappingConstants;
+import com.gm.ultifi.service.constant.ServiceConstant;
 import android.util.Log;
 
 import com.gm.ultifi.base.response.mapper.BaseTopic;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
-import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.response.config.PropertyConfig;
-import com.gm.ultifi.service.constant.ServiceConstant;
 import com.google.protobuf.Any;
 import com.google.protobuf.Descriptors;
 
@@ -87,7 +87,7 @@ public class SunroofTopic implements BaseTopic {
         Sunroof sunroof = builder.setField(descriptor, value).build();
         Log.i(TAG, "generateProtobufMessage: new value:" + value + ", field name: " + descriptor.getFullName());
 
-        String topicUri = getTopicUri(SUNROOF_FRONT);
+        String topicUri = getTopicUri(ResourceMappingConstants.SUNROOF_FRONT);
 
         Map<String, Any> res = new HashMap<>();
         res.put(topicUri, Any.pack(sunroof));

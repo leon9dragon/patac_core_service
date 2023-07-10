@@ -4,14 +4,11 @@ import android.util.Log
 import com.gm.ultifi.base.someip.BaseAppViewModel
 import com.gm.ultifi.base.utils.SomeIpUtil
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource
-import com.gm.ultifi.service.AccessService
 import com.gm.ultifi.service.SeatingService
 import com.gm.ultifi.service.constant.ResourceMappingConstants
 import com.gm.ultifi.service.constant.ServiceConstant
 import com.gm.ultifi.vehicle.body.seating.v1.SeatComponent
-import com.gm.ultifi.vehicle.body.seating.v1.SeatTemperature
 import com.google.protobuf.GeneratedMessageV3
-import com.ultifi.vehicle.body.access.v1.Sunroof
 import com.ultifi.vehicle.body.seating.v1.SeatPosition
 import com.ultifi.vehicle.body.seating.v1.SeatPosition.SeatComponentPosition
 import com.ultifi.vehicle.body.seating.v1.UpdateSeatPositionRequest
@@ -122,19 +119,21 @@ class SeatViewModel : BaseAppViewModel() {
 
             Log.d(TAG, "onChangeEvent, Recline position:"+seatReclPosition+"SeatPosition"+seatPosition)
             val seatReclPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.recline)
+                .setComponent(SeatComponent.SC_BACK)
                 .setPosition(seatReclPosition)
+                .setDirection(UpdateSeatPositionRequest.Direction.D_UP)
                 .build();
 
             val seatPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_BACK)
+                .setComponent(SeatComponent.SC_CUSHION)
                 .setPosition(seatPosition)
+                .setDirection(UpdateSeatPositionRequest.Direction.D_FORWARD)
                 .build();
 
             val seatReq: SeatPosition = SeatPosition.newBuilder()
                 .setName("row1_left")
                 .setSeatComponentPositions(0, seatReclPos)
-                .setSeatComponentPositions(1, seatReclPos)
+                .setSeatComponentPositions(1, seatPos)
                 .build();
 
             Log.i(TAG, "Publishing the cloud events to Bus")
@@ -156,11 +155,13 @@ class SeatViewModel : BaseAppViewModel() {
             val seatCushFrontPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
                 .setComponent(SeatComponent.SC_CUSHION_FRONT)
                 .setPosition(seatCushionPosition)
+                .setDirection(UpdateSeatPositionRequest.Direction.D_UP)
                 .build();
 
             val seatCushRearPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
                 .setComponent(SeatComponent.SC_CUSHION)
                 .setPosition(seatCushionRearPosition)
+                .setDirection(UpdateSeatPositionRequest.Direction.D_UP)
                 .build();
 
             val seatReq: SeatPosition = SeatPosition.newBuilder()
@@ -181,39 +182,44 @@ class SeatViewModel : BaseAppViewModel() {
             val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(data.payload)
 
             val seatBolsterPosition = resp.outPut.drvStBlstOtwdInwdPos
-            val seatFtPosition = resp.outPut.drvStFtUpwdDnwdPos
+            // check if there is foot component
+//            val seatFtPosition = resp.outPut.drvStFtUpwdDnwdPos
             val seatHeadRestRearPosition = resp.outPut.drvStHdrstUpwdDnwdPos
             val seatLegRestRearPosition = resp.outPut.drvStLgrstUpwdDnwdPos
 
-            Log.d(TAG, "onChangeEvent, Bolster position:"+seatBolsterPosition+", Ft:"+seatFtPosition
-                    +", Head Rest:"+ seatHeadRestRearPosition + ", Leg Rest:" + seatLegRestRearPosition)
+            Log.d(TAG, "onChangeEvent, Bolster position:"+seatBolsterPosition+
+                    ", Head Rest:"+ seatHeadRestRearPosition + ", Leg Rest:" + seatLegRestRearPosition)
 
             val seatBolPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
                 .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
                 .setPosition(seatBolsterPosition)
+                .setDirection(UpdateSeatPositionRequest.Direction.D_INFLATE)
                 .build();
 
-            val seatFtPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.ft)
-                .setPosition(seatFtPosition)
-                .build();
+//            val seatFtPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+//                .setComponent(SeatComponent.SC_FOOTREST)
+//                .setPosition(seatFtPosition)
+//                .setDirection(UpdateSeatPositionRequest.Direction.D_UP)
+//                .build();
 
             val seatHeadPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
                 .setComponent(SeatComponent.SC_HEADREST)
                 .setPosition(seatHeadRestRearPosition)
+                .setDirection(UpdateSeatPositionRequest.Direction.D_UP)
                 .build();
 
             val seatLegPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.leg)
+//                .setComponent(SeatComponent.SC_LEGREST)
                 .setPosition(seatLegRestRearPosition)
+                .setDirection(UpdateSeatPositionRequest.Direction.D_UP)
                 .build();
 
             val seatReq: SeatPosition = SeatPosition.newBuilder()
                 .setName("row1_left")
                 .setSeatComponentPositions(0, seatBolPos)
-                .setSeatComponentPositions(1, seatFtPos)
-                .setSeatComponentPositions(2, seatHeadPos)
-                .setSeatComponentPositions(3, seatLegPos)
+//                .setSeatComponentPositions(1, seatFtPos)
+                .setSeatComponentPositions(1, seatHeadPos)
+                .setSeatComponentPositions(2, seatLegPos)
                 .build();
 
             Log.i(TAG, "Publishing the cloud events to Bus")
@@ -450,8 +456,6 @@ class SeatViewModel : BaseAppViewModel() {
             )
             return false
         }
-//        var newRecall: GeneratedMessageV3= SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder().build()
-//        if (component == SeatComponent.SC_HEADREST) {
         val newRecall = SomeipS2SManagementInterface
             .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
             .setOutPut(
@@ -491,7 +495,6 @@ class SeatViewModel : BaseAppViewModel() {
             )
             return false
         }
-//        if (component == SeatComponent.SC_BACK) {
         val newRecall = SomeipS2SManagementInterface
             .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
             .setOutPut(
@@ -510,7 +513,6 @@ class SeatViewModel : BaseAppViewModel() {
             )
             return false
         }
-//        } else if (component == SeatComponent.SC_LUMBAR) {
         val newRecall = SomeipS2SManagementInterface
             .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
             .setOutPut(
@@ -529,7 +531,6 @@ class SeatViewModel : BaseAppViewModel() {
             )
             return false
         }
-//        if (component == SeatComponent.SC_CUSHION_FRONT) {
         val newRecall = SomeipS2SManagementInterface
             .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
             .setOutPut(

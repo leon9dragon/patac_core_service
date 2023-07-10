@@ -1,14 +1,14 @@
 package com.gm.ultifi.service;
 
 import android.os.Bundle;
+import com.gm.ultifi.service.access.someip.AmbientLightViewModel;
+import com.gm.ultifi.service.access.someip.SunroofViewModel;
 import android.util.Log;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.gm.ultifi.service.access.someip.AmbientLightViewModel;
 import com.gm.ultifi.service.seating.someip.SeatViewModel;
-import com.gm.ultifi.service.access.someip.SunroofViewModel;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                     sunroofViewModel.getWindowStatusInformation();
 
                     seatViewModel.getDriverSeatConf();
-                    seatViewModel.getDriverSeatPosition_1();
+//                    seatViewModel.getDriverSeatPosition_1();
                     seatViewModel.getDriverSeatPosition_2();
                     seatViewModel.getDriverSeatPosition_3();
                     seatViewModel.getSeatMode();

@@ -8,6 +8,7 @@ import com.gm.ultifi.service.access.request.SunroofRequestProcessor;
 import com.gm.ultifi.service.access.request.SunroofSomeIpRequestProcessor;
 import com.gm.ultifi.service.seating.request.SeatPositionSomeIpRequestProcessor;
 import com.gm.ultifi.service.constant.ServiceConstant;
+import com.gm.ultifi.service.seating.request.SeatTemperatureRequestProcessor;
 import com.google.rpc.Status;
 import com.ultifi.core.rpc.Request;
 
@@ -39,6 +40,9 @@ public class RequestProcessorFactory {
             }
             if(processor.equals(ServiceConstant.SEATING_RPC_POSITION_METHOD_URI_SOME_IP)){
                 return new SeatPositionSomeIpRequestProcessor();
+            }
+            if(processor.equals(ServiceConstant.SEATING_RPC_TEMPERATURE_METHOD_URI_SOME_IP)){
+                return new SeatTemperatureRequestProcessor();
             }
 //            if(processor.equals(ServiceConstant.SEAT_RPC_POSITION_GROUP_METHOD)){
 //                return new SeatPositionGroupSomeIpRequestProcessor();

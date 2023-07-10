@@ -1,21 +1,10 @@
 package com.gm.ultifi.service.seating.response.mapper;
 
-import static com.gm.ultifi.service.constant.ResourceMappingConstants.SUNROOF_FRONT;
-
-import android.util.Log;
-
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.response.config.PropertyConfig;
 import com.gm.ultifi.base.response.mapper.BaseTopic;
-import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UAuthority;
-import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource;
-import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
-import com.gm.ultifi.service.constant.ServiceConstant;
 import com.google.protobuf.Any;
-import com.google.protobuf.Descriptors;
-import com.ultifi.vehicle.body.access.v1.Sunroof;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class SeatModeTopic implements BaseTopic {

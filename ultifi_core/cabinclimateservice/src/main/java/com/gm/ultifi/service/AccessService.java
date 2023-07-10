@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.IBinder;
 import android.os.SystemProperties;
+import com.gm.ultifi.service.access.AccessLaunchManger;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -18,7 +19,7 @@ import com.gm.ultifi.base.monitor.CanManagerMonitor;
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
 import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
 import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
-import com.gm.ultifi.service.access.AccessLaunchManger;
+
 import com.gm.ultifi.base.utils.TaskRunner;
 
 public class AccessService extends LifecycleService {
