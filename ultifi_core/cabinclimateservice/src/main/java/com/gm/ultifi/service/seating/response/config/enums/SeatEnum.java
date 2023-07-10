@@ -17,7 +17,12 @@ public enum SeatEnum implements SignalInfo {
                     .setProtobufField(ProtobufMessageIds.POSITION)
                     .setClassType(Integer.class)
                     .build()
-    );
+    ),;
+//    HEATED_LEG("HEATED_LEG", 2,
+//            624971864, new PropertyConfig.Builder()
+//
+//            )
+
 
 
     private final PropertyConfig mConfig;

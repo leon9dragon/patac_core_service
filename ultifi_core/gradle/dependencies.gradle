@@ -115,7 +115,7 @@ ext {
             ],
 
             ultifi: [
-                    proto   : "com.gm:ultifi-proto-java:${version.ultifi.proto}", //todo: remove and generate protos inside project
+                    proto   : files("${config.proto_buf}\\ultifi-proto-java-0.0.51.jar"), //todo: remove and generate protos inside project
                     core_api: "com.ultifi:ultifi-core-vehicle-api:${version.ultifi.core_api}",
                     utils   : "com.gm.ultifi.sdk.uprotocol:core:${version.ultifi.sdk}",
             ],
