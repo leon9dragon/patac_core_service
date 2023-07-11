@@ -234,6 +234,7 @@ public abstract class ServiceLaunchManager {
         BaseTopic baseTopic = TopicMappingFactory.getInstance().getMapper(value.getPropertyId());
         baseTopic.setAreaId(value.getAreaId());
         baseTopic.setPropertyStatus(value.getStatus());
+        baseTopic.setPropertyId(value.getPropertyId());
         PropertyConfig propertyConfig = baseTopic.getConfig(value.getPropertyId());
         Log.i(TAG, propertyConfig.toString());
 
@@ -251,32 +252,6 @@ public abstract class ServiceLaunchManager {
                 events.add(CloudEventFactory.publish(topic,
                         Objects.requireNonNull(topicWithMsgs.get(topic)),
                         UCloudEventAttributes.empty()));
-            }
-        }
-        return events;
-    }
-
-    public List<CloudEvent> buildSignalCloudEvents(Signal signal) {
-        ArrayList<CloudEvent> events = new ArrayList<>();
-        BaseTopic baseTopic = TopicMappingFactory.getInstance().getMapper(signal.name);
-        Log.d(TAG, baseTopic.toString());
-        PropertyConfig propertyConfig = baseTopic.getConfig(signal.name);
-        Log.i(TAG, propertyConfig.toString());
-
-        Map<String, Any> payloads = baseTopic.generateProtobufMessage(
-                mCarPropertyMgrMonitor.getCarPropertyExtensionManager(),
-                signal,
-                propertyConfig);
-
-        Log.d(TAG, "isRepeatedSignal " + baseTopic.isRepeatedSignal());
-        // Do not re-publish events
-        if (!baseTopic.isRepeatedSignal()) {
-            for (String key : payloads.keySet()) {
-                Log.i(TAG, "uri: " + key);
-                events.add(CloudEventFactory.publish(key,
-                        Objects.requireNonNull(payloads.get(key)),
-                        UCloudEventAttributes.empty())
-                );
             }
         }
         return events;
@@ -311,6 +286,34 @@ public abstract class ServiceLaunchManager {
 
     public abstract void registerTopicMethod();
 
+    //region Ignore, Can signal never uses.
+    @Deprecated
+    public List<CloudEvent> buildSignalCloudEvents(Signal signal) {
+        ArrayList<CloudEvent> events = new ArrayList<>();
+        BaseTopic baseTopic = TopicMappingFactory.getInstance().getMapper(signal.name);
+        Log.d(TAG, baseTopic.toString());
+        PropertyConfig propertyConfig = baseTopic.getConfig(signal.name);
+        Log.i(TAG, propertyConfig.toString());
+
+        Map<String, Any> payloads = baseTopic.generateProtobufMessage(
+                mCarPropertyMgrMonitor.getCarPropertyExtensionManager(),
+                signal,
+                propertyConfig);
+
+        Log.d(TAG, "isRepeatedSignal " + baseTopic.isRepeatedSignal());
+        // Do not re-publish events
+        if (!baseTopic.isRepeatedSignal()) {
+            for (String key : payloads.keySet()) {
+                Log.i(TAG, "uri: " + key);
+                events.add(CloudEventFactory.publish(key,
+                        Objects.requireNonNull(payloads.get(key)),
+                        UCloudEventAttributes.empty())
+                );
+            }
+        }
+        return events;
+    }
+
     @Deprecated
     private void registerServiceSignals() {
         // TODO: 2023/7/2 CAN 信号不用, 暂且先保留入口
@@ -332,5 +335,5 @@ public abstract class ServiceLaunchManager {
     private void unRegisterCanSignals(List<String> signals) {
         mCanMgrMonitor.unRegisterSignal(signals.toArray(new String[0]));
     }
-
+    //endregion
 }

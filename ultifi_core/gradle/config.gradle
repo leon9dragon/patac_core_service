@@ -31,7 +31,7 @@ ext {
             artifactory : "https://info-artifactory.gm.com/artifactory/info-maven",
             localLibsDir : repoRoot + "out/target/common/obj/JAVA_LIBRARIES",
             newLocalLibsDir: repoRoot + "out/soong/.intermediates",
-            proto_buf: "D:\\carService\\patac_core_service\\ultifi_core\\cabinclimateservice\\libs",
+            proto_buf: rootProject.projectDir.path + "/cabinclimateservice/libs",
     ]
 
     proAAPTConfigs = System.getenv("GRADLE_PRODUCT_AAPT_CONFIG")

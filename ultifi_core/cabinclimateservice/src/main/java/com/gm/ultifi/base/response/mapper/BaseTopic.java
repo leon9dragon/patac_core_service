@@ -36,4 +36,6 @@ public interface BaseTopic {
 
     default void setPropertyStatus(int status) {
     }
+
+    default void setPropertyId(int proper){}
 }

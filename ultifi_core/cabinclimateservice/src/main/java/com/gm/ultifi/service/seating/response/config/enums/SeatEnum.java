@@ -11,19 +11,44 @@ import java.util.Map;
 public enum SeatEnum implements SignalInfo {
 
     //此处需要定义service涉及到的所有CarProperty, 557856808
-    HEATED_SEAT("HEATED_SEAT", 1,
+    SEAT_HEATED("SEAT_HEATED", 1,
             356517131,
             new PropertyConfig.Builder()
-                    .setProtobufField(ProtobufMessageIds.POSITION)
+                    .setProtobufField(ProtobufMessageIds.TEMPERATURE_LEVEL)
                     .setClassType(Integer.class)
                     .build()
-    ),;
-//    HEATED_LEG("HEATED_LEG", 2,
-//            624971864, new PropertyConfig.Builder()
-//
-//            )
-
-
+    ),
+    SEAT_VENT("SEAT_VENT", 2,
+            356517139,
+            new PropertyConfig.Builder()
+                    .setProtobufField(ProtobufMessageIds.TEMPERATURE_LEVEL)
+                    .setClassType(Integer.class)
+                    .build()
+    ),
+    LEG_HEATED("LEG_HEATED", 3,
+            624971864, new PropertyConfig.Builder()
+            .setProtobufField(ProtobufMessageIds.TEMPERATURE_LEVEL)
+            .setClassType(Integer.class)
+            .build()
+    ),
+    LEG_VENT("LEG_VENT", 4,
+            624971866, new PropertyConfig.Builder()
+            .setProtobufField(ProtobufMessageIds.TEMPERATURE_LEVEL)
+            .setClassType(Integer.class)
+            .build()
+    ),
+    NECK_HEATED("LEG_VENT", 5,
+            624971865, new PropertyConfig.Builder()
+            .setProtobufField(ProtobufMessageIds.TEMPERATURE_LEVEL)
+            .setClassType(Integer.class)
+            .build()
+    ),
+    NECK_VENT("LEG_VENT", 6,
+            624971867, new PropertyConfig.Builder()
+            .setProtobufField(ProtobufMessageIds.TEMPERATURE_LEVEL)
+            .setClassType(Integer.class)
+            .build()
+    );
 
     private final PropertyConfig mConfig;
 

@@ -15,5 +15,5 @@ public class ProtobufMessageIds {
         public static final String POWER_ON_FIELD_MASK = SUNROOF + POSITION;
     }
 
-    public static final String TEMPERATURE = "temperature";
+    public static final String TEMPERATURE_LEVEL = "temperature_level";
 }
