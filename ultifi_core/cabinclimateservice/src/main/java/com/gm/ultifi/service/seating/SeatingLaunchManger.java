@@ -1,16 +1,14 @@
 package com.gm.ultifi.service.seating;
 
-import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
-import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
-import com.gm.ultifi.service.constant.ResourceMappingConstants;
-import com.gm.ultifi.service.constant.ServiceConstant;
-
 import com.gm.ultifi.base.monitor.CanManagerMonitor;
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
 import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
+import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
 import com.gm.ultifi.base.utils.Utility;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
+import com.gm.ultifi.service.constant.ResourceMappingConstants;
+import com.gm.ultifi.service.constant.ServiceConstant;
 import com.gm.ultifi.service.seating.response.config.enums.SeatEnum;
 
 import java.util.Arrays;
@@ -54,7 +52,10 @@ public class SeatingLaunchManger  extends ServiceLaunchManager {
 
 
     public void unRegisterCarPropertyCallback(){
-        // todo
+        CarPropertyManagerMonitor carPropertyManagerMonitor = getmCarPropertyMgrMonitor();
+        CarPropertyExtensionManager.CarPropertyExtensionCallback callback = getmPropertyExtMgrCallback();
+
+        carPropertyManagerMonitor.unRegisterCallback(callback, SeatEnum.values());
     }
 }
 

@@ -76,6 +76,7 @@ public class CarPropertyManagerMonitor implements ConnectionManager {
         mOnCarManagerConnectionListener = listener;
     }
 
+    @Deprecated
     public void registerCallback(CarPropertyExtensionManager.CarPropertyExtensionCallback callback) {
         if (mPropertyExtensionManager == null) {
             Log.e(TAG, "mPropertyExtensionManager is null");
@@ -96,6 +97,7 @@ public class CarPropertyManagerMonitor implements ConnectionManager {
         }
     }
 
+    @Deprecated
     public void unRegisterCallback(CarPropertyExtensionManager.CarPropertyExtensionCallback callback) {
         if (mPropertyExtensionManager == null) {
             Log.e(TAG, "mPropertyExtensionManager is null");
@@ -103,6 +105,16 @@ public class CarPropertyManagerMonitor implements ConnectionManager {
             Log.e(TAG, "mCarPropertyManager is null");
         } else {
             mPropertyExtensionManager.unregisterCallback(callback);
+        }
+    }
+
+    public <T extends Enum<T> & SignalInfo> void unRegisterCallback(CarPropertyExtensionManager.CarPropertyExtensionCallback callback, T[] enumList) {
+        if (mPropertyExtensionManager == null) {
+            Log.e(TAG, "mPropertyExtensionManager is null");
+        } else if (!isCarPropertyManagerReady()) {
+            Log.e(TAG, "mCarPropertyManager is null");
+        } else {
+            mPropertyExtensionManager.unregisterCallback(callback, enumList);
         }
     }
 

@@ -33,6 +33,7 @@ public class CarPropertyExtensionManager {
     }
 
     // TODO: 2023/7/1 这里还有一块业务代码没分离, 变成抽象方法
+    @Deprecated
     public void registerCallback(CarPropertyExtensionCallback callback) {
         synchronized (mLock) {
             if (mExtCallbacks.isEmpty()) {
@@ -43,7 +44,7 @@ public class CarPropertyExtensionManager {
                 mPropertyManager.registerCallback(mPropertyCallback,
                         sunroofEnum.getPropertyId(), sunroofEnum.getRate());
             }
-            for(SeatEnum seatEnum: SeatEnum.values()){
+            for (SeatEnum seatEnum : SeatEnum.values()) {
                 mPropertyManager.registerCallback(mPropertyCallback,
                         seatEnum.getPropertyId(), seatEnum.getRate());
             }
@@ -70,6 +71,7 @@ public class CarPropertyExtensionManager {
     }
 
     // TODO: 2023/7/1 这里也是需要分离
+    @Deprecated
     public void unregisterCallback(CarPropertyExtensionCallback callback) {
         synchronized (mLock) {
             mExtCallbacks.remove(callback);
@@ -77,8 +79,22 @@ public class CarPropertyExtensionManager {
             for (SunroofEnum sunroofEnum : SunroofEnum.values()) {
                 mPropertyManager.unregisterCallback(mPropertyCallback, sunroofEnum.getPropertyId());
             }
-            for(SeatEnum seatEnum: SeatEnum.values()){
+            for (SeatEnum seatEnum : SeatEnum.values()) {
                 mPropertyManager.unregisterCallback(mPropertyCallback, seatEnum.getPropertyId());
+            }
+
+            if (mExtCallbacks.isEmpty()) {
+                mPropertyCallback = null;
+            }
+        }
+    }
+
+    public <T extends Enum<T> & SignalInfo> void unregisterCallback(CarPropertyExtensionCallback callback, T[] enumList) {
+        synchronized (mLock) {
+            mExtCallbacks.remove(callback);
+
+            for (T en : enumList) {
+                mPropertyManager.unregisterCallback(mPropertyCallback, en.getPropertyId());
             }
 
             if (mExtCallbacks.isEmpty()) {

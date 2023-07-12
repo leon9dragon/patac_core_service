@@ -50,4 +50,12 @@ public class AccessLaunchManger extends ServiceLaunchManager {
 
         carPropertyManagerMonitor.registerCallback(callback, SunroofEnum.values());
     }
+
+    @Override
+    public void unRegisterCarPropertyCallback() {
+        CarPropertyManagerMonitor carPropertyManagerMonitor = getmCarPropertyMgrMonitor();
+        CarPropertyExtensionManager.CarPropertyExtensionCallback callback = getmPropertyExtMgrCallback();
+
+        carPropertyManagerMonitor.unRegisterCallback(callback, SunroofEnum.values());
+    }
 }

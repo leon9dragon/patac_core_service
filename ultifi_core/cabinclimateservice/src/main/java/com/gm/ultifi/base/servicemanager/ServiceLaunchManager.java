@@ -276,9 +276,7 @@ public abstract class ServiceLaunchManager {
 
     public abstract void registerCarPropertyCallback();
 
-    private void unRegisterCarPropertyCallback() {
-        mCarPropertyMgrMonitor.unRegisterCallback(mPropertyExtMgrCallback);
-    }
+    public abstract void unRegisterCarPropertyCallback();
 
     public UltifiLinkMonitor getmUltifiLinkMonitor() {
         return mUltifiLinkMonitor;
