@@ -32,9 +32,11 @@ public class SeatingLaunchManger  extends ServiceLaunchManager {
         UEntity uEntity = new UEntity(ServiceConstant.SEATING_URI, ServiceConstant.VERSION);
         // create all topics to uBus
         Map<String, List<String>> topicMapper = new HashMap<>();
-        List<String> resource = Arrays.asList(ResourceMappingConstants.DRIVER_SEAT, ResourceMappingConstants.DRIVER_SEAT+".someip");
-        // todo next add seat topic
-        topicMapper.put("Seating", resource);
+        List<String> seatResource = Arrays.asList(ResourceMappingConstants.DRIVER_SEAT, ResourceMappingConstants.PASSENGER_SEAT,
+                                                ResourceMappingConstants.SECOND_LEFT_SEAT, ResourceMappingConstants.SECOND_RIGHT_SEAT,
+                                                ResourceMappingConstants.THIRD_LEFT_SEAT, ResourceMappingConstants.THIRD_RIGHT_SEAT);
+        topicMapper.put("SeatPosition", seatResource);
+        topicMapper.put("SeatTemperature", seatResource);
         for (String topic : Utility.buildTopicsList(topicMapper, uEntity)) {
             createTopic(topic);
         }

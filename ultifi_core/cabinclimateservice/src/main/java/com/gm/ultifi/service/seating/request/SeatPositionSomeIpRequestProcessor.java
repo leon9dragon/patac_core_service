@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.gm.ultifi.base.request.BaseRequestProcessor;
 import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
+import com.gm.ultifi.service.seating.someip.SeatViewModel;
 import com.gm.ultifi.vehicle.body.seating.v1.SeatComponent;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
@@ -13,6 +14,8 @@ import com.ultifi.vehicle.body.seating.v1.UpdateSeatPositionRequest;
 public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
 
     private static final String TAG = SeatPositionSomeIpRequestProcessor.class.getSimpleName();
+    
+    private static SeatViewModel seatViewModel = ServiceLaunchManager.seatViewModel;
 
     @Override
     public Status processRequest() {
@@ -29,44 +32,249 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
         SeatComponent component = req.getComponent();
 
         UpdateSeatPositionRequest.Direction direction = req.getDirection();
-        int percentPosition = req.getPosition(); // update Position
+        int percentPosition = (int) (req.getPosition()/0.025); // update Position
+
         Log.i(TAG, "seat name: " + seatName + ", update value: " + percentPosition);
 
         // TODO: 2023/5/15 将参数转换成SomeIpData格式, 然后通过client来调用server提供的方法
         // if it needs to check the setDriverSeatRecallReq method to set service enabled
-//        boolean serviceStatus = ServiceLaunchManager.seatViewModel.setDriverSeatRecallReq(true);
-
+//        boolean serviceStatus = seatViewModel.setDriverSeatRecallReq(true);
+        boolean status = false;
+        
         if(seatName.equals("row1_left")) {
-            boolean status = false;
-            ServiceLaunchManager.seatViewModel.setDriverSeatRecallReq(true);
+            seatViewModel.setDriverSeatRecallReq(true);
             if(component==SeatComponent.SC_SIDE_BOLSTER_CUSHION) {
-                status = ServiceLaunchManager.seatViewModel.setDriverBolsterReq(percentPosition);
+                // cannot found the available
+                if(seatViewModel.getDriverBolster()) {
+                    status = seatViewModel.setDriverBolsterReq(percentPosition);
+                }
             }
             if(component==SeatComponent.SC_HEADREST){
-                status = ServiceLaunchManager.seatViewModel.setDriverHeadRestReq(percentPosition);
+                if(seatViewModel.getDriverHead()&&seatViewModel.getDriverHeadUpStatus()) {
+                    status = seatViewModel.setDriverHeadRestReq(percentPosition);
+                }
             }
-            // need to add enums legrest
-            if(component==SeatComponent.SC_SIDE_BOLSTER_BACK){
-                status = ServiceLaunchManager.seatViewModel.setDriverLegRestReq(percentPosition);
-            }
+            // TODO need to add enums leg rest request
+
+//            if(component==SeatComponent.SC_SIDE_BOLSTER_BACK){
+//                if(seatViewModel.getDriverBolster()&&seatViewModel.getDriverLeg()) {
+//                    status = seatViewModel.setDriverLegRestReq(percentPosition);
+//                }
+//            }
+
             if(component==SeatComponent.SC_CUSHION){
                 if(direction== UpdateSeatPositionRequest.Direction.D_BACKWARD ||direction== UpdateSeatPositionRequest.Direction.D_FORWARD){
-                    status = ServiceLaunchManager.seatViewModel.setDriverSeatPosReq(percentPosition);
+                    if(seatViewModel.getDriverSeat()&&seatViewModel.getDriverForwardStatus()) {
+                        status = seatViewModel.setDriverSeatPosReq(percentPosition);
+                    }
                 }
                 else {
-                    status = ServiceLaunchManager.seatViewModel.setDriverCushionRearReq(percentPosition);
+                    if(seatViewModel.getDriverCushionRear()&&seatViewModel.getDriverCushionRearStatus()) {
+                        status = seatViewModel.setDriverCushionRearReq(percentPosition);
+                    }
                 }
             }
             if(component==SeatComponent.SC_BACK){
-                status = ServiceLaunchManager.seatViewModel.setDriverReclinesReq(percentPosition);
+                if(seatViewModel.getDriverRecline()&&seatViewModel.getDriverReclineStatus()) {
+                    status = seatViewModel.setDriverReclinesReq(percentPosition);
+                }
             }
             if(component==SeatComponent.SC_CUSHION_FRONT){
-                status = ServiceLaunchManager.seatViewModel.setDriverCushionFrontReq(percentPosition);
+                if(seatViewModel.getDriverCushionFront()&&seatViewModel.getDriverCushionFrontStatus()) {
+                    status = seatViewModel.setDriverCushionFrontReq(percentPosition);
+                }
             }
-            ServiceLaunchManager.seatViewModel.setDriverSeatRecallReq(false);
+            seatViewModel.setDriverSeatRecallReq(false);
+            return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
+
+        }
+        else if (seatName.equals("row1_right")) {
+            
+            seatViewModel.setPassSeatRecallReq(true);
+            if(component==SeatComponent.SC_BACK) {
+                if(seatViewModel.getPassRecline() && seatViewModel.getPassReclineStatus()) {
+                    status = seatViewModel.setPassReclineRecallReq(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_CUSHION_FRONT){
+                if(seatViewModel.getPassCushionFront()&&seatViewModel.getPassCushionFrontStatus()) {
+                    status = seatViewModel.setPassCushionFrontRecallReq(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_CUSHION){
+                if(direction== UpdateSeatPositionRequest.Direction.D_BACKWARD ||direction== UpdateSeatPositionRequest.Direction.D_FORWARD){
+                    if(seatViewModel.getPassForward()&&seatViewModel.getPassSeatForwardStatus()) {
+                        status = seatViewModel.setPassSeatFrontRecallReq(percentPosition);
+                    }
+                }
+                else {
+                    if(seatViewModel.getPassCushionRear()&&seatViewModel.getPassCushionRearStatus()) {
+                        status = seatViewModel.setPassCushionRearRecallReq(percentPosition);
+                    }
+                }
+            }
+            // todo need to confirm footrest and direction of headrest
+//            if(component==SeatComponent.SC_FOOTREST){
+//                if(seatViewModel.getPassFootUpward()&&seatViewModel.getPassFootStatus()) {
+//                    status = seatViewModel.setPassFootRecallReq(percentPosition);
+//                }
+//            }
+//            // todo check head rest forward/backward configuration?
+//            if(component==SeatComponent.SC_HEADREST){
+//                if(direction== UpdateSeatPositionRequest.Direction.D_BACKWARD ||direction== UpdateSeatPositionRequest.Direction.D_FORWARD) {
+//                    if(seatViewModel.getPassHeadForwardStatus()) {
+//                        status = seatViewModel.setPassHeadBackRecallReq(percentPosition);
+//                    }
+//                }
+//                else {
+//                    if(seatViewModel.getPassHeadUpward()&&seatViewModel.getPassHeadUpwardStatus()) {
+//                        status = seatViewModel.setPassHeadUpRecallReq(percentPosition);
+//                    }
+//                }
+//            }
+            seatViewModel.setPassSeatRecallReq(false);
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
-
-        return StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
+        else if (seatName.equals("row2_left")) {
+            seatViewModel.setSecLeftRecallReq(true);
+            if(component==SeatComponent.SC_ARMREST){
+                //todo check arm rest configuration
+                if(seatViewModel.getSecondLeftArmStatus()) {
+                    status = seatViewModel.setSecLeftArmPos(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_CUSHION_FRONT){
+                if(seatViewModel.getSecondLeftCushionFront()&&seatViewModel.getSecondLeftCushionFrontStatus()) {
+                    status = seatViewModel.setSecLeftCushionFrontPos(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_CUSHION){
+                //todo if there is left right direction
+                if(direction== UpdateSeatPositionRequest.Direction.D_BACKWARD||direction== UpdateSeatPositionRequest.Direction.D_FORWARD) {
+                    if(seatViewModel.getSecondLeftCushionRear()&&seatViewModel.getSecondLeftCushionRearStatus()) {
+                        status = seatViewModel.setSecLeftCushionRearPos(percentPosition);
+                    }
+                }
+                else {
+                    status = seatViewModel.setSecLeftSeatForwardPos(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_BACK){
+                if(seatViewModel.getSecondLeftRecline()&&seatViewModel.getSecondLeftReclineStatus()) {
+                    status = seatViewModel.setSecLeftReclinePos(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_HEADREST){
+                if(direction== UpdateSeatPositionRequest.Direction.D_FORWARD||direction== UpdateSeatPositionRequest.Direction.D_BACKWARD) {
+                    if(seatViewModel.getSecondLeftHead()&&seatViewModel.getSecondLeftHeadForwardStatus()) {
+                        status = seatViewModel.setSecLeftHeadForwardPos(percentPosition);
+                    }
+                }
+                else {
+                    if(seatViewModel.getSecondLeftHead()&&seatViewModel.getSecondLeftHeadUpwardStatus()) {
+                        status = seatViewModel.setSecLeftHeadUpwardPos(percentPosition);
+                    }
+                }
+            }
+//            if(component==SeatComponent.LEGREST){
+//                status = seatViewModel.setSecLeftLegOutwardPos(percentPosition);
+//            }
+//            if(component==SeatComponent.Foot){
+//                status = seatViewModel.setSecLeftFootPos(percentPosition);
+//            }
+            return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
+        }
+        else if (seatName.equals("row2_right")) {
+            seatViewModel.setSecRightRecallReq(true);
+            if(component==SeatComponent.SC_ARMREST){
+                //todo check arm rest configuration
+                if(seatViewModel.getSecRightArmStatus()) {
+                    status = seatViewModel.setSecRightArmPos(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_CUSHION_FRONT){
+                if(seatViewModel.getSecRightCushionFront()&&seatViewModel.getSecRightCushionFrontStatus()) {
+                    status = seatViewModel.setSecRightCushionFrontPos(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_CUSHION){
+                //todo if there is left right direction
+                if(direction== UpdateSeatPositionRequest.Direction.D_BACKWARD||direction== UpdateSeatPositionRequest.Direction.D_FORWARD) {
+                    if(seatViewModel.getSecRightCushionRear()&&seatViewModel.getSecRightCushionRearStatus()) {
+                        status = seatViewModel.setSecRightCushionRearPos(percentPosition);
+                    }
+                }
+                else {
+                    status = seatViewModel.setSecRightForwardPos(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_BACK){
+                if(seatViewModel.getSecRightRecline()&&seatViewModel.getSecRightReclineStatus()) {
+                    status = seatViewModel.setSecRightReclinePos(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_HEADREST){
+                if(direction== UpdateSeatPositionRequest.Direction.D_FORWARD||direction== UpdateSeatPositionRequest.Direction.D_BACKWARD) {
+                    if(seatViewModel.getSecRightHeadForwardStatus()) {
+                        status = seatViewModel.setSecRightHeadForwardPos(percentPosition);
+                    }
+                }
+                else {
+                    if(seatViewModel.getSecRightHeadUpward()&&seatViewModel.getSecRightHeadUpwardStatus()) {
+                        status = seatViewModel.setSecRightHeadUpwardPos(percentPosition);
+                    }
+                }
+            }
+//            if(component==SeatComponent.LEGREST){
+//                status = seatViewModel.setSecondLeftLegOutwardPos(percentPosition);
+//            }
+//            if(component==SeatComponent.Foot){
+//                status = seatViewModel.setSecondLeftFootPos(percentPosition);
+//            }
+            return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
+        }
+        else if(seatName.equals("row3_left")){
+            seatViewModel.setThirdLeftRecallReq(true);
+            // todo if the component is correct
+            if(component==SeatComponent.SC_CUSHION){
+                if(seatViewModel.getThdLeftCushionFoldConf()&&seatViewModel.getThdLeftCushionFoldStatus()) {
+                    status = seatViewModel.setThirdLeftCushionFoldReq(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_CUSHION){
+                if(seatViewModel.getThdLeftForwardConf()&&seatViewModel.getThdLeftForwardStatus()) {
+                    status = seatViewModel.setThirdLeftForwardReq(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_BACK){
+                if(seatViewModel.getThdLeftReclineUpwardConf()&&seatViewModel.getThdLeftReclineStatus()) {
+                    status = seatViewModel.setThirdLeftReclineReq(percentPosition);
+                }
+            }
+            return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
+        }
+        else if(seatName.equals("row3_right")){
+            seatViewModel.setThirdRightRecallReq(true);
+            // todo if the component is correct
+            if(component==SeatComponent.SC_CUSHION){
+                if(seatViewModel.getThirdRightCushionFoldConf()&&seatViewModel.getThdRightCushionFoldStatus()) {
+                    status = seatViewModel.setThirdRightCushionFoldReq(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_CUSHION){
+                if(seatViewModel.getThirdRightForwardConf()&&seatViewModel.getThdRightForwardStatus()) {
+                    status = seatViewModel.setThirdRightForwardReq(percentPosition);
+                }
+            }
+            if(component==SeatComponent.SC_BACK){
+                if(seatViewModel.getThirdRightReclineUpwardConf()&&seatViewModel.getThdRightReclineStatus()) {
+                    status = seatViewModel.setThirdRightReclineReq(percentPosition);
+                }
+            }
+            return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
+        }
+        else {
+            return StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
+        }
     }
 }

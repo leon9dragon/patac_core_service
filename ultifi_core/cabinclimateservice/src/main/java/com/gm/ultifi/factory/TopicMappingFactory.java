@@ -1,5 +1,6 @@
-package com.gm.ultifi.base.response.mapper;
+package com.gm.ultifi.factory;
 
+import com.gm.ultifi.base.response.mapper.BaseTopic;
 import com.gm.ultifi.service.access.response.mapper.SunroofTopic;
 import com.gm.ultifi.service.seating.response.mapper.SeatTemperatureTopic;
 

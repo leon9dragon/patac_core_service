@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
 import com.gm.ultifi.base.request.BaseRequestProcessor;
-import com.gm.ultifi.base.request.rpc.RequestProcessorFactory;
+import com.gm.ultifi.factory.RequestProcessorFactory;
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.google.rpc.Code;

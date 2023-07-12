@@ -114,19 +114,19 @@ class SeatViewModel : BaseAppViewModel() {
             Log.i(TAG, "SUCCESS: NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1")
             val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(data.payload)
 
-            val seatReclPosition = resp.outPut.drvStBkReclnUpwdDnwdPos
-            val seatPosition = resp.outPut.drvStFrwdBkwdPos
+            val seatReclPosition = resp.outPut.drvStBkReclnUpwdDnwdPos *0.025
+            val seatPosition = resp.outPut.drvStFrwdBkwdPos*0.025
 
             Log.d(TAG, "onChangeEvent, Recline position:"+seatReclPosition+"SeatPosition"+seatPosition)
             val seatReclPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
                 .setComponent(SeatComponent.SC_BACK)
-                .setPosition(seatReclPosition)
+                .setPosition(seatReclPosition.toInt())
                 .setDirection(UpdateSeatPositionRequest.Direction.D_UP)
                 .build();
 
             val seatPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
                 .setComponent(SeatComponent.SC_CUSHION)
-                .setPosition(seatPosition)
+                .setPosition(seatPosition.toInt())
                 .setDirection(UpdateSeatPositionRequest.Direction.D_FORWARD)
                 .build();
 
@@ -232,28 +232,23 @@ class SeatViewModel : BaseAppViewModel() {
         //endregion
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_1) {
-            Log.i(
-                TAG,
-                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_1: Success"
-            )
+            Log.i(TAG,"PASSENGER_SEAT_PERCENTAGE_POSITION_1: Success")
+            val resp = SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field.parseFrom(data.payload)
+            val bolsterPosition = resp.outPut.passStBlstOtwdInwdPos
+            val seatPosition = resp.outPut.passStFrwdBkwdPos
+            val footPosition = resp.outPut.passStFtUpwdDnwdPos
+            val reclinePosition = resp.outPut.passStBkReclnUpwdDnwdPos
+
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_2) {
-            Log.i(
-                TAG,
-                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_2: Success"
-            )
+            Log.i(TAG,"PASSENGER_SEAT_PERCENTAGE_POSITION_2: Success")
+
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1) {
-            Log.i(
-                TAG,
-                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1: Success"
-            )
+            Log.i(TAG,"SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1: Success")
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2) {
-            Log.i(
-                TAG,
-                "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2: Success"
-            )
+            Log.i(TAG,"SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2: Success")
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1) {
             Log.i(
@@ -414,129 +409,86 @@ class SeatViewModel : BaseAppViewModel() {
     //#region driver seat set requests
     fun setDriverSeatRecallReq(enable:Boolean) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Driver_Seat_Recall_Request_Service_37C_M1: failed, server is not available or client is not ready"
-            )
+            Log.i(TAG,"Driver_Seat_Recall_Request_Service_37C_M1: failed, server is not available or client is not ready")
             return false
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_37C_M1Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M1.newBuilder()
-                    .setDrvStRclReqSrv(enable)
-            ).build()
+        val newRecall = SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M1.newBuilder()
+                    .setDrvStRclReqSrv(enable)).build()
 
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1)
     }
 
     fun setDriverBolsterReq(pos: Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Driver_Seat_Recall_Request_Service_37C_M1: failed, server is not available or client is not ready"
-            )
+            Log.i(TAG,"Driver_Seat_Recall_Request_Service_37C_M1: failed, server is not available or client is not ready")
             return false
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_37C_M1Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M1.newBuilder()
-                    .setDrvStBlstOtwdInwdTrgtPosReqSrv(pos)
-            ).build()
+        val newRecall = SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M1.newBuilder()
+                    .setDrvStBlstOtwdInwdTrgtPosReqSrv(pos)).build()
 
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M1)
     }
 
     fun setDriverHeadRestReq(pos: Int): Boolean {
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Driver_Seat_Recall_Request_Service_37C_M2(Head rest/Leg rest): failed, server is not available or client is not ready"
-            )
+            Log.i(TAG,"Driver Seat head rest: failed, server is not available or client is not ready")
             return false
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
-                    .setDrvStHdrstUpwdDnwdTrgtPosReqSrv(pos)
-
-            ).build()
+        val newRecall = SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
+                    .setDrvStHdrstUpwdDnwdTrgtPosReqSrv(pos)).build()
 
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2)
     }
 
     fun setDriverLegRestReq( pos: Int): Boolean {
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Driver_Seat_Recall_Request_Service_37C_M2(Head rest/Leg rest): failed, server is not available or client is not ready"
-            )
+            Log.i(TAG,"Driver seat leg rest: failed, server is not available or client is not ready")
             return false
         }
 //        var newRecall: GeneratedMessageV3= SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder().build()
 //        } else if (component == SeatComponent.SC_SIDE_BOLSTER_BACK) {
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
-                    .setDrvStLgrstUpwdDnwdTrgtPosReqSrv(pos)
-            ).build()
+        val newRecall = SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_37C_M2.newBuilder()
+                    .setDrvStLgrstUpwdDnwdTrgtPosReqSrv(pos)).build()
 
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_37C_M2)
     }
 
     fun setDriverSeatPosReq( pos: Int):Boolean {
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Driver_Seat_Recall_Request_Service_3AB_M3(Driver Seat and Recline): failed, server is not available or client is not ready"
-            )
+            Log.i(TAG,"Driver seat: failed, server is not available or client is not ready")
             return false
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
-                    .setDrvStFrwdBkwdTrgtPosReqSrv(pos)
-            ).build()
+        val newRecall = SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
+                    .setDrvStFrwdBkwdTrgtPosReqSrv(pos)).build()
 
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3)
     }
 
     fun setDriverReclinesReq(pos: Int):Boolean {
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Driver_Seat_Recall_Request_Service_3AB_M3(Driver Seat and Recline): failed, server is not available or client is not ready"
-            )
+            Log.i(TAG,"Driver seat recline: failed, server is not available or client is not ready")
             return false
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
-                    .setDrvStBkReclnUpwdDnwdTrgtPosReqSrv(pos)
-            ).build()
+        val newRecall = SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AB_M3.newBuilder()
+                    .setDrvStBkReclnUpwdDnwdTrgtPosReqSrv(pos)).build()
 
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AB_M3)
     }
 
     fun setDriverCushionFrontReq(pos: Int):Boolean {
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Driver_Seat_Recall_Request_Service_3AC_M4(Cushion Front Rear): failed, server is not available or client is not ready"
-            )
+            Log.i(TAG,"Driver seat Cushion Front : failed, server is not available or client is not ready")
             return false
         }
-        val newRecall = SomeipS2SManagementInterface
-            .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
-                    .setDrvStCshnFrntUpwdDnwdTrgtPosReqSrv(pos)
-            ).build()
+        val newRecall = SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
+                    .setDrvStCshnFrntUpwdDnwdTrgtPosReqSrv(pos)).build()
 
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4)
     }
@@ -544,27 +496,22 @@ class SeatViewModel : BaseAppViewModel() {
 
     fun setDriverCushionRearReq(pos: Int):Boolean {
         if (!isServerAvailable || !isReady) {
-            Log.i(TAG,"Driver_Seat_Recall_Request_Service_3AC_M4(Cushion Front Rear): failed, server is not available or client is not ready")
+            Log.i(TAG,"Driver seat cushion Rear: failed, server is not available or client is not ready")
             return false
         }
 //        if (component == SeatComponent.SC_CUSHION) {
         val newRecall = SomeipS2SManagementInterface
             .Driver_Seat_Recall_Request_Service_3AC_M4Field.newBuilder()
             .setOutPut(SomeipS2SManagementInterface.Driver_Seat_Recall_Request_Service_3AC_M4.newBuilder()
-                    .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(pos)
-            ).build()
+                    .setDrvStCshnRrUpwdDnwdTrgtPosReqSrv(pos)).build()
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_DRIVER_SEAT_RECALL_REQUEST_SERVICE_3AC_M4)
     }
-
     //endregion
-
 
     fun generateSendStatus(newRecall:GeneratedMessageV3, setTopic: Long):Boolean{
         val req = SomeIpData(setTopic, System.currentTimeMillis(), newRecall.toByteArray())
         val resp = SomeIpData()
-
         val res = someIpClientProxy?.setAttribute(req, resp)
-
         if (res == ResultValue.OK) {
             Log.i(TAG, "Response: OK")
             return true
@@ -574,563 +521,1582 @@ class SeatViewModel : BaseAppViewModel() {
     }
 
 
-    fun setSeatModeReq() {
-        if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Seat_Mode_Control_Request: failed, server is not available or client is not ready"
-            )
-            return
-        }
-
-        val newSeatMode = SomeipS2SManagementInterface
-            .Seat_Mode_Control_RequestField.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Seat_Mode_Control_Request.newBuilder()
-                    .setStSrvReqStMd1(isBoolean)
-                    .setStSrvReqStMd2(isBoolean)
-                    .setStSrvReqStMd3(isBoolean)
-                    .setStSrvReqStMd4(isBoolean)
-                    .setStSrvReqStMd5(isBoolean)
-                    .setStSrvReqStMd6(isBoolean)
-                    .setStSrvReqStMd7(isBoolean)
-                    .setStSrvReqStMd8(isBoolean)
-                    .setStSrvReqStMd9(isBoolean)
-                    .setStSrvReqStMd10(isBoolean)
-                    .setStSrvReqStMd11(isBoolean)
-                    .setStSrvReqStMd12(isBoolean)
-                    .setStSrvReqStMd13(isBoolean)
-                    .setStSrvReqStMd14(isBoolean)
-                    .setStSrvReqStMd15(isBoolean)
-                    .setStSrvReqStMd16(isBoolean)
-                    .setStSrvReqStMd17(isBoolean)
-                    .setStSrvReqStMd18(isBoolean)
-                    .setStSrvReqStMd19(isBoolean)
-                    .setStSrvReqStMd20(isBoolean)
-                    .setStSrvReqStMd21(isBoolean)
-                    .setStSrvReqStMd22(isBoolean)
-                    .setStSrvReqStMd23(isBoolean)
-                    .setStSrvReqStMd24(isBoolean)
-                    .setStSrvReqStMd25(isBoolean)
-                    .setStSrvReqStMd26(isBoolean)
-                    .setStSrvReqStMd27(isBoolean)
-                    .setStSrvReqStMd28(isBoolean)
-                    .setStSrvReqStMd29(isBoolean)
-                    .setStSrvReqStMd30(isBoolean)
-                    .setStSrvReqStMd31(isBoolean)
-                    .setStSrvReqStMd32(isBoolean)
-            )
-            .build()
-
-        val req = SomeIpData(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SEAT_MODE_CONTROL_REQUEST,
-            System.currentTimeMillis(),
-            newSeatMode.toByteArray()
-        )
-
+    //region get driver seat configuration/status
+    fun getDriverSeatConfig():SomeipS2SManagementInterface.Driver_Seat_ConfigurationField?{
         val resp = SomeIpData()
-
-        val res = someIpClientProxy?.setAttribute(req, resp)
-        Log.i(TAG, "sendReq2Server: Seat_Mode_Control_Request.")
-
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "Seat_Mode_Control_Request: Response OK")
-            return
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_CONFIGURATION, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
         }
-
-        Log.i(TAG, "Seat_Mode_Control_Request: FAILED")
+        return null
     }
 
+    fun getDriverRecline(): Boolean{
+        val config = getDriverSeatConfig()
+        if(config != null){
+            return config.outPut.drvStBkReclnUpwdDnwdMovConfig
+        }
+        return false
+    }
 
-    fun getDriverSeatPercPos_1(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field?{
+    fun getDriverBolster(): Boolean{
+        val config = getDriverSeatConfig()
+        if(config != null){
+            return config.outPut.drvStBlstOtwdInwdMovConfig
+        }
+        return false
+    }
+
+    fun getDriverCushionFront(): Boolean{
+        val config = getDriverSeatConfig()
+        if(config != null){
+            return config.outPut.drvStCshnFrntUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getDriverCushionRear(): Boolean{
+        val config = getDriverSeatConfig()
+        if(config != null){
+            return config.outPut.drvStCshnRrUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getDriverSeat(): Boolean{
+        val config = getDriverSeatConfig()
+        if(config != null){
+            return config.outPut.drvStFrwdBkwdMovConfig
+        }
+        return false
+    }
+
+    fun getDriverFoot(): Boolean{
+        val config = getDriverSeatConfig()
+        if(config != null){
+            return config.outPut.drvStFtUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getDriverHead(): Boolean{
+        val config = getDriverSeatConfig()
+        if(config != null){
+            return config.outPut.drvStHdrstUpwdDnwdMovConfig
+
+        }
+        return false
+    }
+
+    fun getDriverLeg(): Boolean{
+        val config = getDriverSeatConfig()
+        if(config != null){
+            return config.outPut.drvStLgrstUpwdMovConfig
+        }
+        return false
+    }
+
+    fun getDriverSeatStatus():SomeipS2SManagementInterface.Driver_Seat_Virtual_Control_Availability_And_Notification_StatusField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Driver_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+        }
+        return null
+    }
+
+    fun getDriverCushionFrontStatus():Boolean{
+        val available = getDriverSeatStatus()
+        if(available!=null){
+            return available.outPut.drvStCushnFrtUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getDriverCushionRearStatus():Boolean{
+        val available = getDriverSeatStatus()
+        if(available!=null){
+            return available.outPut.drvStCushnRrUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getDriverFootStatus():Boolean{
+        val available = getDriverSeatStatus()
+        if(available!=null){
+            return available.outPut.drvStFtrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getDriverForwardStatus():Boolean{
+        val available = getDriverSeatStatus()
+        if(available!=null){
+            return available.outPut.drvStFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getDriverHeadForwardStatus():Boolean{
+        val available = getDriverSeatStatus()
+        if(available!=null){
+            return available.outPut.drvStHdrstFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getDriverHeadUpStatus():Boolean{
+        val available = getDriverSeatStatus()
+        if(available!=null){
+            return available.outPut.drvStHdrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getDriverReclineStatus():Boolean{
+        val available = getDriverSeatStatus()
+        if(available!=null){
+            return available.outPut.drvStRclUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+//            endregion
+
+
+    fun getPositionMessage(topic: Long): SomeIpData?{
         if (!isServerAvailable || !isReady) {
-            Log.i( TAG, "get Driver_Seat_Position: failed, server is not available or client is not ready")
+            Log.i( TAG, "get Driver Seat Position: failed, server is not available or client is not ready")
             return null;
         }
         val resp = SomeIpData()
-        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_1, resp)
-
-        Log.i(TAG, "sendReq2Server: get Driver_Seat_Percentage_Position")
+        val res = someIpClientProxy?.getAttribute(topic, resp)
         if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Driver_Seat_Percentage_Position OK")
-            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
-            return temp
+            return resp
         }
-        Log.i(TAG, "FAILED: Driver_Seat_Percentage_Position")
         return null;
     }
 
+    
+    //region Driver seat get position
 
-    fun getDriverSeatPos(): Int? {
-        val value = getDriverSeatPercPos_1()
-        if(value!=null){
-            val pos = value.outPut.drvStFrwdBkwdPos
-            Log.i(TAG, "Get the driver seat position: $pos")
-            return pos
+    fun getDriverSeatPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStFrwdBkwdPos
         }
-        Log.i(TAG, "Failed to get the driver seat position")
-        return null;
+        return null
     }
 
-    fun getDriverSeatReclPos(): Int? {
-        val value = getDriverSeatPercPos_1()
-        if(value!=null){
-            val pos = value.outPut.drvStBkReclnUpwdDnwdPos
-            Log.i(TAG, "Get the driver seat back recline position: $pos")
-            return pos
+    fun getDriverReclinePosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStBkReclnUpwdDnwdPos
         }
-        Log.i(TAG, "Failed to get the driver seat back recline position")
-        return null;
+        return null
     }
 
-    fun getDriverSeatPosition_2(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field? {
+    fun getDriverCushionRearPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStCshnRrUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getDriverCushionFrontPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStCshnFrntUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getDriverBolsterPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_3)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStBlstOtwdInwdPos
+        }
+        return null
+    }
+
+    fun getDriverFootPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_3)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStFtUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getDriverHeadPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_3)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStHdrstUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getDriverLegPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_3)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStLgrstUpwdDnwdPos
+//            return tmp.outPut.drvStPosRclRspStat
+        }
+        return null
+    }
+
+    // what is this property?
+    fun getDriverReclinePositionStat(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_PERCENTAGE_POSITION_3)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
+            return tmp.outPut.drvStPosRclRspStat
+        }
+        return null
+    }
+
+//    endregion
+
+
+    //region Passenger seat set requests
+    fun setPassSeatRecallReq(enable:Boolean) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Driver_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Passenger seat service enable: failed, server is not available or client is not ready")
+            return false
         }
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1.newBuilder()
+                .setPassStRclReqSrv(enable)).build()
 
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Driver_Seat_Percentage_Position_2")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Driver_Seat_Percentage_Position_2 OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Driver_Seat_Percentage_Position_2")
-        return null;
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getDriverSeatPosition_3(): SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field? {
+    fun setPassReclineRecallReq(pos:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get DriverSeatPosition: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Passenger seat recline: failed, server is not available or client is not ready")
+            return false
         }
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1.newBuilder()
+                .setPassStBkReclnUpwdDnwdTrgtPosReqSrv(pos)).build()
 
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Driver_Seat_Percentage_Position_3")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Driver_Seat_Percentage_Position_3 OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Driver_Seat_Percentage_Position_3")
-        return null;
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getPassenagerSeatPosition_1(): SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field? {
+    fun setPassCushionFrontRecallReq(pos:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Passenger_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Passenger seat cushion front: failed, server is not available or client is not ready")
+            return false
         }
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1.newBuilder()
+                .setPassStCshnFrntUpwdDnwdTrgtPosReqSrv(pos)).build()
 
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Passenger_Seat_Percentage_Position_1Field")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Passenger_Seat_Percentage_Position_1Field OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Passenger_Seat_Percentage_Position_1Field")
-        return null;
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getPassenagerSeatPosition_2(): SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_2Field? {
+    fun setPassSeatFrontRecallReq(pos:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Passenger_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Passenger seat front: failed, server is not available or client is not ready")
+            return false
         }
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1.newBuilder()
+                .setPassStFrwdBkwdTrgtPosReqSrv(pos)).build()
 
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Passenger_Seat_Percentage_Position_2Field")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Passenger_Seat_Percentage_Position_2Field OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Passenger_Seat_Percentage_Position_2Field")
-        return null;
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getSecondLeftSeatPosition_1(): SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field? {
+    fun setPassCushionRearRecallReq(pos:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Second_Left_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Passenger seat cushion rear: failed, server is not available or client is not ready")
+            return false
         }
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1.newBuilder()
+                .setPassStCshnRrUpwdDnwdTrgtPosReqSrv(pos)).build()
 
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Second_Left_Seat_Percentage_Position_1Field")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Second_Left_Seat_Percentage_Position_1Field OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Second_Left_Seat_Percentage_Position_1Field")
-        return null;
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getSecondLeftSeatPosition_2(): SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field? {
+    fun setPassFootRecallReq(pos:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Second_Left_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Passenger seat foot rest: failed, server is not available or client is not ready")
+            return false
         }
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service1.newBuilder()
+                .setPassStFtrstUpwdDnwdTrgtPosReqSrv(pos)).build()
 
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Second_Left_Seat_Percentage_Position_2Field")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Second_Left_Seat_Percentage_Position_2Field OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Second_Left_Seat_Percentage_Position_2Field")
-        return null;
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getSecondRightSeatPosition_1(): SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field? {
+    fun setPassHeadBackRecallReq(pos:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Second_Left_Seat_Percentage_Position_1Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Passenger seat head rest: failed, server is not available or client is not ready")
+            return false
         }
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service2.newBuilder()
+                .setPassStHdrstFwdBkwdTrgtPosReqSrv(pos)).build()
 
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Second_Left_Seat_Percentage_Position_1Field")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Second_Left_Seat_Percentage_Position_1Field OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Second_Left_Seat_Percentage_Position_1Field")
-        return null;
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_RECALL_REQUEST_SERVICE2)
     }
 
-    fun getSecondRightSeatPosition_2(): SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_2Field? {
+    fun setPassHeadUpRecallReq(pos:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Second_Left_Seat_Percentage_Position_2Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Passenger seat head rest: failed, server is not available or client is not ready")
+            return false
         }
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Recall_Request_Service2.newBuilder()
+                .setPassStHdrstUpwdDnwdTrgtPosReqSrv(pos)).build()
 
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+    //endregion
+
+
+    //region Passenger seat configuration/statue
+    fun getPassSeatConfig():SomeipS2SManagementInterface.Passenger_Seat_ConfigurationField?{
         val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Second_Left_Seat_Percentage_Position_2Field")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Second_Left_Seat_Percentage_Position_2Field OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_CONFIGURATION, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Passenger_Seat_ConfigurationField.parseFrom(resp.payload)
         }
-
-        Log.i(TAG, "FAILED: Second_Left_Seat_Percentage_Position_2Field")
-        return null;
+        return null
     }
 
-    fun getThirdLeftSeatPosition(): SomeipS2SManagementInterface.Third_Left_Seat_Percentage_PositionField? {
+    fun getPassRecline(): Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStBkReclnUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getPassBolster(): Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStBlstOtwdInwdMovConfig
+        }
+        return false
+    }
+
+    fun getPassCushionFront(): Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStCshnFrntUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getPassCushionRear(): Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStCshnRrUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getPassForward(): Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStFrwdBkwdMovConfig
+        }
+        return false
+    }
+    fun getPassFootUpward(): Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStFtUpwdDnwdMovConfig
+        }
+        return false
+    }
+    fun getPassLegUpward(): Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStLgrstUpwdMovConfig
+        }
+        return false
+    }
+    fun getPassHeadUpward(): Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStHdrstUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+
+    fun getPassSeatStatus():SomeipS2SManagementInterface.Passenger_Seat_Virtual_Control_Availability_And_Notification_StatusField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Passenger_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+        }
+        return null
+    }
+
+    fun getPassCushionFrontStatus():Boolean{
+        val available = getPassSeatStatus()
+        if(available!=null){
+            return available.outPut.passStCushnFrtUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getPassCushionRearStatus():Boolean{
+        val available = getPassSeatStatus()
+        if(available!=null){
+            return available.outPut.passStCushnRrUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getPassSeatForwardStatus():Boolean{
+        val available = getPassSeatStatus()
+        if(available!=null){
+            return available.outPut.passStFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getPassLamberStatus():Boolean{
+        val available = getPassSeatStatus()
+        if(available!=null){
+            return available.outPut.passStLmbrVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getPassFootStatus():Boolean{
+        val available = getPassSeatStatus()
+        if(available!=null){
+            return available.outPut.passStFtrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getPassHeadForwardStatus():Boolean{
+        val available = getPassSeatStatus()
+        if(available!=null){
+            return available.outPut.passStHdrstFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getPassHeadUpwardStatus():Boolean{
+        val available = getPassSeatStatus()
+        if(available!=null){
+            return available.outPut.passStHdrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getPassReclineStatus():Boolean{
+        val available = getPassSeatStatus()
+        if(available!=null){
+            return available.outPut.passStRclUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    //endregion
+
+
+    //region Passenger get position
+    fun getPassReclinePosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.passStBkReclnUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getPassBolsterPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.passStBlstOtwdInwdPos
+        }
+        return null
+    }
+
+    fun getPassForwardPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.passStFrwdBkwdPos
+        }
+        return null
+    }
+
+    fun getPassFootPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.passStFtUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getPassCushionPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.passStCshnFrntUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getPassCushionRearPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.passStCshnRrUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getPassHeadPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.passStHdrstUpwdDnwdPos
+        }
+        return null
+    }
+
+    fun getPassLegPosition(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.passStLgrstUpwdDnwdPos
+        }
+        return null
+    }
+
+    //endregion
+
+
+    //region SecondLeft seat set requests
+    fun setSecLeftRecallReq(enable:Boolean) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Third_Left_Seat_Percentage_PositionField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Third_Left_Seat_Percentage_PositionField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Third_Left_Seat_Percentage_PositionField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Third_Left_Seat_Percentage_PositionField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwLtStRclReqSrv(enable)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getThirdRightSeatPosition(): SomeipS2SManagementInterface.Third_Right_Seat_Percentage_PositionField? {
+    fun setSecLeftCushionFrontPos(pos: Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Third_Right_Seat_Percentage_PositionField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Third_Right_Seat_Percentage_PositionField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Third_Right_Seat_Percentage_PositionField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStFrwdBkwdPos)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Third_Right_Seat_Percentage_PositionField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwLtStCushnFrtUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getDriverSeatConf(): SomeipS2SManagementInterface.Driver_Seat_ConfigurationField? {
+    fun setSecLeftCushionRearPos(pos: Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Driver_Seat_ConfigurationField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Driver_Seat_ConfigurationField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Driver_Seat_ConfigurationField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Driver_Seat_ConfigurationField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwLtStCushnRrUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getPassengerSeatConf(): SomeipS2SManagementInterface.Passenger_Seat_ConfigurationField? {
+    fun setSecLeftSeatForwardPos(pos: Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Passenger_Seat_ConfigurationField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Passenger_Seat_ConfigurationField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Passenger_Seat_ConfigurationField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Passenger_Seat_ConfigurationField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwLtStFwdBkwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getSecondLeftSeatConf(): SomeipS2SManagementInterface.Second_Left_Seat_ConfigurationField? {
+    fun setSecLeftSeatLeftwardPos(pos: Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Second_Left_Seat_ConfigurationField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Second_Left_Seat_ConfigurationField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Second_Left_Seat_ConfigurationField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Second_Left_Seat_ConfigurationField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwLtStLtwdRtwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getSecondRightSeatConf(): SomeipS2SManagementInterface.Second_Right_Seat_ConfigurationField? {
+    fun setSecLeftReclinePos(pos: Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Second_Right_Seat_ConfigurationField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Second_Right_Seat_ConfigurationField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Second_Right_Seat_ConfigurationField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Second_Right_Seat_ConfigurationField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwLtStRclUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE1)
     }
 
-    fun getThirdLeftSeatConf(): SomeipS2SManagementInterface.Third_Left_Seat_ConfigurationField? {
+    fun setSecLeftFootPos(pos: Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Third_Left_Seat_ConfigurationField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Third_Left_Seat_ConfigurationField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Third_Left_Seat_ConfigurationField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Third_Left_Seat_ConfigurationField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwLtStFtrstUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE2)
     }
 
-    fun getThirdRightSeatConf(): SomeipS2SManagementInterface.Third_Right_Seat_ConfigurationField? {
+    fun setSecLeftHeadForwardPos(pos: Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Third_Right_Seat_ConfigurationField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Third_Right_Seat_ConfigurationField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Third_Right_Seat_ConfigurationField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Third_Right_Seat_ConfigurationField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwLtStHdrstFwdBkwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE2)
     }
+    fun setSecLeftHeadUpwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwLtStHdrstUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+
+    fun setSecLeftLegOutwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwLtStLgrstOtwdInwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+
+    fun setSecLeftLegUpwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwLtStLgrstUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+    fun setSecLeftArmPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service3Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Recall_Request_Service3.newBuilder()
+                .setSecRwLtStArmScrnUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE3)
+    }
+
+    //endregion
+
+
+    //region Second Left seat configuration/status
+    fun getSecondLeftSeatConfig():SomeipS2SManagementInterface.Second_Left_Seat_ConfigurationField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_CONFIGURATION, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Second_Left_Seat_ConfigurationField.parseFrom(resp.payload)
+        }
+        return null
+    }
+
+    fun getSecondLeftRecline(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStBkReclnUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftBolster(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStBlstOtwdInwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftCushionFront(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStCshnFrntUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftCushionRear(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStCshnRrUpwdDnwdMemConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftForward(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStFrwdBkwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftHead(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStHdrstUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftLeg(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStLgrstUpwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftLeftward(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStLtwdRtwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftSeatStatus():SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Availability_And_Notification_StatusField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+        }
+        return null
+    }
+
+    fun getSecondLeftArmStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStArmScrnUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getSecondLeftCushionFrontStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStCushnFrtUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftCushionRearStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStCushnRrUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftFootRestStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStFtrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftHeadForwardStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStHdrstFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftHeadUpwardStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStHdrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftLegOutwardStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStLgrstOtwdInwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftLegUpwardStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStLgrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftLeftwardStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStLtwdRtwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftNeckStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStNckrstFrwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftReclineStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStRclUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecondLeftForwardStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    //endregion
+
+
+    //region Second Left seat get position
+    fun getSecondLeftReclinePos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStBkReclnUpwdDnwdPos
+        }
+        return null
+    }
+    fun getSecondLeftBolsterPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStBlstOtwdInwdPos
+        }
+        return null
+    }
+    fun getSecondLeftForwardPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStFrwdBkwdPos
+        }
+        return null
+    }
+    fun getSecondLeftLeftwardPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStLtwdRtwdPos
+        }
+        return null
+    }
+    fun getSecondLeftCushionFrontPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStCshnFrntUpwdDnwdPos
+        }
+        return null
+    }
+    fun getSecondLeftCushionRearPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStCshnRrUpwdDnwdPos
+        }
+        return null
+    }
+    fun getSecondLeftHeadUpwardPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStHdrstStUpwdDnwdPos
+        }
+        return null
+    }
+    fun getSecondLeftLegUpwardPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStLgrstUpwdDnwdPos
+        }
+        return null
+    }
+
+    //endregion
+
+
+    //region Second right seat set requests
+    fun setSecRightRecallReq(enable:Boolean) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwRtStRclReqSrv(enable)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE1)
+    }
+    fun setSecRightCushionFrontPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwRtStCushnFrtUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE1)
+    }
+    fun setSecRightCushionRearPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwRtStCushnRrUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE1)
+    }
+    fun setSecRightForwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwRtStFwdBkwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE1)
+    }
+    fun setSecRightLeftwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwRtStLtwdRtwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE1)
+    }
+    fun setSecRightReclinePos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service1.newBuilder()
+                .setSecRwRtStRclUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE1)
+    }
+    fun setSecRightFootPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwRtStFtrstUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+    fun setSecRightHeadForwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwRtStHdrstFwdBkwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+    fun setSecRightHeadUpwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwRtStHdrstUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+    fun setSecRightLegOutwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwRtStLgrstOtwdInwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+    fun setSecRightLegUpwardPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service2.newBuilder()
+                .setSecRwRtStLgrstUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE2)
+    }
+    fun setSecRightArmPos(pos: Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service3Field.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Recall_Request_Service3.newBuilder()
+                .setSecRwRtStArmScrnUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE3)
+    }
+
+    //endregion
+
+
+    //region Second right seat configuration/status
+    fun getSecRightSeatConfig():SomeipS2SManagementInterface.Second_Right_Seat_ConfigurationField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_CONFIGURATION, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Second_Right_Seat_ConfigurationField.parseFrom(resp.payload)
+        }
+        return null
+    }
+
+    fun getSecRightLeftward(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStLtwdRtwdMovConfig
+        }
+        return false
+    }
+    fun getSecRightLegUpward(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStLgrstUpwdMovConfig
+        }
+        return false
+    }
+    fun getSecRightForward(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStFrwdBkwdMovConfig
+        }
+        return false
+    }
+    fun getSecRightRecline(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStBkReclnUpwdDnwdMovConfig
+        }
+        return false
+    }
+    fun getSecRightHeadUpward(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStHdrstUpwdDnwdMovConfig
+        }
+        return false
+    }
+    fun getSecRightBolster(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStBlstOtwdInwdMovConfig
+        }
+        return false
+    }
+    fun getSecRightCushionFront(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStCshnFrntUpwdDnwdMovConfig
+        }
+        return false
+    }
+    fun getSecRightCushionRear(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStCshnRrUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecRightSeatStatus():SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Availability_And_Notification_StatusField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+        }
+        return null
+    }
+    fun getSecRightForwardStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightLeftwardStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStLtwdRtwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightUpwardStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStFtrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightArmStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStArmScrnUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightHeadForwardStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStHdrstFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightHeadUpwardStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStHdrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightCushionFrontStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStCushnFrtUpwdDnwdCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightCushionRearStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStCushnRrUpwdDnwdCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightLegOutwardStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStLgrstOtwdInwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightLegUpwardStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStLgrstUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightNeckStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStNckrstFrwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getSecRightReclineStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStRclUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    //endregion
+
+
+    //region Second right seat get position
+    fun getSecRightReclinePos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStBkReclnUpwdDnwdPos
+        }
+        return null
+    }
+    fun getSecRightBolsterPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStBlstOtwdInwdPos
+        }
+        return null
+    }
+    fun getSecRightForwardPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStFrwdBkwdPos
+        }
+        return null
+    }
+    fun getSecRightLeftwardPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStLtwdRtwdPos
+        }
+        return null
+    }
+    fun getSecRightCushionFrontPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStCshnFrntUpwdDnwdPos
+        }
+        return null
+    }
+    fun getSecRightCushionRearPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStCshnRrUpwdDnwdPos
+        }
+        return null
+    }
+    fun getSecRightHeadPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStHdrstUpwdDnwdPos
+        }
+        return null
+    }
+    fun getSecRightLegRearPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_2Field.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStLgrstUpwdDnwdPos
+        }
+        return null
+    }
+
+    //endregion
+
+
+    //region Third left seat set requests
+    fun setThirdLeftRecallReq(enable:Boolean) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwLtStRclReqSrv(enable)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+    fun setThirdLeftReclineReq(pos:Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwLtStRclUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+    fun setThirdLeftCushionFoldReq(pos:Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwLtStCushnFldTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+
+    fun setThirdLeftForwardReq(pos:Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwLtStFwdBkwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+
+    //endregion
+
+
+    //region Third left seat configuration/status
+    fun getThirdLeftSeatConfig():SomeipS2SManagementInterface.Third_Left_Seat_ConfigurationField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_LEFT_SEAT_CONFIGURATION, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Third_Left_Seat_ConfigurationField.parseFrom(resp.payload)
+        }
+        return null
+    }
+    fun getThdLeftCushionFoldConf(): Boolean{
+        val config = getThirdLeftSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwLtStCshnFldUpwdDnwdMovConfig
+        }
+        return false
+    }
+    fun getThdLeftReclineUpwardConf(): Boolean{
+        val config = getThirdLeftSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwLtStBkReclnUpwdDnwdMovConfig
+        }
+        return false
+    }
+    fun getThdLeftForwardConf(): Boolean{
+        val config = getThirdLeftSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwLtStFrwdBkwdMovConfig
+        }
+        return false
+    }
+
+    fun getThirdSeatStatus():SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Availability_And_Notification_StatusField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_ROW_LEFT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+        }
+        return null
+    }
+    fun getThdLeftCushionFoldStatus():Boolean{
+        val available = getThirdSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwLtStCushnFldMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getThdLeftForwardStatus():Boolean{
+        val available = getThirdSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwLtStFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getThdLeftReclineStatus():Boolean{
+        val available = getThirdSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwLtStRclUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    //endregion
+
+
+    //region Third left seat get position
+    fun getThdLeftReclinePos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_LEFT_SEAT_PERCENTAGE_POSITION)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Third_Left_Seat_Percentage_PositionField.parseFrom(resp.payload)
+            return tmp.outPut.thdRwLtStBkReclnUpwdDnwdPos
+        }
+        return null
+    }
+    fun getThdLeftForwardPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_LEFT_SEAT_PERCENTAGE_POSITION)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Third_Left_Seat_Percentage_PositionField.parseFrom(resp.payload)
+            return tmp.outPut.thdRwLtStFrwdBkwdPos
+        }
+        return null
+    }
+    fun getThdLeftCushionFoldPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_LEFT_SEAT_PERCENTAGE_POSITION)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Third_Left_Seat_Percentage_PositionField.parseFrom(resp.payload)
+            return tmp.outPut.thdRwLtStCshnFldUpwdDnwdPos
+        }
+        return null
+    }
+
+    //endregion
+
+
+    //region Third right seat set requests
+    fun setThirdRightRecallReq(enable:Boolean) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwRtStRclReqSrv(enable)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+    fun setThirdRightReclineReq(pos:Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwRtStRclUpwdDnwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+    fun setThirdRightCushionFoldReq(pos:Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwRtStCushnFldTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+
+    fun setThirdRightForwardReq(pos:Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwRtStFwdBkwdTrgtPosReqSrv(pos)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+
+    //endregion
+
+
+    //region Third right seat configuration/status
+    fun getThirdRightSeatConfig():SomeipS2SManagementInterface.Third_Right_Seat_ConfigurationField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_RIGHT_SEAT_CONFIGURATION, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Third_Right_Seat_ConfigurationField.parseFrom(resp.payload)
+        }
+        return null
+    }
+    fun getThirdRightCushionFoldConf(): Boolean{
+        val config = getThirdRightSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwRtStCshnFldUpwdDnwdMovConfig
+        }
+        return false
+    }
+    fun getThirdRightReclineUpwardConf(): Boolean{
+        val config = getThirdRightSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwRtStBkReclnUpwdDnwdMovConfig
+        }
+        return false
+    }
+    fun getThirdRightForwardConf(): Boolean{
+        val config = getThirdRightSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwRtStFrwdBkwdMovConfig
+        }
+        return false
+    }
+
+    fun getThirdRightSeatStatus():SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Availability_And_Notification_StatusField?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            return SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+        }
+        return null
+    }
+    fun getThdRightCushionFoldStatus():Boolean{
+        val available = getThirdRightSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwRtStCushnFldMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getThdRightForwardStatus():Boolean{
+        val available = getThirdRightSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwRtStFwdBkwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+    fun getThdRightReclineStatus():Boolean{
+        val available = getThirdRightSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwRtStRclUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    //endregion
+
+
+    //region Third right seat get position
+    fun getThdRightReclinePos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Third_Right_Seat_Percentage_PositionField.parseFrom(resp.payload)
+            return tmp.outPut.thdRwRtStBkReclnUpwdDnwdPos
+        }
+        return null
+    }
+    fun getThdRightForwardPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Third_Right_Seat_Percentage_PositionField.parseFrom(resp.payload)
+            return tmp.outPut.thdRwRtStFrwdBkwdPos
+        }
+        return null
+    }
+    fun getThdRightCushionFoldPos(): Int?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Third_Right_Seat_Percentage_PositionField.parseFrom(resp.payload)
+            return tmp.outPut.thdRwRtStCshnFldUpwdDnwdPos
+        }
+        return null
+    }
+
+    //endregion
+
+
 
     fun getSeatMode(): SomeipS2SManagementInterface.Seat_Mode_StatusField? {
         if (!isServerAvailable || !isReady) {
@@ -1260,6 +2226,73 @@ class SeatViewModel : BaseAppViewModel() {
 
         Log.i(TAG, "FAILED: Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field")
         return null;
+    }
+
+    fun setSeatModeReq() {
+        if (!isServerAvailable || !isReady) {
+            Log.i(
+                TAG,
+                "Seat_Mode_Control_Request: failed, server is not available or client is not ready"
+            )
+            return
+        }
+
+        val newSeatMode = SomeipS2SManagementInterface
+            .Seat_Mode_Control_RequestField.newBuilder()
+            .setOutPut(
+                SomeipS2SManagementInterface.Seat_Mode_Control_Request.newBuilder()
+                    .setStSrvReqStMd1(isBoolean)
+                    .setStSrvReqStMd2(isBoolean)
+                    .setStSrvReqStMd3(isBoolean)
+                    .setStSrvReqStMd4(isBoolean)
+                    .setStSrvReqStMd5(isBoolean)
+                    .setStSrvReqStMd6(isBoolean)
+                    .setStSrvReqStMd7(isBoolean)
+                    .setStSrvReqStMd8(isBoolean)
+                    .setStSrvReqStMd9(isBoolean)
+                    .setStSrvReqStMd10(isBoolean)
+                    .setStSrvReqStMd11(isBoolean)
+                    .setStSrvReqStMd12(isBoolean)
+                    .setStSrvReqStMd13(isBoolean)
+                    .setStSrvReqStMd14(isBoolean)
+                    .setStSrvReqStMd15(isBoolean)
+                    .setStSrvReqStMd16(isBoolean)
+                    .setStSrvReqStMd17(isBoolean)
+                    .setStSrvReqStMd18(isBoolean)
+                    .setStSrvReqStMd19(isBoolean)
+                    .setStSrvReqStMd20(isBoolean)
+                    .setStSrvReqStMd21(isBoolean)
+                    .setStSrvReqStMd22(isBoolean)
+                    .setStSrvReqStMd23(isBoolean)
+                    .setStSrvReqStMd24(isBoolean)
+                    .setStSrvReqStMd25(isBoolean)
+                    .setStSrvReqStMd26(isBoolean)
+                    .setStSrvReqStMd27(isBoolean)
+                    .setStSrvReqStMd28(isBoolean)
+                    .setStSrvReqStMd29(isBoolean)
+                    .setStSrvReqStMd30(isBoolean)
+                    .setStSrvReqStMd31(isBoolean)
+                    .setStSrvReqStMd32(isBoolean)
+            )
+            .build()
+
+        val req = SomeIpData(
+            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SEAT_MODE_CONTROL_REQUEST,
+            System.currentTimeMillis(),
+            newSeatMode.toByteArray()
+        )
+
+        val resp = SomeIpData()
+
+        val res = someIpClientProxy?.setAttribute(req, resp)
+        Log.i(TAG, "sendReq2Server: Seat_Mode_Control_Request.")
+
+        if (res == ResultValue.OK) {
+            Log.i(TAG, "Seat_Mode_Control_Request: Response OK")
+            return
+        }
+
+        Log.i(TAG, "Seat_Mode_Control_Request: FAILED")
     }
 
     fun getSeatMode2(): SomeipS2SManagementInterface.Seat_Mode_Status_2Field? {

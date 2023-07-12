@@ -2,7 +2,7 @@ package com.gm.ultifi.base.request;
 
 import com.gm.ultifi.base.monitor.CarPropertyManagerMonitor;
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
-import com.gm.ultifi.base.request.rpc.RequestProcessorFactory;
+import com.gm.ultifi.factory.RequestProcessorFactory;
 import com.ultifi.core.rpc.Request;
 
 public abstract class BaseRequestProcessor implements RequestProcessorFactory.RequestProcessor {

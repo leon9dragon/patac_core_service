@@ -1,4 +1,4 @@
-package com.gm.ultifi.base.request.rpc;
+package com.gm.ultifi.factory;
 
 import android.text.TextUtils;
 import android.util.Log;

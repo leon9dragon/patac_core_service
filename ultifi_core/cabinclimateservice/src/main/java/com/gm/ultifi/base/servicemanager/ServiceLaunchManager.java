@@ -10,7 +10,7 @@ import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.request.listeners.UltifiLinkRequestListener;
 import com.gm.ultifi.base.response.config.PropertyConfig;
 import com.gm.ultifi.base.response.mapper.BaseTopic;
-import com.gm.ultifi.base.response.mapper.TopicMappingFactory;
+import com.gm.ultifi.factory.TopicMappingFactory;
 import com.gm.ultifi.sdk.uprotocol.cloudevent.datamodel.UCloudEventAttributes;
 import com.gm.ultifi.sdk.uprotocol.cloudevent.factory.CloudEventFactory;
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
@@ -210,6 +210,7 @@ public abstract class ServiceLaunchManager {
 
         // TODO: 2023/7/1 或许之后改成统一的 Manager 来处理 some/ip client 的 get
         sunroofViewModel = new SunroofViewModel();
+        seatViewModel = new SeatViewModel();
 
 //        new Timer().schedule(new TimerTask() {
 //            int position = 0;
