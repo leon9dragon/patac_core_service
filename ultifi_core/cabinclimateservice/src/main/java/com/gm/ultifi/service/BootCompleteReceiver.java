@@ -22,6 +22,7 @@ public class BootCompleteReceiver extends BroadcastReceiver {
                 || (BuildConfig.DEBUG && "com.patac.intent.action.TEST".equals(action))) {
                 context.startForegroundService(new Intent(context, AccessService.class));
                 context.startForegroundService(new Intent(context, SeatingService.class));
+                context.startForegroundService(new Intent(context, ChassisService.class));
             }
         }
     }
