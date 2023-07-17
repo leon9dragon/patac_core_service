@@ -8,7 +8,7 @@ import androidx.collection.ArraySet;
 
 import com.gm.ultifi.base.response.config.SignalInfo;
 import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
-import com.gm.ultifi.service.seating.response.config.enums.SeatEnum;
+import com.gm.ultifi.service.seating.response.config.enums.SeatTemperatureEnum;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -44,9 +44,9 @@ public class CarPropertyExtensionManager {
                 mPropertyManager.registerCallback(mPropertyCallback,
                         sunroofEnum.getPropertyId(), sunroofEnum.getRate());
             }
-            for (SeatEnum seatEnum : SeatEnum.values()) {
+            for (SeatTemperatureEnum seatTemperatureEnum : SeatTemperatureEnum.values()) {
                 mPropertyManager.registerCallback(mPropertyCallback,
-                        seatEnum.getPropertyId(), seatEnum.getRate());
+                        seatTemperatureEnum.getPropertyId(), seatTemperatureEnum.getRate());
             }
 
             mExtCallbacks.add(callback);
@@ -79,8 +79,8 @@ public class CarPropertyExtensionManager {
             for (SunroofEnum sunroofEnum : SunroofEnum.values()) {
                 mPropertyManager.unregisterCallback(mPropertyCallback, sunroofEnum.getPropertyId());
             }
-            for (SeatEnum seatEnum : SeatEnum.values()) {
-                mPropertyManager.unregisterCallback(mPropertyCallback, seatEnum.getPropertyId());
+            for (SeatTemperatureEnum seatTemperatureEnum : SeatTemperatureEnum.values()) {
+                mPropertyManager.unregisterCallback(mPropertyCallback, seatTemperatureEnum.getPropertyId());
             }
 
             if (mExtCallbacks.isEmpty()) {
@@ -159,6 +159,19 @@ public class CarPropertyExtensionManager {
     public Integer getIntegerProperty(int propertyId, int areaId) {
         try {
             return mPropertyManager.getProperty(Integer.class, propertyId, areaId).getValue();
+        } catch (IllegalArgumentException illegalArgumentException) {
+            Log.e(TAG, "Illegal Argument Exception " + illegalArgumentException.getMessage());
+        } catch (IllegalStateException illegalStateException) {
+            Log.e(TAG, "Illegal State Exception " + illegalStateException.getMessage());
+        } catch (Exception exception) {
+            Log.e(TAG, "Exception : " + exception.getMessage());
+        }
+        return null;
+    }
+
+    public Integer[] getListProperty(int propertyId, int areaId) {
+        try {
+            return (Integer[]) mPropertyManager.getProperty(propertyId, areaId).getValue();
         } catch (IllegalArgumentException illegalArgumentException) {
             Log.e(TAG, "Illegal Argument Exception " + illegalArgumentException.getMessage());
         } catch (IllegalStateException illegalStateException) {

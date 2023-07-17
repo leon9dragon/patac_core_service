@@ -9,7 +9,8 @@ import com.gm.ultifi.base.utils.Utility;
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UEntity;
 import com.gm.ultifi.service.constant.ResourceMappingConstants;
 import com.gm.ultifi.service.constant.ServiceConstant;
-import com.gm.ultifi.service.seating.response.config.enums.SeatEnum;
+import com.gm.ultifi.service.seating.response.config.enums.SeatModeEnum;
+import com.gm.ultifi.service.seating.response.config.enums.SeatTemperatureEnum;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,7 +50,8 @@ public class SeatingLaunchManger  extends ServiceLaunchManager {
         CarPropertyManagerMonitor carPropertyManagerMonitor = getmCarPropertyMgrMonitor();
         CarPropertyExtensionManager.CarPropertyExtensionCallback callback = getmPropertyExtMgrCallback();
 
-        carPropertyManagerMonitor.registerCallback(callback, SeatEnum.values());
+        carPropertyManagerMonitor.registerCallback(callback, SeatTemperatureEnum.values());
+        carPropertyManagerMonitor.registerCallback(callback, SeatModeEnum.values());
     }
 
 
@@ -57,7 +59,8 @@ public class SeatingLaunchManger  extends ServiceLaunchManager {
         CarPropertyManagerMonitor carPropertyManagerMonitor = getmCarPropertyMgrMonitor();
         CarPropertyExtensionManager.CarPropertyExtensionCallback callback = getmPropertyExtMgrCallback();
 
-        carPropertyManagerMonitor.unRegisterCallback(callback, SeatEnum.values());
+        carPropertyManagerMonitor.unRegisterCallback(callback, SeatTemperatureEnum.values());
+        carPropertyManagerMonitor.unRegisterCallback(callback, SeatModeEnum.values());
     }
 }
 

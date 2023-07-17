@@ -108,10 +108,10 @@ public class MainActivity extends AppCompatActivity {
                     sunroofViewModel.getWindowStatus();
                     sunroofViewModel.getWindowStatusInformation();
 
-                    seatViewModel.getDriverSeatConf();
+//                    seatViewModel.getDriverSeatConf();
 //                    seatViewModel.getDriverSeatPosition_1();
-                    seatViewModel.getDriverSeatPosition_2();
-                    seatViewModel.getDriverSeatPosition_3();
+//                    seatViewModel.getDriverSeatPosition_2();
+//                    seatViewModel.getDriverSeatPosition_3();
                     seatViewModel.getSeatMode();
                     seatViewModel.getSeatMode2();
                     seatViewModel.getDriverSeatRecoveryPosition();
@@ -119,15 +119,15 @@ public class MainActivity extends AppCompatActivity {
                     seatViewModel.getSeatPassenger_Com_Mode_Ser();
                     seatViewModel.getSeatPassenger_Com_Mode_Ser_Resp();
                     seatViewModel.getSeatPassenger_Com_Mode_Ser_Resp2();
-                    seatViewModel.getThirdLeftSeatConf();
-                    seatViewModel.getThirdLeftSeatPosition();
-                    seatViewModel.getThirdRightSeatConf();
-                    seatViewModel.getThirdRightSeatPosition();
+//                    seatViewModel.getThirdLeftSeatConf();
+//                    seatViewModel.getThirdLeftSeatPosition();
+//                    seatViewModel.getThirdRightSeatConf();
+//                    seatViewModel.getThirdRightSeatPosition();
                     seatViewModel.getSec_RowLeft_Com_Mode_Req();
                     seatViewModel.getSec_RowRight_Com_Mode_Req();
                     seatViewModel.getSeatPassenger_Com_Mode_Ava_Notifi6();
-                    seatViewModel.getSecondLeftSeatPosition_1();
-                    seatViewModel.getSecondLeftSeatPosition_2();
+//                    seatViewModel.getSecondLeftSeatPosition_1();
+//                    seatViewModel.getSecondLeftSeatPosition_2();
 
                     ambientLightViewModel.getAmbientLedControlAvailable();
                     ambientLightViewModel.getLed1AndLed2Status();

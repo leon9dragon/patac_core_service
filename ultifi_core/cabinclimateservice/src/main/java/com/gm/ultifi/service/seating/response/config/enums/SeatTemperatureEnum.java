@@ -8,7 +8,7 @@ import com.gm.ultifi.base.utils.StreamUtils;
 import java.util.Arrays;
 import java.util.Map;
 
-public enum SeatEnum implements SignalInfo {
+public enum SeatTemperatureEnum implements SignalInfo {
 
     //此处需要定义service涉及到的所有CarProperty, 557856808
     SEAT_HEATED("SEAT_HEATED", 1,
@@ -56,9 +56,9 @@ public enum SeatEnum implements SignalInfo {
 
     private final String mSignalName;
 
-    private static final Map<Integer, SeatEnum> PROPERTY_ID_MAP = StreamUtils.toMap(Arrays.stream(SeatEnum.values()), SeatEnum::getPropertyId);
+    private static final Map<Integer, SeatTemperatureEnum> PROPERTY_ID_MAP = StreamUtils.toMap(Arrays.stream(SeatTemperatureEnum.values()), SeatTemperatureEnum::getPropertyId);
 
-    SeatEnum(String name, int ordinal, Integer propertyId, PropertyConfig propertyConfig) {
+    SeatTemperatureEnum(String name, int ordinal, Integer propertyId, PropertyConfig propertyConfig) {
         mPropertyId = propertyId;
         mConfig = propertyConfig;
         mSignalName = propertyConfig.getSignalName();
@@ -74,7 +74,7 @@ public enum SeatEnum implements SignalInfo {
         return null;
     }
 
-    public static Map<Integer, SeatEnum> getPropertyIdMap() {
+    public static Map<Integer, SeatTemperatureEnum> getPropertyIdMap() {
         return PROPERTY_ID_MAP;
     }
 

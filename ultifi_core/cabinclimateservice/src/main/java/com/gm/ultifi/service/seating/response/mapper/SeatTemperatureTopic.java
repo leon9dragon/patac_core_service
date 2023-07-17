@@ -10,7 +10,7 @@ import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource;
 import com.gm.ultifi.sdk.uprotocol.uri.factory.UltifiUriFactory;
 
 import com.gm.ultifi.service.constant.ServiceConstant;
-import com.gm.ultifi.service.seating.response.config.enums.SeatEnum;
+import com.gm.ultifi.service.seating.response.config.enums.SeatTemperatureEnum;
 import com.gm.ultifi.vehicle.body.seating.v1.SeatTemperature;
 import com.google.protobuf.Any;
 import com.google.protobuf.Descriptors;
@@ -109,11 +109,10 @@ public class SeatTemperatureTopic implements BaseTopic {
                     .setTemperatureLevelValue(val)
                     .build();
             seatTemperature = builder.setSeatTemperatureStatus(0, status1)
-                    .setSeatTemperatureStatus(1, status1).build();
+                    .setSeatTemperatureStatus(1, status2).build();
         }
         else {
             SeatTemperature.SeatComponentTemperatureStatus status = statusBuilder
-                    .setTemperatureLevelValue(val)
                     .setComponentValue(component)
                     .setModeValue(mode)
                     .setTemperatureLevelValue(val)
@@ -129,14 +128,14 @@ public class SeatTemperatureTopic implements BaseTopic {
     }
 
     public String getTopicUri(String resourceName) {
-        UResource uResource = new UResource(resourceName, "", SeatTemperature.class.getSimpleName());
+        UResource uResource = new UResource(resourceName, "", "SeatTemperature");
         return UltifiUriFactory.buildUProtocolUri(UAuthority.local(), ServiceConstant.SEATING_SERVICE, uResource);
     }
 
 
     @Override
     public PropertyConfig getConfig(int propertyId) {
-        SeatEnum e = SeatEnum.getPropertyIdMap().getOrDefault(propertyId, null);
+        SeatTemperatureEnum e = SeatTemperatureEnum.getPropertyIdMap().getOrDefault(propertyId, null);
         if (e == null) {
             throw new IllegalArgumentException("illegal property id");
         }
