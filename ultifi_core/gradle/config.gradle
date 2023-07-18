@@ -27,7 +27,7 @@ ext {
             project_name : "\"$rootProject.projectDir.name\"",
             package : "com.gm.hvac",
 
-            offline_maven : "/Users/leon9dragon/AndroidStudioProjects/tools/common/m2/repository",
+            offline_maven : "D:/SourceCode/tools/common/m2/repository",
             artifactory : "https://info-artifactory.gm.com/artifactory/info-maven",
             localLibsDir : repoRoot + "out/target/common/obj/JAVA_LIBRARIES",
             newLocalLibsDir: repoRoot + "out/soong/.intermediates",

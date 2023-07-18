@@ -32,30 +32,30 @@ public class TractionandstabilityRequestProcessor extends BaseRequestProcessor {
         //    req.getUpdateMask().getPaths(index);
         //  但既然 path 和 fieldname 都用不上, 应该不需要写这俩吧?
 
-        String path = req.getUpdateMask().getPaths(3);
-        String fieldName = path.substring(path.indexOf("." + 1));
-
-        TractionControlSystem tractioncontrolsystem = req.getTractionControlSystem();
-        ElectronicStabilityControlSystem electronicstabilitycontrolsystem = req.getElectronicStabilityControlSystem();
-
-        //Log.i(TAG, "target field: " + fieldName + ", update value: " + tractioncontrolsystem.getIsEnabled());
-
-        boolean tractionSystemControlConvert = tractioncontrolsystem.getIsEnabled();
-        boolean electronicStabilityConvert = electronicstabilitycontrolsystem.getIsEnabled();
-
-        if (tractionSystemControlConvert && electronicStabilityConvert) {
-            this.setCarProperty(Integer.class, 557857069, GLOBAL_AREA_ID, 1);
-            return StatusUtils.buildStatus(Code.OK);
-        } else if (!tractionSystemControlConvert && electronicStabilityConvert) {
-            this.setCarProperty(Integer.class, 557857069, GLOBAL_AREA_ID, 3);
-            return StatusUtils.buildStatus(Code.OK);
-        } else if (tractionSystemControlConvert) {
-            return StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
-        } else {
-            this.setCarProperty(Integer.class, 557857069, GLOBAL_AREA_ID, 2);
-            return StatusUtils.buildStatus(Code.OK);
-        }
-
+//        String path = req.getUpdateMask().getPaths(3);
+//        String fieldName = path.substring(path.indexOf("." + 1));
+//
+//        TractionControlSystem tractioncontrolsystem = req.getTractionControlSystem();
+//        ElectronicStabilityControlSystem electronicstabilitycontrolsystem = req.getElectronicStabilityControlSystem();
+//
+//        //Log.i(TAG, "target field: " + fieldName + ", update value: " + tractioncontrolsystem.getIsEnabled());
+//
+//        boolean tractionSystemControlConvert = tractioncontrolsystem.getIsEnabled();
+//        boolean electronicStabilityConvert = electronicstabilitycontrolsystem.getIsEnabled();
+//
+//        if (tractionSystemControlConvert && electronicStabilityConvert) {
+//            this.setCarProperty(Integer.class, 557857069, GLOBAL_AREA_ID, 1);
+//            return StatusUtils.buildStatus(Code.OK);
+//        } else if (!tractionSystemControlConvert && electronicStabilityConvert) {
+//            this.setCarProperty(Integer.class, 557857069, GLOBAL_AREA_ID, 3);
+//            return StatusUtils.buildStatus(Code.OK);
+//        } else if (tractionSystemControlConvert) {
+//            return StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
+//        } else {
+//            this.setCarProperty(Integer.class, 557857069, GLOBAL_AREA_ID, 2);
+//            return StatusUtils.buildStatus(Code.OK);
+//        }
+        return null;
 
     }
 }
