@@ -129,6 +129,7 @@ class chassisServiceActivity : AppCompatActivity() {
             Log.d(TAG, "TCS_Disable_ESC_Enable_Button clicked")
             CoroutineScope(Dispatchers.IO).launch {
                 UltifiLinkFlow(this@chassisServiceActivity).invoke {
+                    // UpdateTractionandStabilitySystemRequest 里传入的值只有一个，TractionandStabilitySystemRequest类型的枚举值Vehicle_stability_enhancement_enable_and_traction_control_system_disable
                     val req = createUpdateTractionandStabilitySystemRequest(UpdateTractionandStabilitySystemRequest.TractionandStabilitySystemRequest.Vehicle_stability_enhancement_enable_and_traction_control_system_disable)
                     Log.d(TAG, "TCS_Disable_ESC_Disable_Button: ${req.methodUri()}")
                     val status: CompletableFuture<Any> = it.invokeMethod(req)

@@ -37,8 +37,10 @@ fun createSunroofUpdateRequest(position: Int): Request {
         }.build()
 }
 
+//createUpdateTractionandStabilitySystemRequest 看传入参数
 fun createUpdateTractionandStabilitySystemRequest(request: UpdateTractionandStabilitySystemRequest.TractionandStabilitySystemRequest):Request{
     return Request.newBuilder()
+            //根据传入参数的数量写（或者说要set的值），如果有多个，就写多套下面代码
         .updateTractionandStabilitySystem(request){
             UpdateTractionandStabilitySystemRequest.newBuilder()
                 .setTractionandstabilitysystemrequest(request)

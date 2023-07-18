@@ -100,12 +100,13 @@ fun Request.Builder.executeSunroofCommand(
         .withMethodUri(uri)
         .withPayload(Any.pack(updateSunroofRequest))
 }
+
+//要看有没有field mask
 fun Request.Builder.updateTractionandStabilitySystem(
     featureFieldNumber: UpdateTractionandStabilitySystemRequest.TractionandStabilitySystemRequest,
     tractionandStabilitySystemProvider: (namePrefix: String) -> UpdateTractionandStabilitySystemRequest
 ): Request.Builder {
     val uri = UriFactory.buildChassisRequestUri("UpdateTractionAndStabilitySystemRequest")
-
 //    val TractionandStabilityMessageName = UpdateTractionandStabilitySystemRequest.getDescriptor()
 //        .findFieldByNumber(UpdateTractionandStabilitySystemRequest.TRACTIONANDSTABILITYSYSTEMREQUEST_FIELD_NUMBER)
 //        .name
@@ -117,13 +118,9 @@ fun Request.Builder.updateTractionandStabilitySystem(
 //    val mask = FieldMask.newBuilder()
 //        .addPaths("$featureFieldNumber")
 //        .build()
-
     val updatesetting = UpdateTractionandStabilitySystemRequest.newBuilder()
         .setTractionandstabilitysystemrequest(featureFieldNumber).build();
     return this.withMethodUri(uri).withPayload(Any.pack(updatesetting))
-
-
-
 }
 
 fun Request.Builder.updateTireRequest(
