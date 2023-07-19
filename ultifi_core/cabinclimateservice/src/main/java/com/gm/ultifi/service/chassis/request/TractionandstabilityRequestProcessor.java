@@ -24,24 +24,31 @@ public class TractionandstabilityRequestProcessor extends BaseRequestProcessor {
             return StatusUtils.buildStatus(Code.UNKNOWN);
         }
 
-        // TODO: 2023/7/16 可能要改一下的点
-        //  这里会出现取值问题, 先确定更新的 field 的数量
-        //  int count = req.getUpdateMask().getPathsCount();
-        //  然后再 index 从 0 开始一个个去取值匹配
-        //  for(int index =0; index < count; index++)
-        //    req.getUpdateMask().getPaths(index);
-        //  但既然 path 和 fieldname 都用不上, 应该不需要写这俩吧?
+        UpdateTractionandStabilitySystemRequest.TractionandStabilitySystemRequest updateTractionandStabilitySystemRequest=req.getTractionandstabilitysystemrequest();
+        this.setCarProperty(Integer.class,557857069,GLOBAL_AREA_ID,updateTractionandStabilitySystemRequest.getNumber());
+        Log.i(TAG,"processRequest: finish set updateTractionandStabilitySystemRequest = " + updateTractionandStabilitySystemRequest.getNumber());
+        return StatusUtils.buildStatus(Code.OK);
 
-//        String path = req.getUpdateMask().getPaths(3);
-//        String fieldName = path.substring(path.indexOf("." + 1));
-//
+//       以下代码为原先带field mask时所写
 //        TractionControlSystem tractioncontrolsystem = req.getTractionControlSystem();
 //        ElectronicStabilityControlSystem electronicstabilitycontrolsystem = req.getElectronicStabilityControlSystem();
+//        boolean tractionSystemControlConvert = false;
+//        boolean electronicStabilityConvert = false;
+
+//        int count = req.getUpdateMask().getPathsCount();
+//        for (int i = 0; i < count; i++) {
+//            String path = req.getUpdateMask().getPaths(i);//TractionControlSystem.isEnabled, Electronicstabilitycontrolsystem.isEnabled
+//
+//            if("TractionControlSystem.isEnabled".equals(path)){
+//                tractionSystemControlConvert = tractioncontrolsystem.getIsEnabled();
+//            }
+//
+//            if("Electronicstabilitycontrolsystem.isEnabled".equals(path)){
+//                electronicStabilityConvert = electronicstabilitycontrolsystem.getIsEnabled();
+//            }
+//        }
 //
 //        //Log.i(TAG, "target field: " + fieldName + ", update value: " + tractioncontrolsystem.getIsEnabled());
-//
-//        boolean tractionSystemControlConvert = tractioncontrolsystem.getIsEnabled();
-//        boolean electronicStabilityConvert = electronicstabilitycontrolsystem.getIsEnabled();
 //
 //        if (tractionSystemControlConvert && electronicStabilityConvert) {
 //            this.setCarProperty(Integer.class, 557857069, GLOBAL_AREA_ID, 1);
@@ -55,7 +62,7 @@ public class TractionandstabilityRequestProcessor extends BaseRequestProcessor {
 //            this.setCarProperty(Integer.class, 557857069, GLOBAL_AREA_ID, 2);
 //            return StatusUtils.buildStatus(Code.OK);
 //        }
-        return null;
+
 
     }
 }

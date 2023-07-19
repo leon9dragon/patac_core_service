@@ -209,8 +209,8 @@ public abstract class ServiceLaunchManager {
         mCarPropertyMgrMonitor.connect();
 
         // TODO: 2023/7/1 或许之后改成统一的 Manager 来处理 some/ip client 的 get
-        sunroofViewModel = new SunroofViewModel();
-        seatViewModel = new SeatViewModel();
+//        sunroofViewModel = new SunroofViewModel();
+//        seatViewModel = new SeatViewModel();
 
 //        new Timer().schedule(new TimerTask() {
 //            int position = 0;
