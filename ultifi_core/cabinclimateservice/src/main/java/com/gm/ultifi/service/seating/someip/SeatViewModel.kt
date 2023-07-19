@@ -3,11 +3,13 @@ package com.gm.ultifi.service.seating.someip
 import android.util.Log
 import com.gm.ultifi.base.someip.BaseAppViewModel
 import com.gm.ultifi.base.utils.SomeIpUtil
+import com.gm.ultifi.service.seating.SeatingBeanFactory
 import com.gm.ultifi.sdk.uprotocol.uri.datamodel.UResource
 import com.gm.ultifi.service.SeatingService
 import com.gm.ultifi.service.constant.ResourceMappingConstants
 import com.gm.ultifi.service.constant.ServiceConstant
 import com.gm.ultifi.vehicle.body.seating.v1.SeatComponent
+import com.gm.ultifi.vehicle.body.seating.v1.SeatMode
 import com.google.protobuf.GeneratedMessageV3
 import com.ultifi.vehicle.body.seating.v1.SeatPosition
 import com.ultifi.vehicle.body.seating.v1.SeatPosition.SeatComponentPosition
@@ -19,8 +21,8 @@ import ts.car.someip.sdk.common.ResultValue
 import ts.car.someip.sdk.common.SomeIpData
 
 class SeatViewModel : BaseAppViewModel() {
-    private val isBoolean = false
-    private val testVal = 0
+    val globalMap = SeatingBeanFactory.beanMap;
+
     override fun doOnRequest(data: SomeIpData): SomeIpData? {
         // method for server, no need to implement in client
         return null;
@@ -63,6 +65,13 @@ class SeatViewModel : BaseAppViewModel() {
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_CONFIGURATION)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_CONFIGURATION)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_CONFIGURATION)
+            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS)
+            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS)
+            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS)
+            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_ROW_LEFT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS)
+            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS)
+            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS)
+
 //            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS)
 //            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_MODE_STATUS_2)
 //            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_SERVICE_AVAILABILITY_STATUS)
@@ -192,12 +201,6 @@ class SeatViewModel : BaseAppViewModel() {
                 .setDirectionPosition(0, dirPosBolst)
                 .build();
 
-            val dirPosFoot = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatFtPos.toInt())
-            val seatFoot: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_FOOTREST)
-                .setDirectionPosition(0, dirPosFoot)
-                .build();
-
             val dirPosHdRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatHdRestRearPos.toInt())
             val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
                 .setComponent(SeatComponent.SC_HEADREST)
@@ -218,11 +221,6 @@ class SeatViewModel : BaseAppViewModel() {
                 .setSeatComponentPositions(2, seatLeg)
                 .build();
 
-            val seatReqFoot: SeatPosition = newBuilder()
-                .setName("row2_left")
-                .setSeatComponentPositions(0, seatFoot)
-                .build();
-
             Log.i(TAG, "Publishing the cloud events to Bus")
 
             // todo need to confirm SomeIp topic name?
@@ -230,9 +228,21 @@ class SeatViewModel : BaseAppViewModel() {
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
 
-            val topicSecond = ResourceMappingConstants.SECOND_LEFT_SEAT
-            val uResourceSec = UResource(topicSecond, "", SeatPosition::class.java.simpleName)
-            SomeIpUtil.pubEvent(seatReqFoot, ServiceConstant.SEATING_SERVICE, uResourceSec, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
+            if(getDriverFoot()) {
+                val dirPosFoot = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatFtPos.toInt())
+                val seatFoot: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_FOOTREST)
+                    .setDirectionPosition(0, dirPosFoot)
+                    .build();
+
+                val seatReqFoot: SeatPosition = newBuilder()
+                    .setName("row2_left")
+                    .setSeatComponentPositions(0, seatFoot)
+                    .build();
+                val topicSec = ResourceMappingConstants.SECOND_LEFT_SEAT
+                val uResourceSec = UResource(topicSec, "", SeatPosition::class.java.simpleName)
+                SomeIpUtil.pubEvent(seatReqFoot, ServiceConstant.SEATING_SERVICE, uResourceSec, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
+            }
         }
         //endregion
 
@@ -259,12 +269,6 @@ class SeatViewModel : BaseAppViewModel() {
                 .setDirectionPosition(0, dirPosSeat)
                 .build();
 
-            val dirPosFoot = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, footPos)
-            val seatFoot: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_FOOTREST)
-                .setDirectionPosition(0, dirPosFoot)
-                .build();
-
             val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatReclPos)
             val seatRecl: SeatComponentPosition = SeatComponentPosition.newBuilder()
                 .setComponent(SeatComponent.SC_BACK)
@@ -275,13 +279,7 @@ class SeatViewModel : BaseAppViewModel() {
                 .setName("row1_right")
                 .setSeatComponentPositions(0, seatBolst)
                 .setSeatComponentPositions(1, seat)
-//                .setSeatComponentPositions(2, seatFoot)
                 .setSeatComponentPositions(2, seatRecl)
-                .build();
-
-            val seatReqFoot: SeatPosition = SeatPosition.newBuilder()
-                .setName("row2_right")
-                .setSeatComponentPositions(0, seatFoot)
                 .build();
 
             Log.i(TAG, "Publishing the cloud events to Bus")
@@ -290,10 +288,20 @@ class SeatViewModel : BaseAppViewModel() {
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
 
-            val topicSec = ResourceMappingConstants.SECOND_RIGHT_SEAT
-            val uResourceSec = UResource(topicSec, "", SeatPosition::class.java.simpleName)
-            SomeIpUtil.pubEvent(seatReqFoot, ServiceConstant.SEATING_SERVICE, uResourceSec, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
-
+            if(getDriverFoot()) {
+                val dirPosFoot = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, footPos)
+                val seatFoot: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_FOOTREST)
+                    .setDirectionPosition(0, dirPosFoot)
+                    .build();
+                val seatReqFoot: SeatPosition = SeatPosition.newBuilder()
+                    .setName("row2_right")
+                    .setSeatComponentPositions(0, seatFoot)
+                    .build();
+                val topicSec = ResourceMappingConstants.SECOND_RIGHT_SEAT
+                val uResourceSec = UResource(topicSec, "", SeatPosition::class.java.simpleName)
+                SomeIpUtil.pubEvent(seatReqFoot, ServiceConstant.SEATING_SERVICE, uResourceSec, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
+            }
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_2) {
             Log.i(TAG,"PASSENGER_SEAT_PERCENTAGE_POSITION_2: Success")
@@ -346,6 +354,8 @@ class SeatViewModel : BaseAppViewModel() {
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
 
         }
+
+        // todo second row foot rest component(check driver seat position; if not getDriverFoot(), it is 4 seat modes)
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1) {
             Log.i(TAG,"SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1: Success")
             val resp = SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field.parseFrom(data.payload)
@@ -390,7 +400,6 @@ class SeatViewModel : BaseAppViewModel() {
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
-
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2) {
             Log.i(TAG,"SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2: Success")
             val resp = SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field.parseFrom(data.payload)
@@ -442,6 +451,7 @@ class SeatViewModel : BaseAppViewModel() {
 
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1) {
             Log.i( TAG, "SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1: Success" )
             val resp = SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field.parseFrom(data.payload)
@@ -537,6 +547,7 @@ class SeatViewModel : BaseAppViewModel() {
 
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_PERCENTAGE_POSITION) {
             Log.i(TAG,"THIRD_LEFT_SEAT_PERCENTAGE_POSITION: Success")
             val resp = SomeipS2SManagementInterface.Third_Left_Seat_Percentage_PositionField.parseFrom(data.payload)
@@ -617,23 +628,432 @@ class SeatViewModel : BaseAppViewModel() {
         }
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_CONFIGURATION) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_CONFIGURATION: Success")
+            Log.i(TAG, "DRIVER_SEAT_CONFIGURATION: Success")
+            val resp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(data.payload)
+            val driverStFootConf = resp.outPut.drvStFtUpwdDnwdMovConfig
+            val cacheFootConf = globalMap["drvStFtUpwdDnwdMovConfig"]
+            val resource = ResourceMappingConstants.DRIVER_SEAT
+            if(driverStFootConf != cacheFootConf){
+                val cacheFootPos = globalMap["drvStFtUpwdDnwdPos"] as Int
+
+                buildMessageAndPublish(cacheFootPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_FOOTREST)
+                globalMap["drvStFtUpwdDnwdMovConfig"] = driverStFootConf
+            }
+
+            val driverStForwardConf = resp.outPut.drvStFrwdBkwdMovConfig
+            val cacheStForwardConf = globalMap["drvStFrwdBkwdMovConfig"]
+            if(driverStForwardConf != cacheStForwardConf){
+                val cacheStPos = globalMap["drvStFrwdBkwdPos"] as Int
+
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_FORWARD, SeatComponent.SC_CUSHION)
+                globalMap["drvStFrwdBkwdMovConfig"] = driverStForwardConf
+            }
+
+            val driverStLegConf = resp.outPut.drvStLgrstUpwdMovConfig
+            val cacheLgConf = globalMap["drvStLgrstUpwdMovConfig"]
+            if(driverStLegConf !=cacheLgConf){
+                val cacheStPos = globalMap["drvStLgrstUpwdDnwdPos"] as Int
+
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_LEGREST)
+                globalMap["drvStLgrstUpwdMovConfig"] = driverStLegConf
+            }
+
+            val driverStHeadConf = resp.outPut.drvStHdrstUpwdDnwdMovConfig
+            val cacheHdConf = globalMap["drvStHdrstUpwdDnwdMovConfig"]
+            if(cacheHdConf != driverStHeadConf){
+                val cacheStPos = globalMap["drvStHdrstUpwdDnwdPos"] as Int
+
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_HEADREST)
+                globalMap["drvStHdrstUpwdDnwdMovConfig"] = driverStHeadConf
+            }
+
+            val driverStReclConf = resp.outPut.drvStBkReclnUpwdDnwdMovConfig
+            val cacheReclConf = globalMap["drvStBkReclnUpwdDnwdMovConfig"]
+            if(driverStReclConf != cacheReclConf){
+                val cacheStPos = globalMap["drvStBkReclnUpwdDnwdPos"] as Int
+
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_BACK)
+                globalMap["drvStBkReclnUpwdDnwdMovConfig"] = driverStReclConf
+            }
+
+            val driverStCushRearConf = resp.outPut.drvStCshnRrUpwdDnwdMovConfig
+            val cacheCushRearConf = globalMap["drvStCshnRrUpwdDnwdMovConfig"]
+            if(driverStCushRearConf != cacheCushRearConf){
+                val cacheStPos = globalMap["drvStCshnRrUpwdDnwdPos"] as Int
+
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION)
+                globalMap["drvStBkReclnUpwdDnwdMovConfig"] = driverStCushRearConf
+            }
+
+            val driverStCushFrontConf = resp.outPut.drvStCshnFrntUpwdDnwdMovConfig
+            val cacheCushFrontConf = globalMap["drvStCshnFrntUpwdDnwdMovConfig"]
+            if(driverStCushFrontConf != cacheCushFrontConf){
+                val cacheStPos = globalMap["drvStCshnFrntUpwdDnwdPos"] as Int
+
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION_FRONT)
+                globalMap["drvStBkReclnUpwdDnwdMovConfig"] = driverStCushFrontConf
+            }
+
+            val driverStBolsterConf = resp.outPut.drvStBlstOtwdInwdMovConfig
+            val cacheBolsterConf = globalMap["drvStBlstOtwdInwdMovConfig"]
+            if(cacheBolsterConf != driverStBolsterConf){
+                val cacheStPos = globalMap["drvStBlstOtwdInwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_INFLATE, SeatComponent.SC_SIDE_BOLSTER_BACK)
+                globalMap["drvStBkReclnUpwdDnwdMovConfig"] = driverStBolsterConf
+            }
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_CONFIGURATION) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_CONFIGURATION: Success")
+            Log.i(TAG, "PASSENGER_SEAT_CONFIGURATION: Success")
+            val resp = SomeipS2SManagementInterface.Passenger_Seat_ConfigurationField.parseFrom(data.payload)
+            val passStFootConf = resp.outPut.passStFtUpwdDnwdMovConfig
+            val cacheFootConf = globalMap["passStFtUpwdDnwdMovConfig"]
+            val resource = ResourceMappingConstants.PASSENGER_SEAT
+            if(passStFootConf != cacheFootConf){
+                val cacheFootPos = globalMap["passStFtUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheFootPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_FOOTREST)
+                globalMap["passStFtUpwdDnwdMovConfig"] = passStFootConf
+            }
+
+            val passStForwardConf = resp.outPut.passStFrwdBkwdMovConfig
+            val cacheStForwardConf = globalMap["passStFrwdBkwdMovConfig"]
+            if(passStForwardConf != cacheStForwardConf){
+                val cacheStPos = globalMap["passStFrwdBkwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_FORWARD, SeatComponent.SC_CUSHION)
+                globalMap["passStFrwdBkwdMovConfig"] = passStForwardConf
+            }
+
+            val passStLegConf = resp.outPut.passStLgrstUpwdMovConfig
+            val cacheLgConf = globalMap["passStLgrstUpwdMovConfig"]
+            if(passStLegConf != cacheLgConf){
+                val cacheStPos = globalMap["passStLgrstUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_LEGREST)
+                globalMap["passStLgrstUpwdMovConfig"] = passStLegConf
+            }
+
+            val passStHeadConf = resp.outPut.passStHdrstUpwdDnwdMovConfig
+            val cacheHdConf = globalMap["passStHdrstUpwdDnwdMovConfig"]
+            if(cacheHdConf != passStHeadConf){
+                val cacheStPos = globalMap["passStHdrstUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_HEADREST)
+                globalMap["passStHdrstUpwdDnwdMovConfig"] = passStHeadConf
+            }
+
+            val passStReclConf = resp.outPut.passStBkReclnUpwdDnwdMovConfig
+            val cacheReclConf = globalMap["passStBkReclnUpwdDnwdMovConfig"]
+            if(passStReclConf != cacheReclConf){
+                val cacheStPos = globalMap["passStBkReclnUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_BACK)
+                globalMap["passStBkReclnUpwdDnwdMovConfig"] = passStReclConf
+            }
+
+            val passStCushRearConf = resp.outPut.passStCshnRrUpwdDnwdMovConfig
+            val cacheCushRearConf = globalMap["passStCshnRrUpwdDnwdMovConfig"]
+            if(passStCushRearConf != cacheCushRearConf){
+                val cacheStPos = globalMap["passStCshnRrUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION)
+                globalMap["passStCshnRrUpwdDnwdMovConfig"] = passStCushRearConf
+            }
+
+            val passStCushFrontConf = resp.outPut.passStCshnFrntUpwdDnwdMovConfig
+            val cacheCushFrontConf = globalMap["passStCshnFrntUpwdDnwdMovConfig"]
+            if(passStCushFrontConf != cacheCushFrontConf){
+                val cacheStPos = globalMap["passStCshnFrntUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION_FRONT)
+                globalMap["passStCshnFrntUpwdDnwdMovConfig"] = passStCushFrontConf
+            }
+
+            val passStBolsterConf = resp.outPut.passStBlstOtwdInwdMovConfig
+            val cacheBolsterConf = globalMap["passStBlstOtwdInwdMovConfig"]
+            if(cacheBolsterConf != passStBolsterConf){
+                val cacheStPos = globalMap["passStBlstOtwdInwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_INFLATE, SeatComponent.SC_SIDE_BOLSTER_BACK)
+                globalMap["passStBlstOtwdInwdMovConfig"] = passStBolsterConf
+            }
+
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_CONFIGURATION) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_CONFIGURATION: Success")
+            Log.i(TAG, "SECOND_LEFT_SEAT_CONFIGURATION: Success")
+            val resp = SomeipS2SManagementInterface.Second_Left_Seat_ConfigurationField.parseFrom(data.payload)
+            val secLtStLtConf = resp.outPut.secRwLtStLtwdRtwdMovConfig
+            val cacheFootConf = globalMap["secRwLtStLtwdRtwdMovConfig"]
+            val resource = ResourceMappingConstants.SECOND_LEFT_SEAT
+            if(secLtStLtConf != cacheFootConf){
+                val cacheFootPos = globalMap["secRwLtStLtwdRtwdPos"] as Int
+                buildMessageAndPublish(cacheFootPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_FOOTREST)
+                globalMap["secRwLtStLtwdRtwdMovConfig"] = secLtStLtConf
+            }
+
+            val secLtStForwardConf = resp.outPut.secRwLtStFrwdBkwdMovConfig
+            val cacheStForwardConf = globalMap["secRwLtStFrwdBkwdMovConfig"]
+            if(secLtStForwardConf != cacheStForwardConf){
+                val cacheStPos = globalMap["secRwLtStFrwdBkwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_FORWARD, SeatComponent.SC_CUSHION)
+                globalMap["secRwLtStFrwdBkwdMovConfig"] = secLtStForwardConf
+            }
+
+            val secLfStLegConf = resp.outPut.secRwLtStLgrstUpwdMovConfig
+            val cacheLgConf = globalMap["secRwLtStLgrstUpwdMovConfig"]
+            if(secLfStLegConf != cacheLgConf){
+                val cacheStPos = globalMap["secRwLtStLgrstUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_LEGREST)
+                globalMap["secRwLtStLgrstUpwdMovConfig"] = secLfStLegConf
+            }
+
+            val secLfStHeadConf = resp.outPut.secRwLtStHdrstUpwdDnwdMovConfig
+            val cacheHdConf = globalMap["secRwLtStHdrstUpwdDnwdMovConfig"]
+            if(cacheHdConf != secLfStHeadConf){
+                val cacheStPos = globalMap["secRwLtStHdrstStUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_HEADREST)
+                globalMap["secRwLtStHdrstUpwdDnwdMovConfig"] = secLfStHeadConf
+            }
+
+            val secLfStReclConf = resp.outPut.secRwLtStBkReclnUpwdDnwdMovConfig
+            val cacheReclConf = globalMap["secRwLtStBkReclnUpwdDnwdMovConfig"]
+            if(secLfStReclConf != cacheReclConf){
+                val cacheStPos = globalMap["secRwLtStBkReclnUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_BACK)
+                globalMap["secRwLtStBkReclnUpwdDnwdMovConfig"] = secLfStReclConf
+            }
+
+            val secLtStCushRearConf = resp.outPut.secRwLtStCshnRrUpwdDnwdMovConfig
+            val cacheCushRearConf = globalMap["secRwLtStCshnRrUpwdDnwdMovConfig"]
+            if(secLtStCushRearConf != cacheCushRearConf){
+                val cacheStPos = globalMap["secRwLtStCshnRrUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION)
+                globalMap["secRwLtStCshnRrUpwdDnwdMovConfig"] = secLtStCushRearConf
+            }
+
+            val secLtStCushFrontConf = resp.outPut.secRwLtStCshnFrntUpwdDnwdMovConfig
+            val cacheCushFrontConf = globalMap["secRwLtStCshnFrntUpwdDnwdMovConfig"]
+            if(secLtStCushFrontConf != cacheCushFrontConf){
+                val cacheStPos = globalMap["secRwLtStCshnFrntUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION_FRONT)
+                globalMap["secRwLtStCshnFrntUpwdDnwdMovConfig"] = secLtStCushFrontConf
+            }
+
+            val secLtStBolsterConf = resp.outPut.secRwLtStBlstOtwdInwdMovConfig
+            val cacheBolsterConf = globalMap["secRwLtStBlstOtwdInwdMovConfig"]
+            if(cacheBolsterConf != secLtStBolsterConf){
+                val cacheStPos = globalMap["secRwLtStBlstOtwdInwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_INFLATE, SeatComponent.SC_SIDE_BOLSTER_BACK)
+                globalMap["secRwLtStBlstOtwdInwdMovConfig"] = secLtStBolsterConf
+            }
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_CONFIGURATION) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_CONFIGURATION: Success")
+            Log.i(TAG, "SECOND_RIGHT_SEAT_CONFIGURATION: Success")
+            val resp = SomeipS2SManagementInterface.Second_Right_Seat_ConfigurationField.parseFrom(data.payload)
+            val resource = ResourceMappingConstants.SECOND_RIGHT_SEAT
+
+            val secRtStLtConf = resp.outPut.secRwRtStLtwdRtwdMovConfig
+            val cacheFootConf = globalMap["secRwRtStLtwdRtwdMovConfig"]
+            if(secRtStLtConf != cacheFootConf){
+                val cacheFootPos = globalMap["secRwRtStLtwdRtwdPos"] as Int
+                buildMessageAndPublish(cacheFootPos, resource, UpdateSeatPositionRequest.Direction.D_LEFTWARD, SeatComponent.SC_BACK)
+                globalMap["secRwRtStLtwdRtwdMovConfig"] = secRtStLtConf
+            }
+
+            val secRtStForwardConf = resp.outPut.secRwRtStFrwdBkwdMovConfig
+            val cacheStForwardConf = globalMap["secRwRtStFrwdBkwdMovConfig"]
+            if(secRtStForwardConf != cacheStForwardConf){
+                val cacheStPos = globalMap["secRwLtStFrwdBkwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_FORWARD, SeatComponent.SC_CUSHION)
+                globalMap["secRwRtStFrwdBkwdMovConfig"] = secRtStForwardConf
+            }
+
+            val secRfStLegConf = resp.outPut.secRwRtStLgrstUpwdMovConfig
+            val cacheLgConf = globalMap["secRwRtStLgrstUpwdMovConfig"]
+            if(secRfStLegConf != cacheLgConf){
+                val cacheStPos = globalMap["secRwRtStLgrstUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_LEGREST)
+                globalMap["secRwRtStLgrstUpwdMovConfig"] = secRfStLegConf
+            }
+
+            val secRfStHeadConf = resp.outPut.secRwRtStHdrstUpwdDnwdMovConfig
+            val cacheHdConf = globalMap["secRwRtStHdrstUpwdDnwdMovConfig"]
+            if(cacheHdConf != secRfStHeadConf){
+                val cacheStPos = globalMap["secRwRtStHdrstStUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_HEADREST)
+                globalMap["secRwRtStHdrstUpwdDnwdMovConfig"] = secRfStHeadConf
+            }
+
+            val secRfStReclConf = resp.outPut.secRwRtStBkReclnUpwdDnwdMovConfig
+            val cacheReclConf = globalMap["secRwRtStBkReclnUpwdDnwdMovConfig"]
+            if(secRfStReclConf != cacheReclConf){
+                val cacheStPos = globalMap["secRwRtStBkReclnUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_BACK)
+                globalMap["secRwRtStBkReclnUpwdDnwdMovConfig"] = secRfStReclConf
+            }
+
+            val secRtStCushRearConf = resp.outPut.secRwRtStCshnRrUpwdDnwdMovConfig
+            val cacheCushRearConf = globalMap["secRwRtStCshnRrUpwdDnwdMovConfig"]
+            if(secRtStCushRearConf != cacheCushRearConf){
+                val cacheStPos = globalMap["secRwLtStCshnRrUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION)
+                globalMap["secRwRtStCshnRrUpwdDnwdMovConfig"] = secRtStCushRearConf
+            }
+
+            val secRtStCushFrontConf = resp.outPut.secRwRtStCshnFrntUpwdDnwdMovConfig
+            val cacheCushFrontConf = globalMap["secRwRtStCshnFrntUpwdDnwdMovConfig"]
+            if(secRtStCushFrontConf != cacheCushFrontConf){
+                val cacheStPos = globalMap["secRwRtStCshnFrntUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION_FRONT)
+                globalMap["secRwRtStCshnFrntUpwdDnwdMovConfig"] = secRtStCushFrontConf
+            }
+
+            val secRtStBolsterConf = resp.outPut.secRwRtStBlstOtwdInwdMovConfig
+            val cacheBolsterConf = globalMap["secRwRtStBlstOtwdInwdMovConfig"]
+            if(cacheBolsterConf != secRtStBolsterConf){
+                val cacheStPos = globalMap["secRwLtStBlstOtwdInwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_INFLATE, SeatComponent.SC_SIDE_BOLSTER_BACK)
+                globalMap["secRwRtStBlstOtwdInwdMovConfig"] = secRtStBolsterConf
+            }
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_CONFIGURATION) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_CONFIGURATION: Success")
+            Log.i(TAG, "THIRD_LEFT_SEAT_CONFIGURATION: Success")
+            val resp = SomeipS2SManagementInterface.Third_Left_Seat_ConfigurationField.parseFrom(data.payload)
+            val resource = ResourceMappingConstants.THIRD_LEFT_SEAT
+
+            val thdLtStLtConf = resp.outPut.thdRwLtStLtwdRtwdMovConfig
+            val cacheFootConf = globalMap["thdRwLtStLtwdRtwdMovConfig"]
+
+            if(thdLtStLtConf != cacheFootConf){
+                val cacheFootPos = globalMap["thdRwLtStLtwdRtwdPos"] as Int
+                buildMessageAndPublish(cacheFootPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_FOOTREST)
+                globalMap["thdRwLtStLtwdRtwdMovConfig"] = thdLtStLtConf
+            }
+
+            val thdLtStForwardConf = resp.outPut.thdRwLtStFrwdBkwdMovConfig
+            val cacheStForwardConf = globalMap["thdRwLtStFrwdBkwdMovConfig"]
+            if(thdLtStForwardConf != cacheStForwardConf){
+                val cacheStPos = globalMap["thdRwLtStFrwdBkwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_FORWARD, SeatComponent.SC_CUSHION)
+                globalMap["thdRwLtStFrwdBkwdMovConfig"] = thdLtStForwardConf
+            }
+
+            val thdLfStLegConf = resp.outPut.thdRwLtStLgrstUpwdMovConfig
+            val cacheLgConf = globalMap["thdRwLtStLgrstUpwdMovConfig"]
+            if(thdLfStLegConf != cacheLgConf){
+                val cacheStPos = globalMap["thdRwLtStLgrstUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_LEGREST)
+                globalMap["thdRwLtStLgrstUpwdMovConfig"] = thdLfStLegConf
+            }
+
+            val thdLfStHeadConf = resp.outPut.thdRwLtStHdrstUpwdMovConfig
+            val cacheHdConf = globalMap["thdRwLtStHdrstUpwdMovConfig"]
+            if(cacheHdConf != thdLfStHeadConf){
+                val cacheStPos = globalMap["thdRwLtStHdrstUpwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_HEADREST)
+                globalMap["thdRwLtStHdrstUpwdMovConfig"] = thdLfStHeadConf
+            }
+
+            val thdLfStReclConf = resp.outPut.thdRwLtStBkReclnUpwdDnwdMovConfig
+            val cacheReclConf = globalMap["thdRwLtStBkReclnUpwdDnwdMovConfig"]
+            if(thdLfStReclConf != cacheReclConf){
+                val cacheStPos = globalMap["thdRwLtStBkReclnUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_BACK)
+                globalMap["thdRwLtStBkReclnUpwdDnwdMovConfig"] = thdLfStReclConf
+            }
+
+            val thdLtStCushRearConf = resp.outPut.thdRwLtStCshnRrUpwdDnwdMovConfig
+            val cacheCushRearConf = globalMap["thdRwLtStCshnRrUpwdDnwdMovConfig"]
+            if(thdLtStCushRearConf != cacheCushRearConf){
+                val cacheStPos = globalMap["thdRwLtStCshnRrUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION)
+                globalMap["thdRwLtStCshnRrUpwdDnwdMovConfig"] = thdLtStCushRearConf
+            }
+
+            val thdLtStCushFoldConf = resp.outPut.thdRwLtStCshnFldUpwdDnwdMovConfig
+            val cacheCushFrontConf = globalMap["thdRwLtStCshnFldUpwdDnwdMovConfig"]
+            if(thdLtStCushFoldConf != cacheCushFrontConf){
+                val cacheStPos = globalMap["thdRwLtStCshnFltUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION_FRONT)
+                globalMap["thdRwLtStCshnFldUpwdDnwdMovConfig"] = thdLtStCushFoldConf
+            }
+
+            val thdLtStBolsterConf = resp.outPut.thdRwLtStBlstOtwdInwdMovConfig
+            val cacheBolsterConf = globalMap["thdRwLtStBlstOtwdInwdMovConfig"]
+            if(cacheBolsterConf != thdLtStBolsterConf){
+                val cacheStPos = globalMap["thdRwLtStBlstOtwdInwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_INFLATE, SeatComponent.SC_SIDE_BOLSTER_BACK)
+                globalMap["thdRwLtStBlstOtwdInwdMovConfig"] = thdLtStBolsterConf
+            }
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_CONFIGURATION) {
-            Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_CONFIGURATION: Success")
+            Log.i(TAG, "THIRD_RIGHT_SEAT_CONFIGURATION: Success")
+            val resp = SomeipS2SManagementInterface.Third_Right_Seat_ConfigurationField.parseFrom(data.payload)
+            val resource = ResourceMappingConstants.THIRD_RIGHT_SEAT
+
+            val thdRtStLtConf = resp.outPut.thdRwRtStLtwdRtwdMovConfig
+            val cacheFootConf = globalMap["thdRwRtStLtwdRtwdMovConfig"]
+
+            if(thdRtStLtConf != cacheFootConf){
+                val cacheFootPos = globalMap["thdRwRtStLtwdRtwdPos"] as Int
+                buildMessageAndPublish(cacheFootPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_FOOTREST)
+                globalMap["thdRwRtStLtwdRtwdMovConfig"] = thdRtStLtConf
+            }
+
+            val thdRtStForwardConf = resp.outPut.thdRwRtStFrwdBkwdMovConfig
+            val cacheStForwardConf = globalMap["thdRwRtStFrwdBkwdMovConfig"]
+            if(thdRtStForwardConf != cacheStForwardConf){
+                val cacheStPos = globalMap["thdRwRtStFrwdBkwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_FORWARD, SeatComponent.SC_CUSHION)
+                globalMap["thdRwRtStFrwdBkwdMovConfig"] = thdRtStForwardConf
+            }
+
+            val thdLfStLegConf = resp.outPut.thdRwRtStLgrstUpwdMovConfig
+            val cacheLgConf = globalMap["thdRwRtStLgrstUpwdMovConfig"]
+            if(thdLfStLegConf != cacheLgConf){
+                val cacheStPos = globalMap["thdRwRtStLgrstUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_LEGREST)
+                globalMap["thdRwRtStLgrstUpwdMovConfig"] = thdLfStLegConf
+            }
+
+            val thdLfStHeadConf = resp.outPut.thdRwRtStHdrstUpwdMovConfig
+            val cacheHdConf = globalMap["thdRwRtStHdrstUpwdMovConfig"]
+            if(cacheHdConf != thdLfStHeadConf){
+                val cacheStPos = globalMap["thdRwRtStHdrstUpwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_HEADREST)
+                globalMap["thdRwRtStHdrstUpwdMovConfig"] = thdLfStHeadConf
+            }
+
+            val thdLfStReclConf = resp.outPut.thdRwRtStBkReclnUpwdDnwdMovConfig
+            val cacheReclConf = globalMap["thdRwRtStBkReclnUpwdDnwdMovConfig"]
+            if(thdLfStReclConf != cacheReclConf){
+                val cacheStPos = globalMap["thdRwRtStBkReclnUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_BACK)
+                globalMap["thdRwRtStBkReclnUpwdDnwdMovConfig"] = thdLfStReclConf
+            }
+
+            val thdRtStCushRearConf = resp.outPut.thdRwRtStCshnRrUpwdDnwdMovConfig
+            val cacheCushRearConf = globalMap["thdRwRtStCshnRrUpwdDnwdMovConfig"]
+            if(thdRtStCushRearConf != cacheCushRearConf){
+                val cacheStPos = globalMap["thdRwRtStCshnRrUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION)
+                globalMap["thdRwRtStCshnRrUpwdDnwdMovConfig"] = thdRtStCushRearConf
+            }
+
+            val thdRtStCushFoldConf = resp.outPut.thdRwRtStCshnFldUpwdDnwdMovConfig
+            val cacheCushFrontConf = globalMap["thdRwRtStCshnFldUpwdDnwdMovConfig"]
+            if(thdRtStCushFoldConf != cacheCushFrontConf){
+                val cacheStPos = globalMap["thdRwRtStCshnFltUpwdDnwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_UP, SeatComponent.SC_CUSHION_FRONT)
+                globalMap["thdRwRtStCshnFldUpwdDnwdMovConfig"] = thdRtStCushFoldConf
+            }
+
+            val thdRtStBolsterConf = resp.outPut.thdRwRtStBlstOtwdInwdMovConfig
+            val cacheBolsterConf = globalMap["thdRwRtStBlstOtwdInwdMovConfig"]
+            if(cacheBolsterConf != thdRtStBolsterConf){
+                val cacheStPos = globalMap["thdRwRtStBlstOtwdInwdPos"] as Int
+                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_INFLATE, SeatComponent.SC_SIDE_BOLSTER_BACK)
+                globalMap["thdRwRtStBlstOtwdInwdMovConfig"] = thdRtStBolsterConf
+            }
         }
+
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION) {
             Log.i(TAG, "S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION: Success")
@@ -658,12 +1078,34 @@ class SeatViewModel : BaseAppViewModel() {
         }
     }
 
+    private fun buildMessageAndPublish(cacheStPos: Int, resource: String, direction: UpdateSeatPositionRequest.Direction, comp: SeatComponent) {
+        val builder = newBuilder()
+        val comBuilder = SeatComponentPosition.newBuilder()
+        val dirPosSeat = buildDirectionPos(direction, cacheStPos)
+        val component = comBuilder.setComponent(comp)
+            .setDirectionPosition(0, dirPosSeat).build()
+        val seat = builder.setName(resource)
+            .setSeatComponentPositions(0, component).build()
+        val uResource = UResource(resource, "", SeatPosition::class.java.simpleName)
+        SomeIpUtil.pubEvent(
+            seat,
+            ServiceConstant.SEATING_SERVICE,
+            uResource,
+            SeatingService.mLaunchManager.getmUltifiLinkMonitor()
+        )
+    }
+
 
     fun buildDirectionPos(direction: UpdateSeatPositionRequest.Direction, pos: Int): SeatPosition.DirectionPosition{
         return SeatPosition.DirectionPosition.newBuilder()
             .setDirection(direction)
             .setPercentagePosition(pos)
             .build()
+    }
+
+    fun publishEvent(topic: String, message:GeneratedMessageV3){
+        val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
+        SomeIpUtil.pubEvent(message, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
     }
 
 
@@ -938,7 +1380,16 @@ class SeatViewModel : BaseAppViewModel() {
         return null;
     }
 
-    
+
+    fun getTest(): Boolean?{
+        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_CONFIGURATION)
+        if(resp != null){
+            val tmp =  SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
+            return tmp.outPut.drvStFtUpwdDnwdMovConfig
+        }
+        return null
+    }
+
     //region Driver seat get position
 
     fun getDriverSeatPosition(): Int?{
@@ -2358,231 +2809,163 @@ class SeatViewModel : BaseAppViewModel() {
     //endregion
 
 
-
-    fun getSeatMode(): SomeipS2SManagementInterface.Seat_Mode_StatusField? {
+    //region Seat Massage
+    //set
+    fun setPassSeatMassageReq(mode:Int, intensity:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Seat_Mode_StatusField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Seat_Mode_StatusField")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Seat_Mode_StatusField OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Seat_Mode_StatusField")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Passenger_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Passenger_Seat_Virtual_Control_Request.newBuilder()
+                .setPassStMassMdVirtCtrlReq(mode)
+                .setPassStMassStrsVirtCtrlReq(intensity))
+                .build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_PASSENGER_SEAT_VIRTUAL_CONTROL_REQUEST)
     }
 
-    fun getSeatPassenger_Com_Mode_Ser(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Availability_StatusField? {
+    fun setSecLeftSeatMassageReq(mode:Int, intensity:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Seat_Passenger_Compartment_Mode_Service_Availability_StatusField: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(
-            TAG,
-            "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Availability_StatusField"
-        )
-        if (res == ResultValue.OK) {
-            Log.i(
-                TAG,
-                "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Availability_StatusField OK"
-            )
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Seat_Passenger_Compartment_Mode_Service_Availability_StatusField")
-        return null;
-    }
-
-    fun getSeatPassenger_Com_Mode_Ser_Resp(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Response_StatusField? {
-        if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Seat_Passenger_Compartment_Mode_Service_Response_StatusField: failed, server is not available or client is not ready"
-            )
-            return null
-        }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(
-            TAG,
-            "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Response_StatusField"
-        )
-        if (res == ResultValue.OK) {
-            Log.i(
-                TAG,
-                "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Response_StatusField OK"
-            )
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Seat_Passenger_Compartment_Mode_Service_Response_StatusField")
-        return null;
-    }
-
-    fun getSeatPassenger_Com_Mode_Ser_Resp2(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field? {
-        if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field: failed, server is not available or client is not ready"
-            )
-            return null
-        }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(
-            TAG,
-            "sendReq2Server: get Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field"
-        )
-        if (res == ResultValue.OK) {
-            Log.i(
-                TAG,
-                "sendReq2Server: Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field OK"
-            )
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Seat_Passenger_Compartment_Mode_Service_Response_Status_2Field")
-        return null;
-    }
-
-    fun setSeatModeReq() {
-        if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "Seat_Mode_Control_Request: failed, server is not available or client is not ready"
-            )
-            return
-        }
-
-        val newSeatMode = SomeipS2SManagementInterface
-            .Seat_Mode_Control_RequestField.newBuilder()
-            .setOutPut(
-                SomeipS2SManagementInterface.Seat_Mode_Control_Request.newBuilder()
-                    .setStSrvReqStMd1(isBoolean)
-                    .setStSrvReqStMd2(isBoolean)
-                    .setStSrvReqStMd3(isBoolean)
-                    .setStSrvReqStMd4(isBoolean)
-                    .setStSrvReqStMd5(isBoolean)
-                    .setStSrvReqStMd6(isBoolean)
-                    .setStSrvReqStMd7(isBoolean)
-                    .setStSrvReqStMd8(isBoolean)
-                    .setStSrvReqStMd9(isBoolean)
-                    .setStSrvReqStMd10(isBoolean)
-                    .setStSrvReqStMd11(isBoolean)
-                    .setStSrvReqStMd12(isBoolean)
-                    .setStSrvReqStMd13(isBoolean)
-                    .setStSrvReqStMd14(isBoolean)
-                    .setStSrvReqStMd15(isBoolean)
-                    .setStSrvReqStMd16(isBoolean)
-                    .setStSrvReqStMd17(isBoolean)
-                    .setStSrvReqStMd18(isBoolean)
-                    .setStSrvReqStMd19(isBoolean)
-                    .setStSrvReqStMd20(isBoolean)
-                    .setStSrvReqStMd21(isBoolean)
-                    .setStSrvReqStMd22(isBoolean)
-                    .setStSrvReqStMd23(isBoolean)
-                    .setStSrvReqStMd24(isBoolean)
-                    .setStSrvReqStMd25(isBoolean)
-                    .setStSrvReqStMd26(isBoolean)
-                    .setStSrvReqStMd27(isBoolean)
-                    .setStSrvReqStMd28(isBoolean)
-                    .setStSrvReqStMd29(isBoolean)
-                    .setStSrvReqStMd30(isBoolean)
-                    .setStSrvReqStMd31(isBoolean)
-                    .setStSrvReqStMd32(isBoolean)
-            )
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwLtStMassMdVirtCtrlReq(mode)
+                .setSecRwLtStMassStrsVirtCtrlReq(intensity))
             .build()
-
-        val req = SomeIpData(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SEAT_MODE_CONTROL_REQUEST,
-            System.currentTimeMillis(),
-            newSeatMode.toByteArray()
-        )
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.setAttribute(req, resp)
-        Log.i(TAG, "sendReq2Server: Seat_Mode_Control_Request.")
-
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "Seat_Mode_Control_Request: Response OK")
-            return
-        }
-
-        Log.i(TAG, "Seat_Mode_Control_Request: FAILED")
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST)
     }
 
-    fun getSeatMode2(): SomeipS2SManagementInterface.Seat_Mode_Status_2Field? {
+    fun setSecRightSeatMassageReq(mode:Int, intensity:Int) :Boolean{
         if (!isServerAvailable || !isReady) {
-            Log.i(
-                TAG,
-                "get Seat_Mode_Status_2Field: failed, server is not available or client is not ready"
-            )
-            return null
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
         }
-
-        val resp = SomeIpData()
-
-        val res = someIpClientProxy?.getAttribute(
-            SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SEAT_MODE_STATUS,
-            resp
-        )
-
-        Log.i(TAG, "sendReq2Server: get Seat_Mode_Status_2Field")
-        if (res == ResultValue.OK) {
-            Log.i(TAG, "sendReq2Server: Seat_Mode_Status_2Field OK")
-//            val temp = SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-//            Log.i(TAG, "getSunroofPosition: " + temp.outPut.drvStBkReclnUpwdDnwdMemConfig)
-//            return temp
-        }
-
-        Log.i(TAG, "FAILED: Seat_Mode_Status_2Field")
-        return null;
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwRtStMassMdVirtCtrlReq(mode)
+                .setSecRwRtStMassStrsVirtCtrlReq(intensity))
+            .build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST)
     }
+
+    fun setThdLeftSeatMassageReq(mode:Int, intensity:Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwLtStMassMdVirtCtrlReq(mode)
+                .setThdRwLtStMassStrsVirtCtrlReq(intensity))
+            .build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+
+    fun setThdRightSeatMassageReq(mode:Int, intensity:Int) :Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_ServiceField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Request_Service.newBuilder()
+                .setThdRwRtStMassMdVirtCtrlReq(mode)
+                .setThdRwRtStMassStrsVirtCtrlReq(intensity))
+            .build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST_SERVICE)
+    }
+
+    //get status
+    fun getPassSeatMassStatus():Boolean?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_PASSENGER_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+//            return SomeipS2SManagementInterface.Passenger_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+            val tmp = SomeipS2SManagementInterface.Passenger_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+            return tmp.outPut.passStMassVirtCtrlAvl
+        }
+        return null
+    }
+
+    fun getPassSeatMassConf():Boolean{
+        val config = getPassSeatConfig()
+        if(config != null){
+            return config.outPut.passStMassConfig
+        }
+        return false
+    }
+    fun getSecLeftSeatMassStatus():Boolean?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            val tmp = SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+            return tmp.outPut.secRwLtStMassVirtCtrlAvl
+        }
+        return null
+    }
+    fun getSecLeftSeatMassConf():Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStMassConfig
+        }
+        return false
+    }
+
+    fun getSecRightSeatMassStatus():Boolean?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            val tmp = SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+            return tmp.outPut.secRwRtStMassVirtCtrlAvl
+        }
+        return null
+    }
+    fun getSecRightSeatMassConf():Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStMassConfig
+        }
+        return false
+    }
+
+    fun getThdLeftSeatMassStatus():Boolean?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_ROW_LEFT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            val tmp = SomeipS2SManagementInterface.Third_Row_Left_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+            return tmp.outPut.thdRwLtStMassVirtCtrlAvl
+        }
+        return null
+    }
+
+    fun getThdLeftSeatMassConf():Boolean{
+        val config = getThirdLeftSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwLtStMassConfig
+        }
+        return false
+    }
+
+    fun getThdRightSeatMassStatus():Boolean?{
+        val resp = SomeIpData()
+        val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
+        if(res == ResultValue.OK){
+            val tmp = SomeipS2SManagementInterface.Third_Row_Right_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(resp.payload)
+            return tmp.outPut.thdRwRtStMassVirtCtrlAvl
+        }
+        return null
+    }
+    fun getThdRightSeatMassConf():Boolean{
+        val config = getThirdRightSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwRtStMassConfig
+        }
+        return false
+    }
+
+    //endregion
+
 
     fun getSeatPassenger_Com_Mode_Ava_Notifi6(): SomeipS2SManagementInterface.Seat_Passenger_Compartment_Mode_Availability_and_Notification_Status_6Field? {
         if (!isServerAvailable || !isReady) {

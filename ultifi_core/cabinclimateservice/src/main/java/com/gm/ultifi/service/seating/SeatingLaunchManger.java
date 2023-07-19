@@ -24,6 +24,7 @@ public class SeatingLaunchManger  extends ServiceLaunchManager {
     }
 
     public void registerTopicMethod() {
+        // todo get all of property and set to beanMap before service starts
         mUltifiLinkMonitor.registerRPCMethod(new String[]{
                 ServiceConstant.SEATING_RPC_POSITION_METHOD,
                 //todo next add seat method...
