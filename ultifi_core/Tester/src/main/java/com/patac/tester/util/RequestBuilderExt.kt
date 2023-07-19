@@ -6,6 +6,7 @@
 
 package com.patac.tester.util
 
+import com.gm.ultifi.vehicle.body.seating.v1.SeatMode
 import com.google.protobuf.Any
 import com.google.protobuf.FieldMask
 import com.ultifi.core.rpc.Request
@@ -15,6 +16,7 @@ import com.ultifi.vehicle.body.cabin_climate.v1.SystemSettings
 import com.ultifi.vehicle.body.cabin_climate.v1.UpdateSystemSettingsRequest
 import com.ultifi.vehicle.body.cabin_climate.v1.ClimateCommand
 import com.ultifi.vehicle.body.cabin_climate.v1.Zone
+import com.ultifi.vehicle.body.seating.v1.UpdateSeatModeRequest
 import com.ultifi.vehicle.chassis.v1.UpdateTireRequest
 import com.ultifi.vehicle.chassis.v1.ElectronicStabilityControlSystem
 import com.ultifi.vehicle.chassis.v1.UpdateTractionandStabilitySystemRequest
@@ -107,20 +109,20 @@ fun Request.Builder.updateTractionandStabilitySystem(
     tractionandStabilitySystemProvider: (namePrefix: String) -> UpdateTractionandStabilitySystemRequest
 ): Request.Builder {
     val uri = UriFactory.buildChassisRequestUri("UpdateTractionandStabilitySystemRequest")
-//    val TractionandStabilityMessageName = UpdateTractionandStabilitySystemRequest.getDescriptor()
-//        .findFieldByNumber(UpdateTractionandStabilitySystemRequest.TRACTIONANDSTABILITYSYSTEMREQUEST_FIELD_NUMBER)
-//        .name
-
-//    val featureFieldNumber = UpdateTractionandStabilitySystemRequest.getDescriptor()
-//        .findFieldByNumber(featureFieldNumber)
-//        .name
-//
-//    val mask = FieldMask.newBuilder()
-//        .addPaths("$featureFieldNumber")
-//        .build()
     val updatesetting = UpdateTractionandStabilitySystemRequest.newBuilder()
         .setTractionandstabilitysystemrequest(featureFieldNumber).build();
     return this.withMethodUri(uri).withPayload(Any.pack(updatesetting))
+}
+fun Request.Builder.UpdateSeatModeRequest(
+//    featureFieldNumber: SeatMode.Mode,
+    featureFieldNumber: Int,
+    seatModeProvider: (namePrefix: String) -> UpdateSeatModeRequest
+):Request.Builder{
+    val uri = UriFactory.buildSeatingRequestUri("UpdateSeatMode")
+    val updatesetting = UpdateSeatModeRequest.newBuilder()
+        .setModeValue(featureFieldNumber).build();
+//        .setSeatModeRequest(featureFieldNumber).build();
+    return  this.withMethodUri(uri).withPayload(Any.pack(updatesetting))
 }
 
 fun Request.Builder.updateTireRequest(

@@ -17,11 +17,13 @@ object UriFactory {
     private const val CABIN_CLIMATE_VERSION = "1"
     private const val SUN_ROOF_VERSION = "1"
     private const val CHASSIS_VERSION = "1"
+    private const val SEATING_VERSION = "1"
     private val CABIN_CLIMATE_UE = UEntity("body.cabin_climate", CABIN_CLIMATE_VERSION)
     private val SUN_ROOF_UE = UEntity("body.access", SUN_ROOF_VERSION)
     private val LOCAL_AUTHORITY: UAuthority = UAuthority.local()
     private val BODY_LIGHTING_INTERIOR = UEntity("body.lighting.interior", CABIN_CLIMATE_VERSION)
     private val CHASSIS_TCS = UEntity("chassis", CHASSIS_VERSION)
+    private val SEATING = UEntity("body.seating", SEATING_VERSION)
 
     fun buildCabinClimateUri(uResource: UResource): String {
         return UltifiUriFactory.buildUProtocolUri(LOCAL_AUTHORITY, CABIN_CLIMATE_UE, uResource)
@@ -49,4 +51,11 @@ object UriFactory {
     fun buildChassisRequestUri(methodName: String): String {
         return UltifiUriFactory.buildMethodUri(LOCAL_AUTHORITY, CHASSIS_TCS, methodName)
     }
+    fun buildSeatingRequestUri(methodName: String): String {
+        return UltifiUriFactory.buildMethodUri(LOCAL_AUTHORITY, SEATING, methodName)
+    }
+    fun buildSeatingTopicUri(uResource: UResource): String {
+        return UltifiUriFactory.buildUProtocolUri(LOCAL_AUTHORITY, SEATING, uResource)
+    }
+
 }

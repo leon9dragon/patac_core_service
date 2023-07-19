@@ -6,12 +6,16 @@
 
 package com.patac.tester.util
 
+import com.gm.ultifi.vehicle.body.seating.v1.SeatMode
 import com.google.protobuf.Enum
 import com.ultifi.core.rpc.Request
 import com.ultifi.vehicle.body.access.v1.Sunroof
 import com.ultifi.vehicle.body.cabin_climate.v1.SystemSettings
 import com.ultifi.vehicle.chassis.v1.UpdateTireRequest
 import com.ultifi.vehicle.chassis.v1.UpdateTractionandStabilitySystemRequest
+import com.ultifi.vehicle.body.seating.v1.UpdateSeatModeRequest
+import com.gm.ultifi.vehicle.body.seating.v1.SeatMode.Mode
+//import com.ultifi.vehicle.body.seating.v1.SeatMode
 
 
 fun createAcUpdateRequest(): Request {
@@ -47,6 +51,26 @@ fun createUpdateTractionandStabilitySystemRequest(request: UpdateTractionandStab
                 .build()
         }.build()
 }
+//seat mode
+fun createUpdateSeatModeRequest(request: Int):Request{
+
+    return Request.newBuilder()
+        .UpdateSeatModeRequest(request){
+            UpdateSeatModeRequest.newBuilder()
+                .setModeValue(request)
+                .build()
+        }.build()
+}
+//fun createUpdateSeatModeRequest(request: SeatMode.Mode):Request{
+//
+//    return Request.newBuilder()
+//        .UpdateSeatModeRequest(request){
+//            UpdateSeatModeRequest.newBuilder()
+//                .setMode(request)
+//                .build()
+//        }.build()
+//}
+
 
 
 /**
