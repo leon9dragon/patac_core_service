@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SeatActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="620dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="PATAC Service Test App!"
+            android:textSize="40sp"
+            android:clickable="false"
+            android:focusable="false"/>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="620dp"
+            android:orientation="vertical">
+
+
+
+            <Button
+                android:id="@+id/seating"
+                android:layout_width="250dp"
+                android:layout_height="58dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="Seat Test"
+                android:textAllCaps="false"
+                android:textSize="30sp" />
+
+            <Button
+                android:id="@+id/chassis"
+                android:layout_width="250dp"
+                android:layout_height="58dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="Chassis Test"
+                android:textAllCaps="false"
+                android:textSize="30sp" />
+
+
+
+
+
+        </LinearLayout>
+
+
+
+
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
