@@ -9,6 +9,7 @@ public class ProtobufMessageIds {
     public static final String POSITION = "position";
     public static final String PRESSURE = "pressure";
     public static final String PRESSURE_WARNING = "pressure_warning";
+    public static final String IS_ENABLED = "is_enabled";
 
     public static final class SunroofFieldMask {
 

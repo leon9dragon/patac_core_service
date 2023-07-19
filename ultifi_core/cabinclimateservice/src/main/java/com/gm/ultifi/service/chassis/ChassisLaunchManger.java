@@ -6,11 +6,12 @@ import com.gm.ultifi.base.monitor.UltifiLinkMonitor;
 import com.gm.ultifi.base.propertymanager.CarPropertyExtensionManager;
 import com.gm.ultifi.base.servicemanager.ServiceLaunchManager;
 import com.gm.ultifi.base.utils.Utility;
-import com.gm.ultifi.service.access.response.config.enums.SunroofEnum;
+import com.gm.ultifi.service.chassis.response.config.enums.ESCEnum;
 import com.gm.ultifi.service.chassis.response.config.enums.TireEnum;
+import com.gm.ultifi.service.chassis.response.config.enums.TractionEnum;
 import com.gm.ultifi.service.constant.ResourceMappingConstants;
 import com.gm.ultifi.service.constant.ServiceConstant;
-import com.gm.ultifi.service.seating.response.config.enums.SeatEnum;
+
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,6 +54,8 @@ public class ChassisLaunchManger extends ServiceLaunchManager {
         CarPropertyExtensionManager.CarPropertyExtensionCallback callback = getmPropertyExtMgrCallback();
 
         carPropertyManagerMonitor.registerCallback(callback, TireEnum.values());
+        carPropertyManagerMonitor.registerCallback(callback, TractionEnum.values());
+        carPropertyManagerMonitor.registerCallback(callback, ESCEnum.values());
     }
 
     public void unRegisterCarPropertyCallback(){
@@ -60,5 +63,7 @@ public class ChassisLaunchManger extends ServiceLaunchManager {
         CarPropertyExtensionManager.CarPropertyExtensionCallback callback = getmPropertyExtMgrCallback();
 
         carPropertyManagerMonitor.unRegisterCallback(callback, TireEnum.values());
+        carPropertyManagerMonitor.unRegisterCallback(callback, TractionEnum.values());
+        carPropertyManagerMonitor.unRegisterCallback(callback, ESCEnum.values());
     }
 }
