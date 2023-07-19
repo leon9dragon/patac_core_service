@@ -106,7 +106,7 @@ fun Request.Builder.updateTractionandStabilitySystem(
     featureFieldNumber: UpdateTractionandStabilitySystemRequest.TractionandStabilitySystemRequest,
     tractionandStabilitySystemProvider: (namePrefix: String) -> UpdateTractionandStabilitySystemRequest
 ): Request.Builder {
-    val uri = UriFactory.buildChassisRequestUri("UpdateTractionAndStabilitySystemRequest")
+    val uri = UriFactory.buildChassisRequestUri("UpdateTractionandStabilitySystemRequest")
 //    val TractionandStabilityMessageName = UpdateTractionandStabilitySystemRequest.getDescriptor()
 //        .findFieldByNumber(UpdateTractionandStabilitySystemRequest.TRACTIONANDSTABILITYSYSTEMREQUEST_FIELD_NUMBER)
 //        .name
