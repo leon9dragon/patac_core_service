@@ -29,7 +29,6 @@ class SeatActivity : AppCompatActivity() {
     private lateinit var update_seat_mode_input: EditText
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_seat)
@@ -39,24 +38,44 @@ class SeatActivity : AppCompatActivity() {
         update_seat_mode_Button.setOnClickListener {
             //TODO: update seat mode
             Log.d(TAG, "update seat mode button clicked")
+            val mode_value = update_seat_mode_input.text.toString().toInt()
 
-            CoroutineScope(Dispatchers.IO).launch {
-                UltifiLinkFlow(this@SeatActivity).invoke {
-                    // UpdateTractionandStabilitySystemRequest 里传入的值只有一个，TractionandStabilitySystemRequest类型的枚举值Vehicle_stability_enhancement_enable_and_traction_control_system_disable
-//                    val req = createUpdateTractionandStabilitySystemRequest(
-//                        UpdateTractionandStabilitySystemRequest.TractionandStabilitySystemRequest.Vehicle_stability_enhancement_enable_and_traction_control_system_disable)
-                    val req = createUpdateSeatModeRequest(update_seat_mode_input.text.toString().toInt())
-                    Log.d(TAG, "update seat mode button: ${req.methodUri()}")
-                    val status: CompletableFuture<Any> = it.invokeMethod(req)
-                    Log.d(TAG, "update seat mode button: ${status.get()}")
+            try {
+                //todo: check input value
+                if (mode_value < 30 || mode_value > 50)
+                    throw Exception("input value out of range")
+                else
+                    Log.d(TAG, "input valid value: $mode_value")
+                CoroutineScope(Dispatchers.IO).launch {
+                    UltifiLinkFlow(this@SeatActivity).invoke {
+                        val req = createUpdateSeatModeRequest(
+                            update_seat_mode_input.text.toString().toInt()
+                        )
+                        Log.d(TAG, "update seat mode button: ${req.methodUri()}")
+                        val status: CompletableFuture<Any> = it.invokeMethod(req)
+                        Log.d(TAG, "update seat mode button: ${status.get()}")
+                    }
                 }
+            } catch (e: Exception) {
+                Log.d(TAG, "input invalid value: ${e.message}")
+
+//            CoroutineScope(Dispatchers.IO).launch {
+//                UltifiLinkFlow(this@SeatActivity).invoke {
+//                    // UpdateTractionandStabilitySystemRequest 里传入的值只有一个，TractionandStabilitySystemRequest类型的枚举值Vehicle_stability_enhancement_enable_and_traction_control_system_disable
+////                    val req = createUpdateTractionandStabilitySystemRequest(
+////                        UpdateTractionandStabilitySystemRequest.TractionandStabilitySystemRequest.Vehicle_stability_enhancement_enable_and_traction_control_system_disable)
+//                    val req = createUpdateSeatModeRequest(update_seat_mode_input.text.toString().toInt())
+//                    Log.d(TAG, "update seat mode button: ${req.methodUri()}")
+//                    val status: CompletableFuture<Any> = it.invokeMethod(req)
+//                    Log.d(TAG, "update seat mode button: ${status.get()}")
+//                }
+            }
             }
         }
-    }
 
-    fun init(){
-        update_seat_mode_Button = findViewById(R.id.seat_mode_button)
-        update_seat_mode_input = findViewById(R.id.seat_mode_input)
+        fun init() {
+            update_seat_mode_Button = findViewById(R.id.seat_mode_button)
+            update_seat_mode_input = findViewById(R.id.seat_mode_input)
 
+        }
     }
-}

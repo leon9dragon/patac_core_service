@@ -25,6 +25,8 @@ class InitActivity : AppCompatActivity() {
 
         seatbutton.setOnClickListener {
             //TODO: 切换到座椅控制页面
+            val seat_intent = Intent(this, SeatActivity::class.java)
+            startActivity(seat_intent)
         }
 
         chassisbutton.setOnClickListener {
