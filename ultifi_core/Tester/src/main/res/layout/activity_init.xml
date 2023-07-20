@@ -22,14 +22,10 @@
             android:clickable="false"
             android:focusable="false"/>
 
-
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="620dp"
             android:orientation="vertical">
-
-
 
             <Button
                 android:id="@+id/seating"
@@ -51,15 +47,7 @@
                 android:textAllCaps="false"
                 android:textSize="30sp" />
 
-
-
-
-
         </LinearLayout>
-
-
-
-
 
     </LinearLayout>
 
