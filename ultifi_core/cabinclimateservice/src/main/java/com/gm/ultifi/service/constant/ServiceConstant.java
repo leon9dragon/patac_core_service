@@ -36,7 +36,7 @@ public class ServiceConstant {
     public static final String SEATING_RPC_MODE_METHOD_URI = UltifiUriFactory.buildMethodUri(UAuthority.local(), SEATING_SERVICE, SEATING_RPC_MODE_METHOD);
 
 
-    public static final String CHASSIS_RPC_TRACTION_METHOD = "UpdateTractionandstabilitySystemRequest";
+    public static final String CHASSIS_RPC_TRACTION_METHOD = "UpdateTractionandStabilitySystemRequest";
     public static final String CHASSIS_RPC_TRACTION_METHOD_URI = UltifiUriFactory.buildMethodUri(UAuthority.local(), CHASSIS_SERVICE, CHASSIS_RPC_TRACTION_METHOD);
 
 }

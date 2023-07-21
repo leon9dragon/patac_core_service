@@ -2,7 +2,7 @@
 
 pluginManagement {
     repositories {
-        maven { url = "D:/SourceCode/tools/common/m2/repository" }
+        maven { url = "E:\\sources\\tools\\common\\m2\\repository" }
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url = 'https://info-maven.apps.saic-gm.com/repository/maven-public/' }
         gradlePluginPortal()
@@ -13,7 +13,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        maven { url = "D:/SourceCode/tools/common/m2/repository" }
+        maven { url = "E:\\sources\\tools\\common\\m2\\repository" }
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url = 'https://info-maven.apps.saic-gm.com/repository/maven-public/' }
         gradlePluginPortal()
@@ -25,3 +25,4 @@ rootProject.name = "ultifi_core"
 include ':vehicleapi'
 include ':cabinclimateservice'
 include ':Tester'
+include 'chassisservice'

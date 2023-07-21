@@ -23,7 +23,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Ultifi_core">
+        android:debuggable="true"
+        android:theme="@style/Theme.Ultifi_core"
+        tools:ignore="HardcodedDebugMode">
         <service
             android:name=".ChassisService"
             android:enabled="true"

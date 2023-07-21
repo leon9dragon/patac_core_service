@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         context = this;
         setContentView(R.layout.activity_main);
+        context.startForegroundService(new Intent(context, ChassisService.class));
 //        SunroofViewModel sunroofViewModel = new SunroofViewModel();
 //        SeatViewModel seatViewModel = new SeatViewModel();
 //        AmbientLightViewModel ambientLightViewModel = new AmbientLightViewModel();
