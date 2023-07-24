@@ -8,6 +8,7 @@ import com.gm.ultifi.service.access.request.SunroofRequestProcessor;
 import com.gm.ultifi.service.access.request.SunroofSomeIpRequestProcessor;
 import com.gm.ultifi.service.chassis.request.TractionandstabilityRequestProcessor;
 import com.gm.ultifi.service.seating.request.SeatMassageSomeIpRequestProcessor;
+import com.gm.ultifi.service.seating.request.SeatModeControlRequestProcessor;
 import com.gm.ultifi.service.seating.request.SeatPositionSomeIpRequestProcessor;
 import com.gm.ultifi.service.constant.ServiceConstant;
 import com.gm.ultifi.service.seating.request.SeatTemperatureRequestProcessor;
@@ -48,6 +49,9 @@ public class RequestProcessorFactory {
             }
             if(processor.equals(ServiceConstant.SEATING_RPC_MASSAGE_METHOD_URI_SOME_IP)){
                 return new SeatMassageSomeIpRequestProcessor();
+            }
+            if(processor.equals(ServiceConstant.SEATING_RPC_MODE_METHOD_URI)){
+                return new SeatModeControlRequestProcessor();
             }
 //            if(processor.equals(ServiceConstant.SEAT_RPC_POSITION_GROUP_METHOD)){
 //                return new SeatPositionGroupSomeIpRequestProcessor();

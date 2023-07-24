@@ -45,12 +45,12 @@ public class SeatTemperatureRequestProcessor extends BaseRequestProcessor {
     private static Map setPropertyMap;
     static{
         setPropertyMap = new HashMap<>();
-        availableMap.put("HEATED_SEAT", 356517131);
-        availableMap.put("HEATED_LEG", 624971864);
-        availableMap.put("HEATED_NECK", 624971865);
-        availableMap.put("VENT_SEAT", 356517139);
-        availableMap.put("VENT_LEG", 624971866);
-        availableMap.put("VENT_NECK", 624971867);
+        setPropertyMap.put("HEATED_SEAT", 356517131);
+        setPropertyMap.put("HEATED_LEG", 624971864);
+        setPropertyMap.put("HEATED_NECK", 624971865);
+        setPropertyMap.put("VENT_SEAT", 356517139);
+        setPropertyMap.put("VENT_LEG", 624971866);
+        setPropertyMap.put("VENT_NECK", 624971867);
     }
 
     private static Map areaMap;
@@ -144,9 +144,9 @@ public class SeatTemperatureRequestProcessor extends BaseRequestProcessor {
         else if(component == SeatComponent.SC_NECK_SCARF){
             return "NECK";
         }
-//        else if(component == SeatComponent.SC_LEGREST){
-//            return "LEG";
-//        }
+        else if(component == SeatComponent.SC_LEGREST){
+            return "LEG";
+        }
         else {
             return null;
         }

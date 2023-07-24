@@ -14,7 +14,8 @@ public final class ResourceMappingConstants {
     public static final String SECOND_RIGHT_SEAT = "seat.row2_right";
     public static final String THIRD_LEFT_SEAT = "seat.row3_left";
     public static final String THIRD_RIGHT_SEAT = "seat.row3_right";
-    public static final String DRIVER_SEAT_SOMEIP = "seat.row1_left.someip";
+    public static final String SEAT_MODE = "seat_mode";
+
 
     public static final String TIRE_FRONT_LEFT = "tire.front_left";
     public static final String TIRE_FRONT_RIGHT = "tire.front_right";

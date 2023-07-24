@@ -52,6 +52,7 @@ public class SeatModeTopic implements BaseTopic {
 
     @Override
     public Map<String, Any> generateProtobufMessage(CarPropertyExtensionManager carPropertyExtensionManager, Object value, PropertyConfig config) {
+        Log.i(TAG, "Start to generate protobuf message.");
         Descriptors.FieldDescriptor support_des = SeatMode.getDescriptor().findFieldByName("supported_modes");
         Descriptors.FieldDescriptor available_des = SeatMode.getDescriptor().findFieldByName("available_modes");
 

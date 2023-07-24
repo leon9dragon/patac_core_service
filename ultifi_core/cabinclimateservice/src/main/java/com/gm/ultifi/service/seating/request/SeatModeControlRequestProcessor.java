@@ -26,7 +26,7 @@ public class SeatModeControlRequestProcessor extends BaseRequestProcessor {
             return StatusUtils.buildStatus(Code.UNKNOWN);
         }
         Integer modeVal = req.getModeValue();
-
+        Log.d(TAG, "Testing start to get condition.");
         if(isAvailable(modeVal)&&isSupported(modeVal)){
             this.setCarProperty(Integer.class, 557856838, GLOBAL_AREA_ID, modeVal);
             return StatusUtils.buildStatus(Code.OK);
@@ -45,10 +45,13 @@ public class SeatModeControlRequestProcessor extends BaseRequestProcessor {
         return checkCondition(val, 557928530);
     }
 
-    protected Boolean checkCondition(Integer val, Integer propertyId){
+    protected Boolean checkCondition(Integer inx, Integer propertyId){
         CarPropertyExtensionManager carPropertyManager = getCarPropertyExtensionManager();
         Integer[] valList = carPropertyManager.getListProperty(propertyId, GLOBAL_AREA_ID);
         ArrayList<Integer> list = new ArrayList<>(Arrays.asList(valList));
-        return list.contains(val);
+        // the list includes a serial of value, and the index corresponding with mode type
+        // todo double check the logic
+        int value = list.get(inx);
+        return value ==2 || value ==3;
     }
 }

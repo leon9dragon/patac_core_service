@@ -23,7 +23,7 @@ public class ServiceConstant {
 
     //endregion ACCESS RPC METHODS
 
-    public static final String SEATING_RPC_POSITION_METHOD = "UpdateSeatPositionSomeIp";
+    public static final String SEATING_RPC_POSITION_METHOD = "UpdateSeatPosition";
     public static final String SEATING_RPC_POSITION_METHOD_URI_SOME_IP = UltifiUriFactory.buildMethodUri(UAuthority.local(), SEATING_SERVICE, SEATING_RPC_POSITION_METHOD);
 
     public static final String SEATING_RPC_TEMPERATURE_METHOD = "UpdateSeatTemperature";
@@ -32,6 +32,8 @@ public class ServiceConstant {
     public static final String SEATING_RPC_MASSAGE_METHOD = "UpdateSeatMassage";
     public static final String SEATING_RPC_MASSAGE_METHOD_URI_SOME_IP = UltifiUriFactory.buildMethodUri(UAuthority.local(), SEATING_SERVICE, SEATING_RPC_MASSAGE_METHOD);
 
+    public static final String SEATING_RPC_MODE_METHOD = "UpdateSeatMode";
+    public static final String SEATING_RPC_MODE_METHOD_URI = UltifiUriFactory.buildMethodUri(UAuthority.local(), SEATING_SERVICE, SEATING_RPC_MODE_METHOD);
 
 
     public static final String CHASSIS_RPC_TRACTION_METHOD = "UpdateTractionandstabilitySystemRequest";

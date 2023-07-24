@@ -231,6 +231,7 @@ public abstract class ServiceLaunchManager {
     }
 
     public List<CloudEvent> buildCarPropertyCloudEvents(CarPropertyValue<?> value) {
+        Log.d(TAG, "Testing build car property cloud event.");
         ArrayList<CloudEvent> events = new ArrayList<>();
         BaseTopic baseTopic = TopicMappingFactory.getInstance().getMapper(value.getPropertyId());
         baseTopic.setAreaId(value.getAreaId());
@@ -260,6 +261,7 @@ public abstract class ServiceLaunchManager {
 
     // Create topic to Bus
     protected void createTopic(String topic) {
+        Log.d(TAG, "Testing createTopic .");
         CreateTopicRequest createTopicRequest = CreateTopicRequest.newBuilder()
                 .setTopic(Topic.newBuilder().setUri(topic).build())
                 .build();

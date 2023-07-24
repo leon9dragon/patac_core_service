@@ -29,61 +29,67 @@ public class SeatMassageSomeIpRequestProcessor extends BaseRequestProcessor {
         String name = req.getName();
         int mode = req.getTypeValue();
         int intensity = req.getIntensity();// if mode=1, intensity=0
+        if(mode==1){
+            mode = 0;
+            intensity = 0;
+        }
         int modeVal = mode > 30? mode-30: mode;
 
         Log.i(TAG, "Seat massage name: " + name + ", update mode: " + mode + ", update intensity:"+ intensity);
-        boolean status = false;
-        //todo check if it is necessary to get the configuration
-        if(name.equals("seat.row1_right") && seatViewModel.getPassSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
-            status = seatViewModel.setPassSeatMassageReq(modeVal, intensity);
+        boolean status = checkSendRequest(name, modeVal, intensity);
 
-        }
-        else if(name.equals("seat.row2_left")&&seatViewModel.getSecLeftSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
-            status = seatViewModel.setSecLeftSeatMassageReq(modeVal, intensity);
-        }
-        else if(name.equals("seat.row2_right")&&seatViewModel.getSecRightSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
-            status = seatViewModel.setSecRightSeatMassageReq(modeVal, intensity);
-        }
-        else if(name.equals("seat.row3_left")&&seatViewModel.getThdLeftSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
-            status = seatViewModel.setThdLeftSeatMassageReq(modeVal, intensity);
-        }
-        else if(name.equals("seat.row3_right")&&seatViewModel.getThdRightSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
-            status = seatViewModel.setThdRightSeatMassageReq(modeVal, intensity);
-        }
+        //todo check if it is necessary to get the configuration
+
+//        if(name.equals("seat.row1_right") && seatViewModel.getPassSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
+//            status = seatViewModel.setPassSeatMassageReq(modeVal, intensity);
+//
+//        }
+//        else if(name.equals("seat.row2_left")&&seatViewModel.getSecLeftSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
+//            status = seatViewModel.setSecLeftSeatMassageReq(modeVal, intensity);
+//        }
+//        else if(name.equals("seat.row2_right")&&seatViewModel.getSecRightSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
+//            status = seatViewModel.setSecRightSeatMassageReq(modeVal, intensity);
+//        }
+//        else if(name.equals("seat.row3_left")&&seatViewModel.getThdLeftSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
+//            status = seatViewModel.setThdLeftSeatMassageReq(modeVal, intensity);
+//        }
+//        else if(name.equals("seat.row3_right")&&seatViewModel.getThdRightSeatMassStatus()!=null &&checkSupportedMode(name, modeVal)){
+//            status = seatViewModel.setThdRightSeatMassageReq(modeVal, intensity);
+//        }
 
         return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
     }
 
-    protected boolean checkSupportedMode(String seatName, int modeVal){
-        boolean isSupported = false;
+    protected boolean checkSendRequest(String seatName, int modeVal, int intensity){
+        boolean status = false;
         switch (seatName){
             case "seat.row1_right":
-                if(seatViewModel.getPassSeatMassConf() && modeVal==1){
-                    isSupported = true;
+                if(seatViewModel.getPassSeatMassConf()&& seatViewModel.getPassSeatMassStatus()!=null && (modeVal==1 ||modeVal==0)){
+                    status = seatViewModel.setPassSeatMassageReq(modeVal, intensity);
                 }
                 break;
             case "seat.row2_left":
-                if(seatViewModel.getSecLeftSeatMassConf()){
-                    isSupported = true;
+                if((seatViewModel.getSecLeftSeatMassConf()&&seatViewModel.getSecLeftSeatMassStatus()!=null)||modeVal==0){
+                    status = seatViewModel.setSecLeftSeatMassageReq(modeVal, intensity);
                 }
                 break;
             case "seat.row2_right":
-                if(seatViewModel.getSecRightSeatMassConf()){
-                    isSupported = true;
+                if((seatViewModel.getSecRightSeatMassConf()&&seatViewModel.getSecRightSeatMassStatus()!=null)||modeVal==0){
+                    status = seatViewModel.setSecRightSeatMassageReq(modeVal, intensity);
                 }
                 break;
             case "seat.row3_left":
-                if(seatViewModel.getThdLeftSeatMassConf()){
-                    isSupported = true;
+                if(seatViewModel.getThdLeftSeatMassConf()&&seatViewModel.getThdLeftSeatMassStatus()!=null&& (modeVal==1||modeVal==0)){
+                    status = seatViewModel.setThdLeftSeatMassageReq(modeVal, intensity);
                 }
                 break;
             case "seat.row3_right":
-                if(seatViewModel.getThdRightSeatMassConf()){
-                    isSupported = true;
+                if(seatViewModel.getThdRightSeatMassConf()&&seatViewModel.getThdRightSeatMassStatus()!=null&& (modeVal==1||modeVal==0)){
+                    status = seatViewModel.setThdRightSeatMassageReq(modeVal, intensity);
                 }
                 break;
         }
-        return isSupported;
+        return status;
     }
 
 }

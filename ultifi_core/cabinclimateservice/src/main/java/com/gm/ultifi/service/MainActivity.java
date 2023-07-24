@@ -1,5 +1,6 @@
 package com.gm.ultifi.service;
 
+import android.content.Intent;
 import android.os.Bundle;
 import com.gm.ultifi.service.access.someip.AmbientLightViewModel;
 import com.gm.ultifi.service.access.someip.SunroofViewModel;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 //        SunroofViewModel sunroofViewModel = new SunroofViewModel();
 //        SeatViewModel seatViewModel = new SeatViewModel();
 //        AmbientLightViewModel ambientLightViewModel = new AmbientLightViewModel();
-
+        context.startForegroundService(new Intent(context, SeatingService.class));
         findViewById(R.id.btnSet).setOnClickListener(view -> {
 //            if (position > 10) {
 //                position = position % 10;

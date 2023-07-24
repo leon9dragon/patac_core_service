@@ -41,7 +41,7 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
 //        boolean serviceStatus = seatViewModel.setDriverSeatRecallReq(true);
         boolean status = false;
         
-        if(seatName.equals("row1_left")) {
+        if(seatName.equals("seat.row1_left")) {
             seatViewModel.setDriverSeatRecallReq(true);
             if(component==SeatComponent.SC_SIDE_BOLSTER_CUSHION) {
                 // cannot found the available
@@ -88,7 +88,7 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
 
         }
-        else if (seatName.equals("row1_right")) {
+        else if (seatName.equals("seat.row1_right")) {
             
             seatViewModel.setPassSeatRecallReq(true);
             if(component==SeatComponent.SC_BACK) {
@@ -114,28 +114,28 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
                 }
             }
             // todo need to confirm footrest and direction of headrest
-//            if(component==SeatComponent.SC_FOOTREST){
-//                if(seatViewModel.getPassFootUpward()&&seatViewModel.getPassFootStatus()) {
-//                    status = seatViewModel.setPassFootRecallReq(percentPosition);
-//                }
-//            }
-//            // todo check head rest forward/backward configuration?
-//            if(component==SeatComponent.SC_HEADREST){
-//                if(direction== UpdateSeatPositionRequest.Direction.D_BACKWARD ||direction== UpdateSeatPositionRequest.Direction.D_FORWARD) {
-//                    if(seatViewModel.getPassHeadForwardStatus()) {
-//                        status = seatViewModel.setPassHeadBackRecallReq(percentPosition);
-//                    }
-//                }
-//                else {
-//                    if(seatViewModel.getPassHeadUpward()&&seatViewModel.getPassHeadUpwardStatus()) {
-//                        status = seatViewModel.setPassHeadUpRecallReq(percentPosition);
-//                    }
-//                }
-//            }
+            if(component==SeatComponent.SC_FOOTREST){
+                if(seatViewModel.getPassFootUpward()&&seatViewModel.getPassFootStatus()) {
+                    status = seatViewModel.setPassFootRecallReq(percentPosition);
+                }
+            }
+            // todo check head rest forward/backward configuration?
+            if(component==SeatComponent.SC_HEADREST){
+                if(direction== UpdateSeatPositionRequest.Direction.D_BACKWARD ||direction== UpdateSeatPositionRequest.Direction.D_FORWARD) {
+                    if(seatViewModel.getPassHeadForwardStatus()) {
+                        status = seatViewModel.setPassHeadBackRecallReq(percentPosition);
+                    }
+                }
+                else {
+                    if(seatViewModel.getPassHeadUpward()&&seatViewModel.getPassHeadUpwardStatus()) {
+                        status = seatViewModel.setPassHeadUpRecallReq(percentPosition);
+                    }
+                }
+            }
             seatViewModel.setPassSeatRecallReq(false);
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
-        else if (seatName.equals("row2_left")) {
+        else if (seatName.equals("seat.row2_left")) {
             seatViewModel.setSecLeftRecallReq(true);
             if(component==SeatComponent.SC_ARMREST){
                 //todo check arm rest configuration
@@ -176,15 +176,15 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
                     }
                 }
             }
-//            if(component==SeatComponent.LEGREST){
-//                status = seatViewModel.setSecLeftLegOutwardPos(percentPosition);
-//            }
-//            if(component==SeatComponent.Foot){
-//                status = seatViewModel.setSecLeftFootPos(percentPosition);
-//            }
+            if(component==SeatComponent.SC_LEGREST){
+                status = seatViewModel.setSecLeftLegOutwardPos(percentPosition);
+            }
+            if(component==SeatComponent.SC_FOOTREST){
+                status = seatViewModel.setSecLeftFootPos(percentPosition);
+            }
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
-        else if (seatName.equals("row2_right")) {
+        else if (seatName.equals("seat.row2_right")) {
             seatViewModel.setSecRightRecallReq(true);
             if(component==SeatComponent.SC_ARMREST){
                 //todo check arm rest configuration
@@ -225,15 +225,15 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
                     }
                 }
             }
-//            if(component==SeatComponent.LEGREST){
-//                status = seatViewModel.setSecondLeftLegOutwardPos(percentPosition);
-//            }
-//            if(component==SeatComponent.Foot){
-//                status = seatViewModel.setSecondLeftFootPos(percentPosition);
-//            }
+            if(component==SeatComponent.SC_LEGREST){
+                status = seatViewModel.setSecRightLegOutwardPos(percentPosition);
+            }
+            if(component==SeatComponent.SC_FOOTREST){
+                status = seatViewModel.setSecRightFootPos(percentPosition);
+            }
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
-        else if(seatName.equals("row3_left")){
+        else if(seatName.equals("seat.row3_left")){
             seatViewModel.setThirdLeftRecallReq(true);
             // todo if the component is correct
             if(component==SeatComponent.SC_CUSHION){
@@ -253,7 +253,7 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
             }
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
-        else if(seatName.equals("row3_right")){
+        else if(seatName.equals("seat.row3_right")){
             seatViewModel.setThirdRightRecallReq(true);
             // todo if the component is correct
             if(component==SeatComponent.SC_CUSHION){

@@ -37,8 +37,12 @@ public class SeatingLaunchManger  extends ServiceLaunchManager {
         List<String> seatResource = Arrays.asList(ResourceMappingConstants.DRIVER_SEAT, ResourceMappingConstants.PASSENGER_SEAT,
                                                 ResourceMappingConstants.SECOND_LEFT_SEAT, ResourceMappingConstants.SECOND_RIGHT_SEAT,
                                                 ResourceMappingConstants.THIRD_LEFT_SEAT, ResourceMappingConstants.THIRD_RIGHT_SEAT);
+
+        List<String> seatModeResource = Arrays.asList(ResourceMappingConstants.SEAT_MODE);
         topicMapper.put("SeatPosition", seatResource);
         topicMapper.put("SeatTemperature", seatResource);
+        topicMapper.put("SeatMode", seatModeResource);
+        topicMapper.put("SeatMassage", seatResource);
         for (String topic : Utility.buildTopicsList(topicMapper, uEntity)) {
             createTopic(topic);
         }
