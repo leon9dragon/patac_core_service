@@ -32,9 +32,12 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
         SeatComponent component = req.getComponent();
 
         UpdateSeatPositionRequest.Direction direction = req.getDirection();
-        int percentPosition = (int) (req.getPosition()/0.025); // update Position
-
-        Log.i(TAG, "seat name: " + seatName + ", update value: " + percentPosition);
+        int percentPosition = 0;
+        boolean lumbarMov = true;                   //todo need to confirm how is the performance in app?
+        if(!component.equals(SeatComponent.SC_LUMBAR)) {
+            percentPosition = (int) (req.getPosition() / 0.025); // update Position
+            Log.i(TAG, "seat name: " + seatName + ", update value: " + percentPosition);
+        }
 
         // TODO: 2023/5/15 将参数转换成SomeIpData格式, 然后通过client来调用server提供的方法
         // if it needs to check the setDriverSeatRecallReq method to set service enabled
@@ -182,6 +185,20 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
             if(component==SeatComponent.SC_FOOTREST){
                 status = seatViewModel.setSecLeftFootPos(percentPosition);
             }
+            if(component==SeatComponent.SC_LUMBAR && seatViewModel.getSecondLeftLumbar() && seatViewModel.getSecondLeftLumbarStatus()){
+                if(direction== UpdateSeatPositionRequest.Direction.D_FORWARD) {
+                    status = seatViewModel.setSecLeftLmbrFwd(lumbarMov);
+                }
+                if(direction==UpdateSeatPositionRequest.Direction.D_BACKWARD){
+                    status = seatViewModel.setSecLeftLmbrBkwd(lumbarMov);
+                }
+                if(direction==UpdateSeatPositionRequest.Direction.D_UP){
+                    status = seatViewModel.setSecLeftLmbrUpwd(lumbarMov);
+                }
+                if(direction==UpdateSeatPositionRequest.Direction.D_DOWN){
+                    status = seatViewModel.setSecLeftLmbrDnwd(lumbarMov);
+                }
+            }
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
         else if (seatName.equals("seat.row2_right")) {
@@ -231,6 +248,21 @@ public class SeatPositionSomeIpRequestProcessor extends BaseRequestProcessor {
             if(component==SeatComponent.SC_FOOTREST){
                 status = seatViewModel.setSecRightFootPos(percentPosition);
             }
+            if(component==SeatComponent.SC_LUMBAR && seatViewModel.getSecRightLumbar() && seatViewModel.getSecRightLumbarStatus()){
+                if(direction== UpdateSeatPositionRequest.Direction.D_FORWARD) {
+                    status = seatViewModel.setSecRightLmbrFwd(lumbarMov);
+                }
+                if(direction==UpdateSeatPositionRequest.Direction.D_BACKWARD){
+                    status = seatViewModel.setSecRightLmbrBkwd(lumbarMov);
+                }
+                if(direction==UpdateSeatPositionRequest.Direction.D_UP){
+                    status = seatViewModel.setSecRightLmbrUpwd(lumbarMov);
+                }
+                if(direction==UpdateSeatPositionRequest.Direction.D_DOWN){
+                    status = seatViewModel.setSecRightLmbrDnwd(lumbarMov);
+                }
+            }
+
             return status ? StatusUtils.buildStatus(Code.OK, "success") : StatusUtils.buildStatus(Code.UNKNOWN, "fail to update field");
         }
         else if(seatName.equals("seat.row3_left")){

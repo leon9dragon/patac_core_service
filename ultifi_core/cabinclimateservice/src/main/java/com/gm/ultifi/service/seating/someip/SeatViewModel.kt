@@ -9,6 +9,7 @@ import com.gm.ultifi.service.SeatingService
 import com.gm.ultifi.service.constant.ResourceMappingConstants
 import com.gm.ultifi.service.constant.ServiceConstant
 import com.gm.ultifi.vehicle.body.seating.v1.SeatComponent
+import com.gm.ultifi.vehicle.body.seating.v1.SeatMassage
 import com.google.protobuf.GeneratedMessageV3
 import com.ultifi.vehicle.body.seating.v1.SeatPosition
 import com.ultifi.vehicle.body.seating.v1.SeatPosition.SeatComponentPosition
@@ -79,9 +80,9 @@ class SeatViewModel : BaseAppViewModel() {
 //            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_AVAILABILITY_AND_NOTIFICATION_STATUS_6)
 //            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION)
 //            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION_2)
-
             isServerAvailable = true
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_NOT_AVAILABLE) {
             Log.i(TAG, "SERVICE_NOT_AVAILABLE")
             someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1)
@@ -116,138 +117,183 @@ class SeatViewModel : BaseAppViewModel() {
 //            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SEAT_PASSENGER_COMPARTMENT_MODE_AVAILABILITY_AND_NOTIFICATION_STATUS_6)
 //            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION)
 //            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_RECOVERY_POSITION_2)
-
             isServerAvailable = false
+
         }
 
         //region driver seat position notification
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1) {
             Log.i(TAG, "SUCCESS: NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_1")
             val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_1Field.parseFrom(data.payload)
-
-            val seatReclPosition = resp.outPut.drvStBkReclnUpwdDnwdPos *0.025
-            val seatPosition = resp.outPut.drvStFrwdBkwdPos*0.025
-
-            Log.d(TAG, "onChangeEvent, Recline position:"+seatReclPosition+"SeatPosition"+seatPosition)
-
-            val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatReclPosition.toInt())
-            val seatReclPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_BACK)
-                .setDirectionPositions(0, dirPosRecl)
-                .build();
-
-            val dirPosSeat = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, seatPosition.toInt())
-            val seatPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosSeat)
-                .build();
-
-            val seatReq: SeatPosition = SeatPosition.newBuilder()
-                .setName("row1_left")
-                .setSeatComponentPositions(0, seatReclPos)
-                .setSeatComponentPositions(1, seatPos)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-
             val topic = ResourceMappingConstants.DRIVER_SEAT
+            val seatPosBuilder = newBuilder().setName(topic)
+
+            val reclPosition = resp.outPut.drvStBkReclnUpwdDnwdPos
+            val cacheReclinePos = globalMap["drvStBkReclnUpwdDnwdPos"]
+            var index = 0
+            if(cacheReclinePos != reclPosition){
+                val seatReclPosition = (reclPosition*0.025).toInt()
+                val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatReclPosition)
+                val seatReclPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_BACK)
+                    .setDirectionPositions(0, dirPosRecl)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seatReclPos)
+                index += 1
+                globalMap["drvStBkReclnUpwdDnwdPos"] = reclPosition
+            }
+
+            val seatPosition = resp.outPut.drvStFrwdBkwdPos
+            val cacheSeatPos = globalMap["drvStFrwdBkwdPos"]
+            if(seatPosition != cacheSeatPos){
+                val curSeatPosition = convertPosition(seatPosition)
+                val dirPosSeat = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, curSeatPosition)
+                val seatPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION)
+                    .setDirectionPositions(0, dirPosSeat)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seatPos)
+                globalMap["drvStFrwdBkwdPos"] = seatPosition
+            }
+            val seatReq: SeatPosition = seatPosBuilder.build()
+            Log.i(TAG, "Publishing driver seat cloud events to Bus")
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
-
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
-
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2) {
             Log.i(TAG, "SUCCESS: NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_2")
-            val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field.parseFrom(data.payload)
-            val seatCushPos = resp.outPut.drvStCshnFrntUpwdDnwdPos*0.025
-            val seatCushRearPos = resp.outPut.drvStCshnRrUpwdDnwdPos*0.025
-
-            Log.d(TAG,"onChangeEvent, Cushion position:"+seatCushPos+".CushionRear:"+seatCushRearPos)
-
-            val dirPosCush = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatCushPos.toInt())
-            val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION_FRONT)
-                .setDirectionPositions(0, dirPosCush)
-                .build();
-
-            val dirPosCushRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatCushRearPos.toInt())
-            val seatCushRear: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosCushRear)
-                .build();
-
-            val seatReq: SeatPosition = newBuilder()
-                .setName("row1_left")
-                .setSeatComponentPositions(0, seatCushFront)
-                .setSeatComponentPositions(1, seatCushRear)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
             val topic = ResourceMappingConstants.DRIVER_SEAT
-            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
+            val seatPosBuilder = SeatPosition.newBuilder().setName(topic)
+            val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_2Field.parseFrom(data.payload)
+            var index = 0
 
+            val seatCushPos = resp.outPut.drvStCshnFrntUpwdDnwdPos
+            val cacheCushionPos = globalMap["drvStBkReclnUpwdDnwdPos"]
+            if(seatCushPos != cacheCushionPos) {
+                val curSeatPosition = convertPosition(seatCushPos)
+                val dirPosCush = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION_FRONT)
+                    .setDirectionPositions(0, dirPosCush)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seatCushFront)
+                index += 1
+                globalMap["drvStBkReclnUpwdDnwdPos"] = seatCushPos
+            }
+
+            val seatCushRearPos = resp.outPut.drvStCshnRrUpwdDnwdPos
+            val cacheCushionRPos = globalMap["drvStCshnRrUpwdDnwdPos"]
+            if(seatCushRearPos != cacheCushionRPos) {
+                val curSeatPosition = convertPosition(seatCushRearPos)
+                val dirPosCushRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushRear: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION)
+                    .setDirectionPositions(0, dirPosCushRear)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build();
+
+                seatPosBuilder.setSeatComponentPositions(index, seatCushRear)
+                index += 1
+                globalMap["drvStCshnRrUpwdDnwdPos"] = seatCushRearPos
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build()
+            Log.i(TAG, "Publishing the cloud events to Bus")
+            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_3) {
             Log.i(TAG, "SUCCESS: NOTIFY_DRIVER_SEAT_PERCENTAGE_POSITION_3")
             val resp = SomeipS2SManagementInterface.Driver_Seat_Percentage_Position_3Field.parseFrom(data.payload)
-
-            val seatBolstPos = resp.outPut.drvStBlstOtwdInwdPos*0.025
-            // check if there is foot component
-            val seatFtPos = resp.outPut.drvStFtUpwdDnwdPos*0.025
-            val seatHdRestRearPos = resp.outPut.drvStHdrstUpwdDnwdPos*0.025
-            val seatLegRearPos = resp.outPut.drvStLgrstUpwdDnwdPos*0.025
-
-            Log.d(TAG, "onChangeEvent, Bolster position:"+seatBolstPos+ ",Foot rest:"+seatFtPos+
-                    ", Head Rest:"+ seatHdRestRearPos + ", Leg Rest:" + seatLegRearPos)
-
-            val dirPosBolst = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_INFLATE, seatBolstPos.toInt())
-            val seatBolst: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
-                .setDirectionPositions(0, dirPosBolst)
-                .build();
-
-            val dirPosHdRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatHdRestRearPos.toInt())
-            val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_HEADREST)
-                .setDirectionPositions(0, dirPosHdRear)
-                .build();
-
-            val dirPosLegRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatLegRearPos.toInt())
-            val seatLeg: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_LEGREST)
-                .setDirectionPositions(0, dirPosLegRear)
-                .build();
-
-            val seatReq: SeatPosition = newBuilder()
-                .setName("row1_left")
-                .setSeatComponentPositions(0, seatBolst)
-//                .setSeatComponentPositions(1, seatFoot)
-                .setSeatComponentPositions(1, seatHead)
-                .setSeatComponentPositions(2, seatLeg)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-
-            // todo need to confirm SomeIp topic name?
             val topic = ResourceMappingConstants.DRIVER_SEAT
+            val seatPosBuilder = SeatPosition.newBuilder().setName(topic)
+            var index = 0
+
+            val seatBolstPos = resp.outPut.drvStBlstOtwdInwdPos
+            val cacheBolPos = globalMap["drvStBlstOtwdInwdPos"]
+            if(seatBolstPos != cacheBolPos){
+                val curSeatPosition = convertPosition(seatBolstPos)
+                val dirPosBolst = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_INFLATE, curSeatPosition)
+                val seatBolst: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
+                    .setDirectionPositions(0, dirPosBolst)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_INFLATE)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_INFLATE)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seatBolst)
+                index += 1
+                globalMap["drvStBlstOtwdInwdPos"] = seatBolstPos
+            }
+
+            // check if there is foot component
+            val seatHdRestRearPos = resp.outPut.drvStHdrstUpwdDnwdPos
+            val cacheHdRPos = globalMap["drvStHdrstUpwdDnwdPos"]
+            if(seatHdRestRearPos != cacheHdRPos){
+                val curSeatPosition = convertPosition(seatHdRestRearPos)
+                val dirPosHdRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_HEADREST)
+                    .setDirectionPositions(0, dirPosHdRear)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seatHead)
+                index += 1
+                globalMap["drvStHdrstUpwdDnwdPos"] = seatHdRestRearPos
+            }
+
+            val seatLegRearPos = resp.outPut.drvStLgrstUpwdDnwdPos
+            val cacheLegRPos = globalMap["drvStLgrstUpwdDnwdPos"]
+            if(seatLegRearPos != cacheLegRPos){
+                val curSeatPosition = convertPosition(seatLegRearPos)
+                val dirPosLegRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatLeg: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_LEGREST)
+                    .setDirectionPositions(0, dirPosLegRear)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seatLeg)
+                index += 1
+                globalMap["drvStLgrstUpwdDnwdPos"] = seatLegRearPos
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build();
+            Log.i(TAG, "Publishing the cloud events(DRIVER_SEAT_PERCENTAGE_POSITION_3) to Bus")
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
 
-            if(getDriverFoot()) {
-                val dirPosFoot = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatFtPos.toInt())
+
+            val seatFtPos = resp.outPut.drvStFtUpwdDnwdPos
+            val cacheFtPos = globalMap["drvStFtUpwdDnwdPos"]
+            if(seatFtPos!=cacheFtPos && getDriverFoot()) {
+                val topicSec = ResourceMappingConstants.SECOND_LEFT_SEAT
+                val curSeatPosition = convertPosition(seatFtPos)
+                val dirPosFoot = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
                 val seatFoot: SeatComponentPosition = SeatComponentPosition.newBuilder()
                     .setComponent(SeatComponent.SC_FOOTREST)
                     .setDirectionPositions(0, dirPosFoot)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
                     .build();
 
                 val seatReqFoot: SeatPosition = newBuilder()
-                    .setName("row2_left")
+                    .setName(topicSec)
                     .setSeatComponentPositions(0, seatFoot)
                     .build();
-                val topicSec = ResourceMappingConstants.SECOND_LEFT_SEAT
+
                 val uResourceSec = UResource(topicSec, "", SeatPosition::class.java.simpleName)
                 SomeIpUtil.pubEvent(seatReqFoot, ServiceConstant.SEATING_SERVICE, uResourceSec, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
+                globalMap["drvStFtUpwdDnwdPos"] = seatFtPos
             }
         }
         //endregion
@@ -255,382 +301,598 @@ class SeatViewModel : BaseAppViewModel() {
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_1) {
             Log.i(TAG,"PASSENGER_SEAT_PERCENTAGE_POSITION_1: Success")
             val resp = SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_1Field.parseFrom(data.payload)
-            val bolstPos = resp.outPut.passStBlstOtwdInwdPos*0.025
-            val seatPos = resp.outPut.passStFrwdBkwdPos*0.025
-            val footPos = resp.outPut.passStFtUpwdDnwdPos*0.025
-            val seatReclPos = resp.outPut.passStBkReclnUpwdDnwdPos*0.025
-            Log.d(TAG, "onChangeEvent, Bolster position:"+bolstPos+
-                    ", Seat forward backward:"+ seatPos + ", Foot:" + footPos +
-                    ", Recline:" + seatReclPos);
-
-            val dirPosBolst = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_INFLATE, bolstPos.toInt())
-            val seatBolst: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
-                .setDirectionPositions(0, dirPosBolst)
-                .build();
-
-            val dirPosSeat = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, seatPos.toInt())
-            val seat: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosSeat)
-                .build();
-
-            val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, seatReclPos.toInt())
-            val seatRecl: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_BACK)
-                .setDirectionPositions(0, dirPosRecl)
-                .build();
-
-            val seatReq: SeatPosition = SeatPosition.newBuilder()
-                .setName("row1_right")
-                .setSeatComponentPositions(0, seatBolst)
-                .setSeatComponentPositions(1, seat)
-                .setSeatComponentPositions(2, seatRecl)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-            // todo need to confirm SomeIp topic name?
             val topic = ResourceMappingConstants.PASSENGER_SEAT
+            var index = 0
+            val seatPosBuilder = newBuilder().setName(topic)
+
+            val bolstPos = resp.outPut.passStBlstOtwdInwdPos
+            val cacheBolPos = globalMap["passStBlstOtwdInwdPos"]
+            if(bolstPos != cacheBolPos){
+                val curSeatPosition = convertPosition(bolstPos)
+                val dirPosBolst = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_INFLATE, curSeatPosition)
+                val seatBolst: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
+                    .setDirectionPositions(0, dirPosBolst)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_INFLATE)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_INFLATE)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatBolst)
+                index += 1
+                globalMap["passStBlstOtwdInwdPos"] = bolstPos
+            }
+
+            val seatPos = resp.outPut.passStFrwdBkwdPos
+            val cacheSeatPos = globalMap["passStFrwdBkwdPos"]
+            if(seatPos != cacheSeatPos){
+                val curSeatPosition = convertPosition(seatPos)
+                val dirPosSeat = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, curSeatPosition)
+                val seat: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION)
+                    .setDirectionPositions(0, dirPosSeat)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seat)
+                index += 1
+                globalMap["passStFrwdBkwdPos"] = seatPos
+            }
+
+            val seatReclPos = resp.outPut.passStBkReclnUpwdDnwdPos
+            val cacheReclinePos = globalMap["passStBkReclnUpwdDnwdPos"]
+            if(seatReclPos != cacheReclinePos){
+                val curSeatPosition = convertPosition(seatReclPos)
+                val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatRecl: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_BACK)
+                    .setDirectionPositions(0, dirPosRecl)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatRecl)
+                index += 1
+                globalMap["passStBkReclnUpwdDnwdPos"] = seatReclPos
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build();
+            Log.i(TAG, "Publishing the cloud events(PASSENGER_SEAT_PERCENTAGE_POSITION_1) to Bus")
+            // todo need to confirm SomeIp topic name?
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
 
-            if(getDriverFoot()) {
-                val dirPosFoot = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, footPos.toInt())
+
+            val footPos = resp.outPut.passStFtUpwdDnwdPos
+            val cacheFootPos = globalMap["passStFtUpwdDnwdPos"]
+            if(footPos!=cacheFootPos && getDriverFoot()) {
+                val topicSec = ResourceMappingConstants.SECOND_RIGHT_SEAT
+                val curSeatPosition = convertPosition(footPos)
+                val dirPosFoot = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
                 val seatFoot: SeatComponentPosition = SeatComponentPosition.newBuilder()
                     .setComponent(SeatComponent.SC_FOOTREST)
                     .setDirectionPositions(0, dirPosFoot)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
                     .build();
-                val seatReqFoot: SeatPosition = SeatPosition.newBuilder()
-                    .setName("row2_right")
+
+                val seatReqFoot: SeatPosition = newBuilder()
+                    .setName(topicSec)
                     .setSeatComponentPositions(0, seatFoot)
                     .build();
-                val topicSec = ResourceMappingConstants.SECOND_RIGHT_SEAT
                 val uResourceSec = UResource(topicSec, "", SeatPosition::class.java.simpleName)
                 SomeIpUtil.pubEvent(seatReqFoot, ServiceConstant.SEATING_SERVICE, uResourceSec, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
+                globalMap["passStFtUpwdDnwdPos"] = footPos
             }
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_PERCENTAGE_POSITION_2) {
             Log.i(TAG,"PASSENGER_SEAT_PERCENTAGE_POSITION_2: Success")
             val resp = SomeipS2SManagementInterface.Passenger_Seat_Percentage_Position_2Field.parseFrom(data.payload)
-            val cushFrontPos = resp.outPut.passStCshnFrntUpwdDnwdPos*0.025
-            val cushRearPos = resp.outPut.passStCshnRrUpwdDnwdPos*0.025
-            val headRestPos = resp.outPut.passStHdrstUpwdDnwdPos*0.025
-            val legRestPos = resp.outPut.passStLgrstUpwdDnwdPos*0.025
-            Log.d(TAG, "onChangeEvent, Cushion front position:"+cushFrontPos+
-                    ", cushion rear:"+ cushRearPos + ", head rest:" + headRestPos +
-                    ", leg rest:" + legRestPos)
+            val topic = ResourceMappingConstants.PASSENGER_SEAT
+            var index = 0
+            val seatPosBuilder = newBuilder().setName(topic)
 
-            val dirPosCushFront = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, cushFrontPos.toInt())
-            val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION_FRONT)
-                .setDirectionPositions(0, dirPosCushFront)
-                .build();
+            val cushFrontPos = resp.outPut.passStCshnFrntUpwdDnwdPos
+            val cacheCushFPos = globalMap["passStCshnFrntUpwdDnwdPos"]
+            if(cushFrontPos != cacheCushFPos){
+                val curSeatPosition = convertPosition(cushFrontPos)
+                val dirPosCushFront = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION_FRONT)
+                    .setDirectionPositions(0, dirPosCushFront)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatCushFront)
+                index += 1
+                globalMap["passStCshnFrntUpwdDnwdPos"] = cushFrontPos
+            }
 
-            val dirPosCushRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, cushRearPos.toInt())
-            val seatCushRear: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosCushRear)
-                .build();
+            val cushRearPos = resp.outPut.passStCshnRrUpwdDnwdPos
+            val cacheCushRPos = globalMap["passStCshnRrUpwdDnwdPos"]
+            if(cushRearPos != cacheCushRPos){
+                val curSeatPosition = convertPosition(cushRearPos)
+                val dirPosCushRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushRear: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION)
+                    .setDirectionPositions(0, dirPosCushRear)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatCushRear)
+                index += 1
+                globalMap["passStCshnRrUpwdDnwdPos"] = cushRearPos
+            }
 
-            val dirPosHead = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, headRestPos.toInt())
-            val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_HEADREST)
-                .setDirectionPositions(0, dirPosHead)
-                .build();
+            val headRestPos = resp.outPut.passStHdrstUpwdDnwdPos
+            val cacheHdRPos = globalMap["passStHdrstUpwdDnwdPos"]
+            if(headRestPos != cacheHdRPos){
+                val curSeatPosition = convertPosition(headRestPos)
+                val dirPosHead = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_HEADREST)
+                    .setDirectionPositions(0, dirPosHead)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatHead)
+                index += 1
+                globalMap["passStHdrstUpwdDnwdPos"] = headRestPos
+            }
 
-            val dirPosLeg = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, legRestPos.toInt())
-            val seatLeg: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_LEGREST)
-                .setDirectionPositions(0, dirPosLeg)
-                .build();
+            val legRestPos = resp.outPut.passStLgrstUpwdDnwdPos
+            val cacheLegRPos = globalMap["passStLgrstUpwdDnwdPos"]
+            if(legRestPos != cacheLegRPos){
+                val curSeatPosition = convertPosition(legRestPos)
+                val dirPosLeg = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatLeg: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_LEGREST)
+                    .setDirectionPositions(0, dirPosLeg)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatLeg)
+                index += 1
+                globalMap["passStLgrstUpwdDnwdPos"] = legRestPos
+            }
 
-            val seatReq: SeatPosition = newBuilder()
-                .setName("row1_right")
-                .setSeatComponentPositions(0, seatCushFront)
-                .setSeatComponentPositions(1, seatCushRear)
-                .setSeatComponentPositions(2, seatLeg)
-                .setSeatComponentPositions(3, seatHead)
-                .build();
-
+            val seatReq: SeatPosition = seatPosBuilder.build()
             Log.i(TAG, "Publishing the cloud events to Bus")
             // todo need to confirm SomeIp topic name?
-            val topic = ResourceMappingConstants.PASSENGER_SEAT
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
-
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
-
         }
 
         // todo second row foot rest component(check driver seat position; if not getDriverFoot(), it is 4 seat modes)
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1) {
             Log.i(TAG,"SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1: Success")
             val resp = SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_1Field.parseFrom(data.payload)
-            val reclPos = resp.outPut.secRwLtStBkReclnUpwdDnwdPos*0.025
-            val bolstPos = resp.outPut.secRwLtStBlstOtwdInwdPos*0.025
-            val seatFrontPos = resp.outPut.secRwLtStFrwdBkwdPos*0.025
-            val seatLeftPos = resp.outPut.secRwLtStLtwdRtwdPos*0.025
-            Log.d(TAG, "onChangeEvent, Bolster position:"+reclPos+
-                    ", recline:"+ bolstPos + ", seat front:" + seatFrontPos +
-                    ", seat left:" + seatLeftPos);
-
-            val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, reclPos.toInt())
-            val seatRecl: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_BACK)
-                .setDirectionPositions(0, dirPosRecl)
-                .build();
-
-            val dirPosBolst = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_INFLATE, bolstPos.toInt())
-            val seatBolst: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
-                .setDirectionPositions(0, dirPosBolst)
-                .build();
-
-            val dirPosFront = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, seatFrontPos.toInt())
-            val dirPosLeft = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_LEFTWARD, seatLeftPos.toInt())
-            val seatLeft: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosLeft)
-                .setDirectionPositions(1, dirPosFront)
-                .build();
-
-            val seatReq: SeatPosition = SeatPosition.newBuilder()
-                .setName("row2_left")
-                .setSeatComponentPositions(0, seatRecl)
-                .setSeatComponentPositions(1, seatBolst)
-                .setSeatComponentPositions(2, seatLeft)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-            // todo need to confirm SomeIp topic name?
             val topic = ResourceMappingConstants.SECOND_LEFT_SEAT
+            var index = 0
+            val seatPosBuilder = newBuilder().setName(topic)
+
+            val reclPos = resp.outPut.secRwLtStBkReclnUpwdDnwdPos
+            val cacheReclPos = globalMap["secRwLtStBkReclnUpwdDnwdPos"]
+            if(reclPos != cacheReclPos){
+                val curSeatPosition = convertPosition(reclPos)
+                val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatRecl: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_BACK)
+                    .setDirectionPositions(0, dirPosRecl)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatRecl)
+                index += 1
+                globalMap["secRwLtStBkReclnUpwdDnwdPos"] = reclPos
+            }
+
+            val bolstPos = resp.outPut.secRwLtStBlstOtwdInwdPos
+            val cacheBolPos = globalMap["secRwLtStBlstOtwdInwdPos"]
+            if(bolstPos != cacheBolPos){
+                val curSeatPosition = convertPosition(bolstPos)
+                val dirPosBolst = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_INFLATE, curSeatPosition)
+                val seatBolst: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
+                    .setDirectionPositions(0, dirPosBolst)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_INFLATE)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_INFLATE)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seatBolst)
+                index += 1
+                globalMap["secRwLtStBlstOtwdInwdPos"] = bolstPos
+            }
+
+            val seatFrontPos = resp.outPut.secRwLtStFrwdBkwdPos
+            val cacheSeatFPos = globalMap["secRwLtStFrwdBkwdPos"]
+            var componentIndex = 0
+            val seatBuilder = SeatComponentPosition.newBuilder().setComponent(SeatComponent.SC_CUSHION)
+                .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                .setAvailableSeatComponentPercentageDirections(1, UpdateSeatPositionRequest.Direction.D_LEFTWARD)
+                .setSupportedSeatComponentPercentageDirections(1, UpdateSeatPositionRequest.Direction.D_LEFTWARD)
+            if(seatFrontPos != cacheSeatFPos){
+                val curSeatPosition = convertPosition(seatFrontPos)
+                val dirPosFront = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, curSeatPosition)
+                seatBuilder.setDirectionPositions(componentIndex, dirPosFront)
+//                    .setAvailableSeatComponentPercentageDirections(componentIndex, UpdateSeatPositionRequest.Direction.D_FORWARD)
+//                    .setSupportedSeatComponentPercentageDirections(componentIndex, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                componentIndex += 1
+                globalMap["secRwLtStFrwdBkwdPos"] = seatFrontPos
+            }
+
+            val seatLeftPos = resp.outPut.secRwLtStLtwdRtwdPos
+            val cacheSeatLPos = globalMap["secRwLtStLtwdRtwdPos"]
+            if(seatLeftPos != cacheSeatLPos){
+                val curSeatPosition = convertPosition(seatLeftPos)
+                val dirPosLeft = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_LEFTWARD, curSeatPosition)
+                seatBuilder.setDirectionPositions(componentIndex, dirPosLeft)
+//                    .setAvailableSeatComponentPercentageDirections(componentIndex, UpdateSeatPositionRequest.Direction.D_LEFTWARD)
+//                    .setSupportedSeatComponentPercentageDirections(componentIndex, UpdateSeatPositionRequest.Direction.D_LEFTWARD)
+                globalMap["secRwLtStLtwdRtwdPos"] = seatLeftPos
+                componentIndex += 1
+            }
+            if(componentIndex > 0){
+                val seatComponent = seatBuilder.build()
+                seatPosBuilder.setSeatComponentPositions(index, seatComponent)
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build();
+            Log.i(TAG, "Publishing the cloud events(SECOND_LEFT_SEAT_PERCENTAGE_POSITION_1) to Bus")
+            // todo need to confirm SomeIp topic name?
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2) {
             Log.i(TAG,"SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2: Success")
             val resp = SomeipS2SManagementInterface.Second_Left_Seat_Percentage_Position_2Field.parseFrom(data.payload)
-            val cushFrontPos = resp.outPut.secRwLtStCshnFrntUpwdDnwdPos*0.025
-            val cushRearPos = resp.outPut.secRwLtStCshnRrUpwdDnwdPos*0.025
-            val headRestPos = resp.outPut.secRwLtStHdrstStUpwdDnwdPos*0.025
-            val legRestPos = resp.outPut.secRwLtStLgrstUpwdDnwdPos*0.025
-
-            Log.d(TAG, "onChangeEvent, Cushion front position:"+cushFrontPos+
-                    ", cushion rear:"+ cushRearPos + ", head rest:" + headRestPos +
-                    ", leg rest:" + legRestPos)
-
-            val dirPosCushFront = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, cushFrontPos.toInt())
-            val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION_FRONT)
-                .setDirectionPositions(0, dirPosCushFront)
-                .build();
-
-            val dirPosCushRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, cushRearPos.toInt())
-            val seatCushRear: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosCushRear)
-                .build();
-
-            val dirPosHead = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, headRestPos.toInt())
-            val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_HEADREST)
-                .setDirectionPositions(0, dirPosHead)
-                .build();
-
-            val dirPosLeg = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, legRestPos.toInt())
-            val seatLeg: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_LEGREST)
-                .setDirectionPositions(0, dirPosLeg)
-                .build();
-
-            val seatReq: SeatPosition = SeatPosition.newBuilder()
-                .setName("row2_left")
-                .setSeatComponentPositions(0, seatCushFront)
-                .setSeatComponentPositions(1, seatCushRear)
-                .setSeatComponentPositions(2, seatHead)
-                .setSeatComponentPositions(3, seatLeg)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-            // todo need to confirm SomeIp topic name?
             val topic = ResourceMappingConstants.SECOND_LEFT_SEAT
-            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
+            var index = 0
+            val seatPosBuilder = newBuilder().setName(topic)
 
+            val cushFrontPos = resp.outPut.secRwLtStCshnFrntUpwdDnwdPos
+            val cacheCushFPos = globalMap["secRwLtStCshnFrntUpwdDnwdPos"]
+            if(cushFrontPos != cacheCushFPos){
+                val curSeatPosition = convertPosition(cushFrontPos)
+                val dirPosCushFront = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION_FRONT)
+                    .setDirectionPositions(0, dirPosCushFront)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatCushFront)
+                index += 1
+                globalMap["secRwLtStCshnFrntUpwdDnwdPos"] = cushFrontPos
+            }
+
+            val cushRearPos = resp.outPut.secRwLtStCshnRrUpwdDnwdPos
+            val cacheCushRPos = globalMap["secRwLtStCshnRrUpwdDnwdPos"]
+            if(cushRearPos != cacheCushRPos){
+                val curSeatPosition = convertPosition(cushRearPos)
+                val dirPosCushRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushRear: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION)
+                    .setDirectionPositions(0, dirPosCushRear)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatCushRear)
+                index += 1
+                globalMap["secRwLtStCshnRrUpwdDnwdPos"] = cushRearPos
+            }
+
+            val headRestPos = resp.outPut.secRwLtStHdrstStUpwdDnwdPos
+            val cacheHdRPos = globalMap["secRwLtStHdrstStUpwdDnwdPos"]
+            if(headRestPos != cacheHdRPos){
+                val curSeatPosition = convertPosition(headRestPos)
+                val dirPosHead = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_HEADREST)
+                    .setDirectionPositions(0, dirPosHead)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatHead)
+                index += 1
+                globalMap["secRwLtStHdrstStUpwdDnwdPos"] = headRestPos
+            }
+
+            val legRestPos = resp.outPut.secRwLtStLgrstUpwdDnwdPos
+            val cacheLegRPos = globalMap["secRwLtStLgrstUpwdDnwdPos"]
+            if(legRestPos != cacheLegRPos){
+                val curSeatPosition = convertPosition(legRestPos)
+                val dirPosLeg = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatLeg: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_LEGREST)
+                    .setDirectionPositions(0, dirPosLeg)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build();
+                seatPosBuilder.setSeatComponentPositions(index, seatLeg)
+                index += 1
+                globalMap["secRwLtStLgrstUpwdDnwdPos"] = legRestPos
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build();
+            Log.i(TAG, "Publishing the cloud events(SECOND_LEFT_SEAT_PERCENTAGE_POSITION_2) to Bus")
+            // todo need to confirm SomeIp topic name?
+            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1) {
             Log.i( TAG, "SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1: Success" )
             val resp = SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_1Field.parseFrom(data.payload)
-            val reclPos = resp.outPut.secRwRtStBkReclnUpwdDnwdPos*0.025
-            val bolstPos = resp.outPut.secRwRtStBlstOtwdInwdPos*0.025
-            val seatForwardPos = resp.outPut.secRwRtStFrwdBkwdPos*0.025
-            val seatLeftPos = resp.outPut.secRwRtStLtwdRtwdPos*0.025
-            Log.d(TAG, "onChangeEvent, Bolster position:"+bolstPos+
-                    ", recline:"+ reclPos + ", seat front:" + seatForwardPos +
-                    ", seat left:" + seatLeftPos);
-
-            val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, reclPos.toInt())
-            val seatRecl: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_BACK)
-                .setDirectionPositions(0, dirPosRecl)
-                .build();
-
-            val dirPosBolst = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_INFLATE, bolstPos.toInt())
-            val seatBol: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
-                .setDirectionPositions(0, dirPosBolst)
-                .build();
-
-            val dirPosForward = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, seatForwardPos.toInt())
-            val dirPosLeft = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_LEFTWARD, seatLeftPos.toInt())
-            val seatLeft: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosForward)
-                .setDirectionPositions(1, dirPosLeft)
-                .build();
-
-            val seatReq: SeatPosition = SeatPosition.newBuilder()
-                .setName("row2_right")
-                .setSeatComponentPositions(0, seatRecl)
-                .setSeatComponentPositions(1, seatBol)
-                .setSeatComponentPositions(2, seatLeft)
-//                .setSeatComponentPositions(3, seatLeft)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-            // todo need to confirm SomeIp topic name?
             val topic = ResourceMappingConstants.SECOND_RIGHT_SEAT
+            var index = 0
+            val seatPosBuilder = newBuilder().setName(topic)
+
+            val reclPos = resp.outPut.secRwRtStBkReclnUpwdDnwdPos
+            val cacheReclPos = globalMap["secRwRtStBkReclnUpwdDnwdPos"]
+            if(reclPos != cacheReclPos){
+                val curSeatPosition = convertPosition(reclPos)
+                val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatRecl: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_BACK)
+                    .setDirectionPositions(0, dirPosRecl)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatRecl)
+                index += 1
+                globalMap["secRwRtStBkReclnUpwdDnwdPos"] = reclPos
+            }
+
+            val bolstPos = resp.outPut.secRwRtStBlstOtwdInwdPos
+            val cacheBolPos = globalMap["secRwRtStBlstOtwdInwdPos"]
+            if(bolstPos != cacheBolPos){
+                val curSeatPosition = convertPosition(bolstPos)
+                val dirPosBolst = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_INFLATE, curSeatPosition)
+                val seatBol: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_SIDE_BOLSTER_BACK)
+                    .setDirectionPositions(0, dirPosBolst)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_INFLATE)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_INFLATE)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatBol)
+                index += 1
+                globalMap["secRwRtStBlstOtwdInwdPos"] = bolstPos
+            }
+
+            var componentIndex = 0
+            val seatBuilder = SeatComponentPosition.newBuilder().setComponent(SeatComponent.SC_CUSHION)
+                .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                .setAvailableSeatComponentPercentageDirections(1, UpdateSeatPositionRequest.Direction.D_LEFTWARD)
+                .setSupportedSeatComponentPercentageDirections(1, UpdateSeatPositionRequest.Direction.D_LEFTWARD)
+            val seatForwardPos = resp.outPut.secRwRtStFrwdBkwdPos
+            val cacheSeatFPos = globalMap["secRwRtStFrwdBkwdPos"]
+            if(seatForwardPos != cacheSeatFPos){
+                val curSeatPosition = convertPosition(seatForwardPos)
+                val dirPosForward = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, curSeatPosition)
+                seatBuilder.setDirectionPositions(componentIndex, dirPosForward)
+//                    .setAvailableSeatComponentPercentageDirections(componentIndex, UpdateSeatPositionRequest.Direction.D_FORWARD)
+//                    .setSupportedSeatComponentPercentageDirections(componentIndex, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                componentIndex += 1
+                globalMap["secRwRtStFrwdBkwdPos"] = seatForwardPos
+            }
+
+            val seatLeftPos = resp.outPut.secRwRtStLtwdRtwdPos
+            val cacheSeatLPos = globalMap["secRwRtStLtwdRtwdPos"]
+            if(seatLeftPos != cacheSeatLPos){
+                val curSeatPosition = convertPosition(seatLeftPos)
+                val dirPosLeft = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_LEFTWARD, curSeatPosition)
+                seatBuilder.setDirectionPositions(componentIndex, dirPosLeft)
+//                    .setAvailableSeatComponentPercentageDirections(componentIndex, UpdateSeatPositionRequest.Direction.D_LEFTWARD)
+//                    .setSupportedSeatComponentPercentageDirections(componentIndex, UpdateSeatPositionRequest.Direction.D_LEFTWARD)
+                componentIndex += 1
+                globalMap["secRwRtStLtwdRtwdPos"] = seatLeftPos
+            }
+
+            if(componentIndex > 0){
+                val seatComponent = seatBuilder.build()
+                seatPosBuilder.setSeatComponentPositions(index, seatComponent)
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build();
+            Log.i(TAG, "Publishing the cloud events(SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_1) to Bus")
+            // todo need to confirm SomeIp topic name?
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2) {
             Log.i(TAG,"SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2: Success")
             val resp = SomeipS2SManagementInterface.Second_Right_Seat_Percentage_Position_2Field.parseFrom(data.payload)
-            val cushFrontPos = resp.outPut.secRwRtStCshnFrntUpwdDnwdPos*0.025
-            val cushRearPos = resp.outPut.secRwRtStCshnRrUpwdDnwdPos*0.025
-            val headRestPos = resp.outPut.secRwRtStHdrstUpwdDnwdPos*0.025
-            val legRestPos = resp.outPut.secRwRtStLgrstUpwdDnwdPos*0.025
-            Log.d(TAG, "onChangeEvent, Cushion front position:"+cushFrontPos+
-                    ", cushion rear:"+ cushRearPos + ", head rest:" + headRestPos +
-                    ", leg rest:" + legRestPos)
-
-            val dirPosLeft = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, cushFrontPos.toInt())
-            val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION_FRONT)
-                .setDirectionPositions(0, dirPosLeft)
-                .build();
-
-            val dirPosCushRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, cushRearPos.toInt())
-            val seatCushRear: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosCushRear)
-                .build();
-
-            val dirPosHead = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, headRestPos.toInt())
-            val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_HEADREST)
-                .setDirectionPositions(0, dirPosHead)
-                .build();
-
-            val dirPosLeg = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, legRestPos.toInt())
-            val seatLegPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_LEGREST)
-                .setDirectionPositions(0, dirPosLeg)
-                .build();
-
-            val seatReq: SeatPosition = SeatPosition.newBuilder()
-                .setName("row2_right")
-                .setSeatComponentPositions(0, seatCushFront)
-                .setSeatComponentPositions(1, seatCushRear)
-                .setSeatComponentPositions(2, seatHead)
-                .setSeatComponentPositions(3, seatLegPos)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-            // todo need to confirm SomeIp topic name?
             val topic = ResourceMappingConstants.SECOND_RIGHT_SEAT
-            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
+            var index = 0
+            val seatPosBuilder = newBuilder().setName(topic)
 
+            val cushFrontPos = resp.outPut.secRwRtStCshnFrntUpwdDnwdPos
+            val cacheCushFPos = globalMap["secRwRtStCshnFrntUpwdDnwdPos"]
+            if(cushFrontPos != cacheCushFPos){
+                val curSeatPosition = convertPosition(cushFrontPos)
+                val dirPosLeft = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION_FRONT)
+                    .setDirectionPositions(0, dirPosLeft)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatCushFront)
+                index += 1
+                globalMap["secRwRtStCshnFrntUpwdDnwdPos"] = cushFrontPos
+            }
+
+            val cushRearPos = resp.outPut.secRwRtStCshnRrUpwdDnwdPos
+            val cacheCushRPos = globalMap["secRwRtStCshnRrUpwdDnwdPos"]
+            if(cushRearPos != cacheCushRPos){
+                val curSeatPosition = convertPosition(cushFrontPos)
+                val dirPosCushRear = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushRear: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_CUSHION)
+                    .setDirectionPositions(0, dirPosCushRear)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatCushRear)
+                index += 1
+                globalMap["secRwRtStCshnRrUpwdDnwdPos"] = cushRearPos
+            }
+
+            val headRestPos = resp.outPut.secRwRtStHdrstUpwdDnwdPos
+            val cacheHdRestPos = globalMap["secRwRtStHdrstUpwdDnwdPos"]
+            if(headRestPos != cacheHdRestPos){
+                val curSeatPosition = convertPosition(headRestPos)
+                val dirPosHead = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatHead: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_HEADREST)
+                    .setDirectionPositions(0, dirPosHead)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatHead)
+                index += 1
+                globalMap["secRwRtStHdrstUpwdDnwdPos"] = headRestPos
+            }
+
+            val legRestPos = resp.outPut.secRwRtStLgrstUpwdDnwdPos
+            val cacheLegRestPos = globalMap["secRwRtStLgrstUpwdDnwdPos"]
+            if(legRestPos != cacheLegRestPos){
+                val curSeatPosition = convertPosition(legRestPos)
+                val dirPosLeg = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatLegPos: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_LEGREST)
+                    .setDirectionPositions(0, dirPosLeg)
+                    .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_UP)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatLegPos)
+                index += 1
+                globalMap["secRwRtStLgrstUpwdDnwdPos"] = legRestPos
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build();
+            Log.i(TAG, "Publishing the cloud events(SECOND_RIGHT_SEAT_PERCENTAGE_POSITION_2) to Bus")
+            // todo need to confirm SomeIp topic name?
+            val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
         }
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_LEFT_SEAT_PERCENTAGE_POSITION) {
             Log.i(TAG,"THIRD_LEFT_SEAT_PERCENTAGE_POSITION: Success")
             val resp = SomeipS2SManagementInterface.Third_Left_Seat_Percentage_PositionField.parseFrom(data.payload)
-            val reclPos = resp.outPut.thdRwLtStBkReclnUpwdDnwdPos*0.025
-            val cushFoldPos = resp.outPut.thdRwLtStCshnFldUpwdDnwdPos*0.025
-            val forwardPos = resp.outPut.thdRwLtStFrwdBkwdPos*0.025
-            Log.d(TAG, "onChangeEvent, recline position:"+reclPos+
-                    ", cushion fold:"+ cushFoldPos + ", seat forward:" + forwardPos)
-
-            val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, reclPos.toInt())
-            val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_BACK)
-                .setDirectionPositions(0, dirPosRecl)
-                .build();
-
-            val dirPosCushFold = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FOLD, cushFoldPos.toInt())
-//            val seatCushFold: SeatComponentPosition = SeatComponentPosition.newBuilder()
-//                .setComponent(SeatComponent.SC_CUSHION)
-//                .setDirectionPositions(0, dirPosCushFold)
-//                .build();
-
-            val dirPosForwad = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, forwardPos.toInt())
-            val seat: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosForwad)
-                .setDirectionPositions(1, dirPosCushFold)
-                .build();
-
-            val seatReq: SeatPosition = newBuilder()
-                .setName("row3_left")
-                .setSeatComponentPositions(0, seatCushFront)
-                .setSeatComponentPositions(1, seat)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-            // todo need to confirm SomeIp topic name?
             val topic = ResourceMappingConstants.THIRD_LEFT_SEAT
+            var index = 0
+            val seatPosBuilder = newBuilder().setName(topic)
+
+            val reclPos = resp.outPut.thdRwLtStBkReclnUpwdDnwdPos
+            val cacheReclPos = globalMap["thdRwLtStBkReclnUpwdDnwdPos"]
+            if(reclPos != cacheReclPos){
+                val curSeatPosition = convertPosition(reclPos)
+                val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_BACK)
+                    .setDirectionPositions(0, dirPosRecl)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatCushFront)
+                index += 1
+                globalMap["thdRwLtStBkReclnUpwdDnwdPos"] = reclPos
+            }
+
+            val cushFoldPos = resp.outPut.thdRwLtStCshnFldUpwdDnwdPos
+            val cacheCushFoldPos = globalMap["thdRwLtStCshnFldUpwdDnwdPos"]
+            var componentIndex = 0
+            val seatBuilder = SeatComponentPosition.newBuilder().setComponent(SeatComponent.SC_CUSHION)
+                .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                .setAvailableSeatComponentPercentageDirections(1, UpdateSeatPositionRequest.Direction.D_FOLD)
+                .setSupportedSeatComponentPercentageDirections(1, UpdateSeatPositionRequest.Direction.D_FOLD)
+            if(cushFoldPos != cacheCushFoldPos){
+                val curSeatPosition = convertPosition(cushFoldPos)
+                val dirPosForward = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, curSeatPosition)
+                seatBuilder.setDirectionPositions(componentIndex, dirPosForward)
+                componentIndex += 1
+                globalMap["thdRwLtStCshnFldUpwdDnwdPos"] = cushFoldPos
+            }
+
+            val forwardPos = resp.outPut.thdRwLtStFrwdBkwdPos
+            val cacheForwardPos = globalMap["thdRwLtStFrwdBkwdPos"]
+            if(forwardPos != cacheForwardPos){
+                val curSeatPosition = convertPosition(forwardPos)
+                val dirPosCushFold = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FOLD, curSeatPosition)
+                seatBuilder.setDirectionPositions(componentIndex, dirPosCushFold)
+                componentIndex += 1
+                globalMap["thdRwLtStFrwdBkwdPos"] = forwardPos
+            }
+            if(componentIndex > 0){
+                val seatComponent = seatBuilder.build()
+                seatPosBuilder.setSeatComponentPositions(index, seatComponent)
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build();
+            Log.i(TAG, "Publishing the cloud events(THIRD_LEFT_SEAT_PERCENTAGE_POSITION) to Bus")
+            // todo need to confirm SomeIp topic name?
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
-
         }
+
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_RIGHT_SEAT_PERCENTAGE_POSITION) {
             Log.i(TAG,"THIRD_RIGHT_SEAT_PERCENTAGE_POSITION: Success")
             val resp = SomeipS2SManagementInterface.Third_Right_Seat_Percentage_PositionField.parseFrom(data.payload)
-            val reclPos = resp.outPut.thdRwRtStBkReclnUpwdDnwdPos*0.025
-            val cushFoldPos = resp.outPut.thdRwRtStCshnFldUpwdDnwdPos*0.025
-            val forwardPos = resp.outPut.thdRwRtStFrwdBkwdPos*0.025
-            Log.d(TAG, "onChangeEvent, recline position:"+reclPos+
-                    ", cushion fold:"+ cushFoldPos + ", seat forward:" + forwardPos.toInt())
-
-            val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, reclPos.toInt())
-            val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_BACK)
-                .setDirectionPositions(0, dirPosRecl)
-                .build();
-
-            val dirPosCushFold = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FOLD, cushFoldPos.toInt())
-            val dirPosForward = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, forwardPos.toInt())
-            val seat: SeatComponentPosition = SeatComponentPosition.newBuilder()
-                .setComponent(SeatComponent.SC_CUSHION)
-                .setDirectionPositions(0, dirPosForward)
-                .setDirectionPositions(1, dirPosCushFold)
-                .build();
-
-            val seatReq: SeatPosition = SeatPosition.newBuilder()
-                .setName("row3_right")
-                .setSeatComponentPositions(0, seatCushFront)
-                .setSeatComponentPositions(1, seat)
-//                .setSeatComponentPositions(3, seatLeftPos)
-                .build();
-
-            Log.i(TAG, "Publishing the cloud events to Bus")
-            // todo need to confirm SomeIp topic name?
             val topic = ResourceMappingConstants.THIRD_RIGHT_SEAT
+            var index = 0
+            val seatPosBuilder = newBuilder().setName(topic)
+
+            val reclPos = resp.outPut.thdRwRtStBkReclnUpwdDnwdPos
+            val cacheReclPos = globalMap["thdRwRtStBkReclnUpwdDnwdPos"]
+            if(reclPos != cacheReclPos){
+                val curSeatPosition = convertPosition(reclPos)
+                val dirPosRecl = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_UP, curSeatPosition)
+                val seatCushFront: SeatComponentPosition = SeatComponentPosition.newBuilder()
+                    .setComponent(SeatComponent.SC_BACK)
+                    .setDirectionPositions(0, dirPosRecl)
+                    .build()
+                seatPosBuilder.setSeatComponentPositions(index, seatCushFront)
+                index += 1
+                globalMap["thdRwRtStBkReclnUpwdDnwdPos"] = reclPos
+            }
+
+            var componentIndex = 0
+            val seatBuilder = SeatComponentPosition.newBuilder().setComponent(SeatComponent.SC_CUSHION)
+                .setAvailableSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FOLD)
+                .setSupportedSeatComponentPercentageDirections(0, UpdateSeatPositionRequest.Direction.D_FOLD)
+                .setAvailableSeatComponentPercentageDirections(1, UpdateSeatPositionRequest.Direction.D_FORWARD)
+                .setSupportedSeatComponentPercentageDirections(1, UpdateSeatPositionRequest.Direction.D_FORWARD)
+            val cushFoldPos = resp.outPut.thdRwRtStCshnFldUpwdDnwdPos
+            val cacheCushFoldPos = globalMap["thdRwRtStCshnFldUpwdDnwdPos"]
+            if(cushFoldPos != cacheCushFoldPos){
+                val curSeatPosition = convertPosition(cushFoldPos)
+                val dirPosCushFold = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FOLD, curSeatPosition)
+                seatBuilder.setDirectionPositions(componentIndex, dirPosCushFold)
+                componentIndex += 1
+                globalMap["thdRwRtStCshnFldUpwdDnwdPos"] = cushFoldPos
+            }
+
+            val forwardPos = resp.outPut.thdRwRtStFrwdBkwdPos
+            val cacheForwardPos = globalMap["thdRwRtStFrwdBkwdPos"]
+            if(forwardPos != cacheForwardPos){
+                val curSeatPosition = convertPosition(forwardPos)
+                val dirPosCushFold = buildDirectionPos(UpdateSeatPositionRequest.Direction.D_FORWARD, curSeatPosition)
+                seatBuilder.setDirectionPositions(componentIndex, dirPosCushFold)
+                componentIndex += 1
+                globalMap["thdRwRtStFrwdBkwdPos"] = forwardPos
+            }
+            if(componentIndex > 0){
+                val seatComponent = seatBuilder.build()
+                seatPosBuilder.setSeatComponentPositions(index, seatComponent)
+            }
+
+            val seatReq: SeatPosition = seatPosBuilder.build();
+            Log.i(TAG, "Publishing the cloud events(THIRD_RIGHT_SEAT_PERCENTAGE_POSITION) to Bus")
+            // todo need to confirm SomeIp topic name?
             val uResource = UResource(topic, "", SeatPosition::class.java.simpleName)
             SomeIpUtil.pubEvent(seatReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
-
         }
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_DRIVER_SEAT_CONFIGURATION) {
@@ -1196,26 +1458,47 @@ class SeatViewModel : BaseAppViewModel() {
 
             val hdRestFStatus = resp.outPut.drvStHdrstFwdBkwdMovmtVirtCtrlAvl
             val cacheHdRestFStatus = globalMap["drvStHdrstFwdBkwdMovmtVirtCtrlAvl"]
-            if(hdRestStatus != cacheHdRestFStatus){
+            if(hdRestFStatus != cacheHdRestFStatus){
                 Log.i(TAG, "Driver Seat status is changed.")
 //                val cacheReclConf = globalMap["drvStHdrstFwdBkwdMovConfig"] as Boolean            //currently, no existing conf
 //                val cacheStPos = globalMap["drvStHdrstFwdBkwdPos"] as Int                         //currently, no existing pos
 //                buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_FORWARD, SeatComponent.SC_HEADREST, cacheReclConf, hdRestFStatus)
 //                globalMap["drvStHdrstFwdBkwdMovmtVirtCtrlAvl"] = hdRestFStatus
             }
+
+            val mode = resp.outPut.drvStMassMdIndSts
+            val intensity = resp.outPut.drvStMassStrsIndSts
+            val status = resp.outPut.drvStMassVirtCtrlAvl
+            val cacheMode = globalMap["drvStMassMdIndSts"]
+            val cacheIntensity = globalMap["drvStMassStrsIndSts"]
+            val cacheDrvStatus = globalMap["drvStMassVirtCtrlAvl"] as Boolean
+            val massBuild = SeatMassage.newBuilder().setName(resource)
+            var isUpdate = false
+            if(status != cacheMassStatus && status){
+                isUpdate = true
+                massBuild.setSupportedMassageTypesValue(0, 31)
+            }
+            globalMap["passStMassVirtCtrlAvl"] = status
+
+            if(mode != cacheMode || intensity!= cacheIntensity){
+                isUpdate = true
+                val modeVal = convertMode(mode)
+                massBuild.setIntensity(intensity).setTypeValue(modeVal)
+                globalMap["passStMassStrsIndSts"] = intensity
+                globalMap["passStMassMdIndSts"] = mode
+            }
+            if(isUpdate){
+                val massReq = massBuild.build()
+                Log.i(TAG, "Publishing the cloud events(Driver seat Massage) to Bus")
+                val uResource = UResource(resource, "", SeatPosition::class.java.simpleName)
+                SomeIpUtil.pubEvent(massReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
+            }
         }
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PASSENGER_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS) {
             Log.i(TAG, "PASSENGER_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS: Success")
             val resp = SomeipS2SManagementInterface.Passenger_Seat_Virtual_Control_Availability_And_Notification_StatusField.parseFrom(data.payload)
-            val resource = ResourceMappingConstants.THIRD_LEFT_SEAT
-
-            val cacheMassStatus = globalMap["passStMassVirtCtrlAvl"]
-            val passMassStatus = resp.outPut.passStMassVirtCtrlAvl
-            if(passMassStatus != cacheMassStatus){
-                Log.i(TAG, "Massage status is changed.")
-                // todo massage
-            }
+            val resource = ResourceMappingConstants.PASSENGER_SEAT
 
             val passSeatStatus = resp.outPut.passStFwdBkwdMovmtVirtCtrlAvl
             val cacheSeatStatus = globalMap["passStFwdBkwdMovmtVirtCtrlAvl"]
@@ -1225,7 +1508,6 @@ class SeatViewModel : BaseAppViewModel() {
                 val cacheStPos = globalMap["passStFrwdBkwdPos"] as Int
                 buildMessageAndPublish(cacheStPos, resource, UpdateSeatPositionRequest.Direction.D_FORWARD, SeatComponent.SC_CUSHION, cacheStForwardConf, passSeatStatus)
                 globalMap["passStFwdBkwdMovmtVirtCtrlAvl"] = passSeatStatus
-
             }
 
             val lmbStatus = resp.outPut.passStLmbrVirtCtrlAvl
@@ -1289,6 +1571,33 @@ class SeatViewModel : BaseAppViewModel() {
                 globalMap["passStCushnRrUpwdDnwdMovmtVirtCtrlAvl"] = cushionRStatus
             }
 
+            val mode = resp.outPut.passStMassMdIndSts
+            val intensity = resp.outPut.passStMassStrsIndSts
+            val status = resp.outPut.passStMassVirtCtrlAvl
+            val cacheMode = globalMap["passStMassMdIndSts"]
+            val cacheIntensity = globalMap["passStMassStrsIndSts"]
+            val cacheMassStatus = globalMap["passStMassVirtCtrlAvl"] as Boolean
+            val massBuild = SeatMassage.newBuilder().setName(resource)
+            var isUpdate = false
+            if(status != cacheMassStatus && status){
+                isUpdate = true
+                massBuild.setSupportedMassageTypesValue(0, 31)
+            }
+            globalMap["passStMassVirtCtrlAvl"] = status
+
+            if(mode != cacheMode || intensity!= cacheIntensity){
+                isUpdate = true
+                val modeVal = convertMode(mode)
+                massBuild.setIntensity(intensity).setTypeValue(modeVal)
+                globalMap["passStMassStrsIndSts"] = intensity
+                globalMap["passStMassMdIndSts"] = mode
+            }
+            if(isUpdate){
+                val massReq = massBuild.build()
+                Log.i(TAG, "Publishing the cloud events(Passenger seat Massage) to Bus")
+                val uResource = UResource(resource, "", SeatPosition::class.java.simpleName)
+                SomeIpUtil.pubEvent(massReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
+            }
         }
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS) {
@@ -1541,6 +1850,33 @@ class SeatViewModel : BaseAppViewModel() {
                 Log.i(TAG,"Third left cushion front status is changed")
             }
 
+            val mode = resp.outPut.thdRwLtStMassMdIndSts
+            val intensity = resp.outPut.thdRwLtStMassStrsIndSts
+            val status = resp.outPut.thdRwLtStMassVirtCtrlAvl
+            val cacheMode = globalMap["thdRwLtStMassMdIndSts"]
+            val cacheIntensity = globalMap["thdRwLtStMassStrsIndSts"]
+            val cacheMassStatus = globalMap["thdRwLtStMassVirtCtrlAvl"] as Boolean
+            val massBuild = SeatMassage.newBuilder().setName(resource)
+            var isUpdate = false
+            if(status != cacheMassStatus && status){
+                isUpdate = true
+                massBuild.setSupportedMassageTypesValue(0, 31)
+            }
+            globalMap["thdRwLtStMassVirtCtrlAvl"] = status
+
+            if(mode != cacheMode || intensity!= cacheIntensity){
+                isUpdate = true
+                val modeVal = convertMode(mode)
+                massBuild.setIntensity(intensity).setTypeValue(modeVal)
+                globalMap["thdRwLtStMassStrsIndSts"] = intensity
+                globalMap["thdRwLtStMassMdIndSts"] = mode
+            }
+            if(isUpdate){
+                val massReq = massBuild.build()
+                Log.i(TAG, "Publishing the cloud events(Driver seat Massage) to Bus")
+                val uResource = UResource(resource, "", SeatPosition::class.java.simpleName)
+                SomeIpUtil.pubEvent(massReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
+            }
         }
 
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_THIRD_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS) {
@@ -1589,6 +1925,34 @@ class SeatViewModel : BaseAppViewModel() {
             val cacheCushionRStatus = globalMap["thdRwRtStCushnRrUpwdDnwdMovmtVirtCtrlAvl"]
             if(cushionRStatus != cacheCushionRStatus){
                 Log.i(TAG,"Third left cushion front status is changed")
+            }
+
+            val mode = resp.outPut.thdRwRtStMassMdIndSts
+            val intensity = resp.outPut.thdRwRtStMassStrsIndSts
+            val status = resp.outPut.thdRwRtStMassVirtCtrlAvl
+            val cacheMode = globalMap["thdRwRtStMassMdIndSts"]
+            val cacheIntensity = globalMap["thdRwRtStMassStrsIndSts"]
+            val cacheMassStatus = globalMap["thdRwRtStMassVirtCtrlAvl"] as Boolean
+            val massBuild = SeatMassage.newBuilder().setName(resource)
+            var isUpdate = false
+            if(status != cacheMassStatus && status){
+                isUpdate = true
+                massBuild.setSupportedMassageTypesValue(0, 31)
+            }
+            globalMap["thdRwRtStMassVirtCtrlAvl"] = status
+
+            if(mode != cacheMode || intensity!= cacheIntensity){
+                isUpdate = true
+                val modeVal = convertMode(mode)
+                massBuild.setIntensity(intensity).setTypeValue(modeVal)
+                globalMap["thdRwRtStMassStrsIndSts"] = intensity
+                globalMap["thdRwRtStMassMdIndSts"] = mode
+            }
+            if(isUpdate){
+                val massReq = massBuild.build()
+                Log.i(TAG, "Publishing the cloud events(Driver seat Massage) to Bus")
+                val uResource = UResource(resource, "", SeatPosition::class.java.simpleName)
+                SomeIpUtil.pubEvent(massReq, ServiceConstant.SEATING_SERVICE, uResource, SeatingService.mLaunchManager.getmUltifiLinkMonitor())
             }
         }
 
@@ -1758,6 +2122,19 @@ class SeatViewModel : BaseAppViewModel() {
         return false
     }
 
+    fun convertPosition(pos: Int): Int{
+        return (pos*0.025).toInt()
+    }
+
+    fun convertMode(mode: Int):Int{
+        if(mode == 0){
+            return mode +1
+        }
+        else{
+            return mode + 30
+        }
+    }
+
 
     //region get driver seat configuration/status
     fun getDriverSeatConfig():SomeipS2SManagementInterface.Driver_Seat_ConfigurationField?{
@@ -1917,15 +2294,6 @@ class SeatViewModel : BaseAppViewModel() {
         return null;
     }
 
-
-    fun getTest(): Boolean?{
-        val resp = getPositionMessage(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_DRIVER_SEAT_CONFIGURATION)
-        if(resp != null){
-            val tmp =  SomeipS2SManagementInterface.Driver_Seat_ConfigurationField.parseFrom(resp.payload)
-            return tmp.outPut.drvStFtUpwdDnwdMovConfig
-        }
-        return null
-    }
 
     //region Driver seat get position
 
@@ -2468,6 +2836,50 @@ class SeatViewModel : BaseAppViewModel() {
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_RECALL_REQUEST_SERVICE3)
     }
 
+    fun setSecLeftLmbrFwd(isEnabled: Boolean): Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwLtStLmbrFwdVirtCtrlReq(isEnabled)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST)
+    }
+
+    fun setSecLeftLmbrBkwd(isEnabled: Boolean): Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwLtStLmbrBkwdVirtCtrlReq(isEnabled)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST)
+    }
+
+    fun setSecLeftLmbrUpwd(isEnabled: Boolean): Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwLtStLmbrUpwdVirtCtrlReq(isEnabled)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST)
+    }
+
+    fun setSecLeftLmbrDnwd(isEnabled: Boolean): Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second left seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwLtStLmbrDnwdVirtCtrlReq(isEnabled)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_REQUEST)
+    }
+
     //endregion
 
 
@@ -2485,6 +2897,14 @@ class SeatViewModel : BaseAppViewModel() {
         val config = getSecondLeftSeatConfig()
         if(config != null){
             return config.outPut.secRwLtStBkReclnUpwdDnwdMovConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftLumbar(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStLmbrConfig
         }
         return false
     }
@@ -2545,6 +2965,22 @@ class SeatViewModel : BaseAppViewModel() {
         return false
     }
 
+    fun getSecondLeftFold(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStFldConfig
+        }
+        return false
+    }
+
+    fun getSecondLeftVbrt(): Boolean{
+        val config = getSecondLeftSeatConfig()
+        if(config != null){
+            return config.outPut.secRwLtStVbrtConfig
+        }
+        return false
+    }
+
     fun getSecondLeftSeatStatus():SomeipS2SManagementInterface.Second_Row_Left_Seat_Virtual_Control_Availability_And_Notification_StatusField?{
         val resp = SomeIpData()
         val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_ROW_LEFT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
@@ -2558,6 +2994,14 @@ class SeatViewModel : BaseAppViewModel() {
         val available = getSecondLeftSeatStatus()
         if(available!=null){
             return available.outPut.secRwLtStArmScrnUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getSecondLeftLumbarStatus():Boolean{
+        val available = getSecondLeftSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwLtStLmbrVirtCtrlAvl
         }
         return false
     }
@@ -2833,6 +3277,50 @@ class SeatViewModel : BaseAppViewModel() {
         return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_RECALL_REQUEST_SERVICE3)
     }
 
+    fun setSecRightLmbrFwd(isEnabled: Boolean): Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second Right seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwRtStLmbrFwdVirtCtrlReq(isEnabled)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST)
+    }
+
+    fun setSecRightLmbrBkwd(isEnabled: Boolean): Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second Right seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwRtStLmbrBkwdVirtCtrlReq(isEnabled)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST)
+    }
+
+    fun setSecRightLmbrUpwd(isEnabled: Boolean): Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second Right seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwRtStLmbrUpwdVirtCtrlReq(isEnabled)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST)
+    }
+
+    fun setSecRightLmbrDnwd(isEnabled: Boolean): Boolean{
+        if (!isServerAvailable || !isReady) {
+            Log.i(TAG,"Second Right seat service enable: failed, server is not available or client is not ready")
+            return false
+        }
+        val newRecall = SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_RequestField.newBuilder()
+            .setOutPut(SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Request.newBuilder()
+                .setSecRwRtStLmbrDnwdVirtCtrlReq(isEnabled)).build()
+        return generateSendStatus(newRecall, SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_SET_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_REQUEST)
+    }
+
     //endregion
 
 
@@ -2853,6 +3341,15 @@ class SeatViewModel : BaseAppViewModel() {
         }
         return false
     }
+
+    fun getSecRightLumbar(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStLmbrConfig
+        }
+        return false
+    }
+
     fun getSecRightLegUpward(): Boolean{
         val config = getSecRightSeatConfig()
         if(config != null){
@@ -2903,6 +3400,22 @@ class SeatViewModel : BaseAppViewModel() {
         return false
     }
 
+    fun getSecRightFold(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStFldConfig
+        }
+        return false
+    }
+
+    fun getSecRightVbrt(): Boolean{
+        val config = getSecRightSeatConfig()
+        if(config != null){
+            return config.outPut.secRwRtStVbrtConfig
+        }
+        return false
+    }
+
     fun getSecRightSeatStatus():SomeipS2SManagementInterface.Second_Row_Right_Seat_Virtual_Control_Availability_And_Notification_StatusField?{
         val resp = SomeIpData()
         val res = someIpClientProxy?.getAttribute(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_GET_SECOND_ROW_RIGHT_SEAT_VIRTUAL_CONTROL_AVAILABILITY_AND_NOTIFICATION_STATUS, resp)
@@ -2918,6 +3431,15 @@ class SeatViewModel : BaseAppViewModel() {
         }
         return false
     }
+
+    fun getSecRightLumbarStatus():Boolean{
+        val available = getSecRightSeatStatus()
+        if(available!=null){
+            return available.outPut.secRwRtStLmbrVirtCtrlAvl
+        }
+        return false
+    }
+
     fun getSecRightLeftwardStatus():Boolean{
         val available = getSecRightSeatStatus()
         if(available!=null){
@@ -3130,6 +3652,31 @@ class SeatViewModel : BaseAppViewModel() {
         }
         return false
     }
+
+    fun getThdLeftFoldConf(): Boolean{
+        val config = getThirdLeftSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwLtStFldConfig
+        }
+        return false
+    }
+
+    fun getThdLeftLmbrConf(): Boolean{
+        val config = getThirdLeftSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwLtStLmbrConfig
+        }
+        return false
+    }
+
+    fun getThdLeftVbrtConf(): Boolean{
+        val config = getThirdLeftSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwLtStVbrtConfig
+        }
+        return false
+    }
+
     fun getThdLeftReclineUpwardConf(): Boolean{
         val config = getThirdLeftSeatConfig()
         if(config != null){
@@ -3171,6 +3718,30 @@ class SeatViewModel : BaseAppViewModel() {
         val available = getThirdSeatStatus()
         if(available!=null){
             return available.outPut.thdRwLtStRclUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getThdLeftLumbarStatus():Boolean{
+        val available = getThirdSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwLtStLmbrVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getThdLeftCushRStatus():Boolean{
+        val available = getThirdSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwLtStCushnRrUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getThdLeftLtwdStatus():Boolean{
+        val available = getThirdSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwLtStLtwdRtwdMovmtVirtCtrlAvl
         }
         return false
     }
@@ -3269,6 +3840,31 @@ class SeatViewModel : BaseAppViewModel() {
         }
         return false
     }
+
+    fun getThirdRightFoldConf(): Boolean{
+        val config = getThirdRightSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwRtStFldConfig
+        }
+        return false
+    }
+
+    fun getThirdRightLmbrConf(): Boolean{
+        val config = getThirdRightSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwRtStLmbrConfig
+        }
+        return false
+    }
+
+    fun getThirdRightVbrtConf(): Boolean{
+        val config = getThirdRightSeatConfig()
+        if(config != null){
+            return config.outPut.thdRwRtStVbrtConfig
+        }
+        return false
+    }
+
     fun getThirdRightReclineUpwardConf(): Boolean{
         val config = getThirdRightSeatConfig()
         if(config != null){
@@ -3299,6 +3895,7 @@ class SeatViewModel : BaseAppViewModel() {
         }
         return false
     }
+
     fun getThdRightForwardStatus():Boolean{
         val available = getThirdRightSeatStatus()
         if(available!=null){
@@ -3310,6 +3907,30 @@ class SeatViewModel : BaseAppViewModel() {
         val available = getThirdRightSeatStatus()
         if(available!=null){
             return available.outPut.thdRwRtStRclUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getThdRightLumbarStatus():Boolean{
+        val available = getThirdRightSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwRtStLmbrVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getThdRightCushRStatus():Boolean{
+        val available = getThirdRightSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwRtStCushnRrUpwdDnwdMovmtVirtCtrlAvl
+        }
+        return false
+    }
+
+    fun getThdRightLtwdStatus():Boolean{
+        val available = getThirdRightSeatStatus()
+        if(available!=null){
+            return available.outPut.thdRwRtStLtwdRtwdMovmtVirtCtrlAvl
         }
         return false
     }
