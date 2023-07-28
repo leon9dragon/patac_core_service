@@ -23,12 +23,12 @@ open class SunroofViewModel : BaseAppViewModel() {
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_AVAILABLE) {
             Log.i(TAG, "SERVICE_AVAILABLE")
             isServerAvailable = true
-            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
-            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS)
-            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_STATUS)
-            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_CONFIGURATION_AVAILABILITY)
-            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_2L)
-            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_2R)
+//            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
+//            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS)
+//            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_STATUS)
+//            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_CONFIGURATION_AVAILABILITY)
+//            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_2L)
+//            someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_2R)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PERCENTAGE_WINDOW_CONTROL_2L)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PERCENTAGE_WINDOW_CONTROL_2R)
             someIpClientProxy?.subscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS_INFORMATION)
@@ -41,22 +41,8 @@ open class SunroofViewModel : BaseAppViewModel() {
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_NOT_AVAILABLE) {
             Log.i(TAG, "SERVICE_NOT_AVAILABLE")
+            unsub()
             isServerAvailable = false
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_STATUS)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_CONFIGURATION_AVAILABILITY)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_2L)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_2R)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PERCENTAGE_WINDOW_CONTROL_2L)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PERCENTAGE_WINDOW_CONTROL_2R)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS_INFORMATION)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_RSTP)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PERCENTAGE_WINDOW_CONTROL_RSTP)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_FRONT_SUNSHADE_STATUS)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_REAR_SUNSHADE_STATUS)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2L_SUNROOF_SYSTEM_CONTROL)
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2R_SUNROOF_SYSTEM_CONTROL)
         }
 
         // notify subscriber the change of sunroof status
@@ -141,6 +127,24 @@ open class SunroofViewModel : BaseAppViewModel() {
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2R_SUNROOF_SYSTEM_CONTROL) {
             Log.i(TAG, "SUCCESS: NOTIFY_REAR_SUNSHADE_STATUS")
         }
+    }
+
+    fun unsub() {
+//        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNROOF_STATUS)
+//        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS)
+//        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_STATUS)
+//        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_SUNBLIND_CONFIGURATION_AVAILABILITY)
+//        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_2L)
+//        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_2R)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PERCENTAGE_WINDOW_CONTROL_2L)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PERCENTAGE_WINDOW_CONTROL_2R)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_STATUS_INFORMATION)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_WINDOW_CONTROL_RSTP)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_PERCENTAGE_WINDOW_CONTROL_RSTP)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_FRONT_SUNSHADE_STATUS)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_REAR_SUNSHADE_STATUS)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2L_SUNROOF_SYSTEM_CONTROL)
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_HMI_2R_SUNROOF_SYSTEM_CONTROL)
     }
 
     override fun doClientOk() {

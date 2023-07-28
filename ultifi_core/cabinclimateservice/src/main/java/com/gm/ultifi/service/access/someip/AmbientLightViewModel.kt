@@ -24,7 +24,7 @@ open class AmbientLightViewModel : BaseAppViewModel() {
         }
         if (data.topic == SomeIpTopic.S2S_MANAGEMENT_INTERFACE_SERVICE_1_NOT_AVAILABLE) {
             Log.i(TAG, "SERVICE_NOT_AVAILABLE")
-            someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_ILS_AMBIENT_LIGHT_SEVICE_CONTROL)
+            unsub()
             isServerAvailable = false
         }
 
@@ -60,6 +60,10 @@ open class AmbientLightViewModel : BaseAppViewModel() {
             // TODO: 测试完后恢复
             // AccessService.mLaunchManager.getmUltifiLinkMonitor().publish(cloudEvent)
         }
+    }
+
+    fun unsub() {
+        someIpClientProxy?.unsubscribe(SomeIpTopic.S2S_MANAGEMENT_INTERFACE_1_NOTIFY_ILS_AMBIENT_LIGHT_SEVICE_CONTROL)
     }
 
     override fun doClientOk() {

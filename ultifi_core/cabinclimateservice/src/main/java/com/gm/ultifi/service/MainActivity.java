@@ -184,6 +184,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.btn3).setOnClickListener(view -> {
+            sunroofViewModel.unsub();
+            seatingViewModel.unsub();
+            ambientLightViewModel.unsub();
+
             if (timer != null) {
                 timer.cancel();
             }
